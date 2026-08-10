@@ -26,7 +26,7 @@ def run_infer(
     model_name_or_path: str,
     query: str,
     top_k: int = 3,
-    document_length: int = 256,
+    document_length: int = 512,
     query_length: int = 32,
 ) -> list[tuple[str, float]]:
     logging.basicConfig(level=logging.INFO)
@@ -91,7 +91,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="italian colbert inference demo")
     parser.add_argument(
         "--model",
-        default="outputs/phase2/final",
+        default="outputs/final",
         help="path or hub id of the colbert model",
     )
     parser.add_argument(

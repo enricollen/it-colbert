@@ -5,9 +5,17 @@ mmarco_samples = 2048
 mmarco_eval_samples = 128
 include_wiki_hn = true
 wiki_max_hard_negatives = 1
-# keep the hard-negative path exercised but tiny
+# keep the extra data paths exercised but tiny (first run still downloads the
+# parquet files; after that they come from cache)
 mmarco_hn_samples = 512
 mmarco_hn_negatives_per_query = 2
+italian_source_max_samples = 128
+# tiny ir eval so the retrieval-metric path is exercised in seconds
+ir_eval_mldr_queries = 20
+ir_eval_mldr_docs = 300
+ir_eval_mmarco_queries = 20
+ir_eval_mmarco_docs = 300
+ir_eval_mmarco_pool_docs = 20000
 num_train_epochs = 1.0
 per_device_train_batch_size = 16
 per_device_eval_batch_size = 8

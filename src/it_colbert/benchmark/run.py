@@ -180,9 +180,9 @@ class BenchmarkConfig:
     output_dir: str = "outputs/benchmark"
     index_root: str = "outputs/benchmark/indexes"
     benchmarks: list[str] = field(
-        default_factory=lambda: ["mldr-it", "mmarco-it"]
+        default_factory=lambda: ["mldr-it", "mmarco-it", "miracl-ita", "squad-ita"]
     )
-    mmarco_max_corpus_docs: int = 200_000
+    mmarco_max_corpus_docs: int = 100_000
     mmarco_max_queries: int | None = None
     mldr_split: str = "test"
     # corpus cap for the miracl-ita / squad-ita style splits
@@ -193,9 +193,10 @@ class BenchmarkConfig:
     models: list[ModelSpec] = field(default_factory=lambda: list(DEFAULT_MODELS))
     only_models: list[str] | None = None
     # length-match every colbert model instead of comparing at each spec's own
-    # length; the old defaults indexed jina at 180 tokens and ours at 512, which
-    # silently handicapped the strongest baseline on long-doc MLDR
-    colbert_document_length: int | None = None
+    # length. defaults to 512 rather than None: an earlier run indexed jina at
+    # 180 tokens and ours at 512, silently handicapping the strongest baseline on
+    # long documents, and nothing in the output revealed it. set None to opt out.
+    colbert_document_length: int | None = 512
     # long-doc mode: index chunks of this many characters and max-pool per document
     chunk_chars: int = 0
     chunk_overlap_chars: int = 0

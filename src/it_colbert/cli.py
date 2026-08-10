@@ -64,7 +64,7 @@ def phase2(argv: list[str] | None = None) -> None:
 
 def infer(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="italian colbert demo")
-    parser.add_argument("--model", default="outputs/phase2/final")
+    parser.add_argument("--model", default="outputs/final")
     parser.add_argument("--query", default="Qual è la capitale d'Italia?")
     parser.add_argument("--top-k", type=int, default=3)
     args = parser.parse_args(argv)
@@ -77,17 +77,17 @@ def benchmark(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--benchmarks",
         nargs="+",
-        default=["mldr-it", "mmarco-it"],
+        default=["mldr-it", "mmarco-it", "miracl-ita", "squad-ita"],
         choices=["mldr-it", "mmarco-it", "miracl-ita", "squad-ita"],
     )
-    parser.add_argument("--mmarco-max-corpus-docs", type=int, default=200_000)
+    parser.add_argument("--mmarco-max-corpus-docs", type=int, default=100_000)
     parser.add_argument("--mmarco-max-queries", type=int, default=None)
     parser.add_argument("--extra-max-corpus-docs", type=int, default=50_000)
     parser.add_argument("--top-k", type=int, default=100)
     parser.add_argument("--only", nargs="+", default=None)
     parser.add_argument("--dense-batch-size", type=int, default=64)
     parser.add_argument("--colbert-batch-size", type=int, default=32)
-    parser.add_argument("--colbert-doc-length", type=int, default=None)
+    parser.add_argument("--colbert-doc-length", type=int, default=512)
     parser.add_argument("--chunk-chars", type=int, default=0)
     parser.add_argument("--chunk-overlap-chars", type=int, default=0)
     args = parser.parse_args(argv)

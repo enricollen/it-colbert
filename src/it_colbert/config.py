@@ -13,37 +13,63 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class Phase1Config:
-    model_name: str = "DeepMount00/Italian-ModernBERT-base"
+    # an already-IR-tuned checkpoint, not the raw MLM: the raw backbone scores
+    # 0.004 nDCG@10 on MLDR and cannot be turned into a retriever in one pass
+    model_name: str = "nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl"
     output_dir: str = "outputs/phase1"
     run_name: str = "it-colbert-phase1"
     dim: int = 128
-    document_length: int = 256
+    # train at the length you intend to index at
+    document_length: int = 512
     query_length: int = 32
-    mmarco_samples: int = 2_000_000
+    mmarco_samples: int = 1_500_000
     mmarco_eval_samples: int = 2_000
     include_wiki_hn: bool = True
     wiki_max_hard_negatives: int = 2
     # reranker-mined hard negatives; much harder than the official bm25 triples
-    include_mmarco_hn: bool = False
-    mmarco_hn_samples: int | None = None
+    include_mmarco_hn: bool = True
+    mmarco_hn_samples: int | None = 200_000
     mmarco_hn_negatives_per_query: int = 4
     # miracl-ita / squad-ita, to widen phase 1 past machine-translated mmarco
-    include_italian_sources: bool = False
-    italian_source_max_samples: int | None = None
+    include_italian_sources: bool = True
+    italian_source_max_samples: int | None = 50_000
     # round-2 negatives from scripts/mine_hard_negatives.py
     mined_negatives_path: str | None = None
     mined_negatives_per_query: int = 4
     num_train_epochs: float = 1.0
-    per_device_train_batch_size: int = 128
+    # CachedContrastive decouples these: the batch sets how many in-batch
+    # negatives each query sees, mini_batch_size sets peak VRAM. keeping them
+    # equal (the old default) pays for GradCache and gets nothing back.
+    per_device_train_batch_size: int = 512
     per_device_eval_batch_size: int = 32
-    mini_batch_size: int = 16
-    learning_rate: float = 3e-6
+    mini_batch_size: int = 32
+    learning_rate: float = 1e-5
     temperature: float = 0.02
     warmup_ratio: float = 0.05
-    logging_steps: int = 50
-    eval_steps: int = 1000
-    save_steps: int = 1000
-    save_total_limit: int = 2
+    logging_steps: int = 10
+    eval_steps: int = 250
+    save_steps: int = 250
+    save_total_limit: int = 3
+    # retrieval metrics during phase 1: triplet accuracy against BM25-sampled
+    # negatives saturates above ~0.95 within a few hundred steps and cannot tell
+    # you whether more training would still help. nDCG/MRR can.
+    ir_eval_enabled: bool = True
+    ir_eval_name: str = "it-ir"
+    ir_eval_mldr_queries: int = 150
+    ir_eval_mldr_docs: int = 2_000
+    ir_eval_mmarco_queries: int = 300
+    ir_eval_mmarco_docs: int = 3_000
+    ir_eval_mmarco_pool_docs: int = 50_000
+    # deliberately no early stopping and no load_best_model_at_end here:
+    #  - one epoch over ~1.7M unique triplets cannot overfit, so there is
+    #    nothing for early stopping to protect against;
+    #  - the schedule is warmup + linear decay, so stopping early leaves the
+    #    model at a high learning rate, usually worse than the annealed end.
+    # if the IR curve is still climbing at the last eval, train LONGER
+    # (2 epochs or batch 1024) rather than stopping sooner.
+    early_stopping_patience: int = 0
+    load_best_model_at_end: bool = False
+    metric_for_best_model: str = "it-ir_score"
     seed: int = 42
     bf16: bool = True
     fp16: bool = False
@@ -57,7 +83,7 @@ class Phase2Config:
     model_name_or_path: str = "outputs/phase1/final"
     output_dir: str = "outputs/phase2"
     run_name: str = "it-colbert-phase2"
-    document_length: int = 256
+    document_length: int = 512
     query_length: int = 32
     num_train_epochs: float = 1.0
     per_device_train_batch_size: int = 8
@@ -102,7 +128,7 @@ class Phase2Config:
     metric_for_best_model: str = "kd-holdout_kl_divergence"
     greater_is_better: bool | None = None
     # select checkpoints on real retrieval metrics instead of hold-out kl
-    ir_eval_enabled: bool = False
+    ir_eval_enabled: bool = True
     ir_eval_name: str = "it-ir"
     ir_eval_mldr_queries: int = 200
     ir_eval_mldr_docs: int = 3_000

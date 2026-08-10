@@ -22,10 +22,10 @@ def main() -> None:
     parser.add_argument(
         "--benchmarks",
         nargs="+",
-        default=["mldr-it", "mmarco-it"],
+        default=["mldr-it", "mmarco-it", "miracl-ita", "squad-ita"],
         choices=["mldr-it", "mmarco-it", "miracl-ita", "squad-ita"],
     )
-    parser.add_argument("--mmarco-max-corpus-docs", type=int, default=200_000)
+    parser.add_argument("--mmarco-max-corpus-docs", type=int, default=100_000)
     parser.add_argument("--mmarco-max-queries", type=int, default=None)
     parser.add_argument("--extra-max-corpus-docs", type=int, default=50_000)
     parser.add_argument("--top-k", type=int, default=100)
@@ -45,7 +45,7 @@ def main() -> None:
     parser.add_argument(
         "--colbert-doc-length",
         type=int,
-        default=None,
+        default=512,
         help="index every colbert model at this length (fair length-matched ranking)",
     )
     parser.add_argument(

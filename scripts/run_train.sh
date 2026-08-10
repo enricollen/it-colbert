@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# v2 recipe end to end: phase 1 contrastive -> phase 2 kd -> length-matched bench.
-# see TODO.md for what changed and why, and for the ablation runs to do after this.
+# end to end: phase 1 contrastive -> phase1-only benchmark -> phase 2 kd -> benchmark.
+# see TODO.md for the reasoning behind each stage and the follow-up runs.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p outputs/logs
@@ -24,13 +24,21 @@ load_mmarco_hn_kd_italian(max_samples=64, seed=0)
 load_mmarco_hn_contrastive_italian(max_samples=64, seed=0)
 for dataset_id, split in ITALIAN_CONTRASTIVE_SOURCES:
     load_tevatron_style_contrastive_italian(dataset_id, split=split, max_samples=64)
+
+# both phases run the IR evaluator, which needs the benchmark corpora
+from it_colbert.benchmark.datasets import load_mldr_italian, load_mmarco_italian_dev
+
+load_mldr_italian(split="test")
+load_mmarco_italian_dev(max_corpus_docs=50_000)
 print("datasets cached", flush=True)
 PY
 
-# 2) train offline so hub lookups on local checkpoints cannot hang the run
-export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_DATASETS_OFFLINE=1
+# 2) train with the hub offline so model-card lookups on local checkpoint paths
+# cannot hang the run. datasets stay ONLINE: both phases run the IR evaluator,
+# which loads the benchmark corpora (cached above, so this costs nothing).
+export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 
-echo "[$(date -Is)] phase 1 v2 start"
+echo "[$(date -Is)] phase 1 start"
 uv run python -u scripts/train_phase1_contrastive.py \
   --config configs/phase1_contrastive.toml \
   2>&1 | tee -a outputs/logs/phase1.log
@@ -43,7 +51,7 @@ uv run python -u scripts/train_phase1_contrastive.py \
 echo "[$(date -Is)] publish + benchmark phase1-only ablation"
 mkdir -p outputs/final_phase1
 cp -a outputs/phase1/final/. outputs/final_phase1/
-unset HF_HUB_OFFLINE TRANSFORMERS_OFFLINE HF_DATASETS_OFFLINE || true
+unset HF_HUB_OFFLINE TRANSFORMERS_OFFLINE || true
 uv run python -u scripts/run_benchmark.py \
   --benchmarks mldr-it mmarco-it \
   --mmarco-max-corpus-docs 100000 \
@@ -54,9 +62,7 @@ uv run python -u scripts/run_benchmark.py \
   2>&1 | tee outputs/logs/bench_phase1.log
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 
-echo "[$(date -Is)] phase 2 v2 start"
-# the IR evaluator needs the benchmark corpora, which were cached in step 1
-unset HF_DATASETS_OFFLINE || true
+echo "[$(date -Is)] phase 2 start"
 RESUME_ARGS=()
 if [[ -n "${RESUME_FROM:-}" ]]; then
   RESUME_ARGS=(--resume "$RESUME_FROM")
@@ -71,7 +77,7 @@ mkdir -p outputs/final
 cp -a outputs/phase2/final/. outputs/final/
 
 echo "[$(date -Is)] benchmark (length-matched at 512, full italian suite)"
-unset HF_HUB_OFFLINE TRANSFORMERS_OFFLINE HF_DATASETS_OFFLINE || true
+unset HF_HUB_OFFLINE TRANSFORMERS_OFFLINE || true
 export HF_XET_HIGH_PERFORMANCE=1
 uv run python -u scripts/run_benchmark.py \
   --benchmarks mldr-it mmarco-it miracl-ita squad-ita \

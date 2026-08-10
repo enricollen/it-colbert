@@ -8,12 +8,10 @@ from typing import Any
 
 from datasets import DatasetDict
 from sentence_transformers import SentenceTransformerTrainer
-from transformers import TrainerCallback
-from transformers.trainer_callback import TrainerControl, TrainerState
-from transformers.training_args import TrainingArguments
 
 from pylate import evaluation, losses, utils
 
+from it_colbert.callbacks import EarlyStoppingCallback
 from it_colbert.config import Phase2Config
 from it_colbert.data import build_phase1_dataset, load_kd_italian_train_eval
 from it_colbert.ir_eval import CombinedEvaluator, ItIREvaluator
@@ -24,66 +22,6 @@ from it_colbert.model_utils import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-class KdEarlyStoppingCallback(TrainerCallback):
-    """early stop on val metric without ExportableState.
-
-    hf EarlyStoppingCallback is ExportableState and crashes on resume when the
-    old checkpoint's trainer_state.json lacks that callback key.
-    """
-
-    def __init__(self, early_stopping_patience: int = 3, early_stopping_threshold: float = 0.0):
-        self.early_stopping_patience = int(early_stopping_patience)
-        self.early_stopping_threshold = float(early_stopping_threshold)
-        self.early_stopping_patience_counter = 0
-
-    def on_evaluate(
-        self,
-        args: TrainingArguments,
-        state: TrainerState,
-        control: TrainerControl,
-        metrics: dict,
-        **kwargs,
-    ) -> TrainerControl:
-        metric_to_check = args.metric_for_best_model
-        if metric_to_check is None:
-            return control
-        if not metric_to_check.startswith("eval_"):
-            metric_to_check = f"eval_{metric_to_check}"
-        metric_value = metrics.get(metric_to_check)
-        if metric_value is None:
-            logger.warning("early stopping: missing metric %s", metric_to_check)
-            return control
-
-        # runs before trainer updates best_metric; same rule as hf EarlyStoppingCallback
-        operator = (lambda a, b: a > b) if args.greater_is_better else (lambda a, b: a < b)
-        if state.best_metric is None or (
-            operator(metric_value, state.best_metric)
-            and abs(metric_value - state.best_metric) > self.early_stopping_threshold
-        ):
-            self.early_stopping_patience_counter = 0
-            logger.info(
-                "kd early-stop: improve %s=%.6f (prev_best=%s) at step %s",
-                metric_to_check,
-                float(metric_value),
-                state.best_metric,
-                state.global_step,
-            )
-        else:
-            self.early_stopping_patience_counter += 1
-            logger.info(
-                "kd early-stop: no improve (%s=%.6f, best=%.6f, patience %s/%s)",
-                metric_to_check,
-                float(metric_value),
-                float(state.best_metric),
-                self.early_stopping_patience_counter,
-                self.early_stopping_patience,
-            )
-            if self.early_stopping_patience_counter >= self.early_stopping_patience:
-                logger.info("kd early-stop: stopping training")
-                control.should_training_stop = True
-        return control
 
 
 def run_phase2(cfg: Phase2Config) -> Path:
@@ -217,7 +155,7 @@ def run_phase2(cfg: Phase2Config) -> Path:
 
     if do_eval and int(cfg.early_stopping_patience or 0) > 0:
         callbacks.append(
-            KdEarlyStoppingCallback(
+            EarlyStoppingCallback(
                 early_stopping_patience=int(cfg.early_stopping_patience)
             )
         )

@@ -60,9 +60,33 @@ learning_rate = 1.0e-5
 temperature = 0.02
 warmup_ratio = 0.05
 logging_steps = 10
-eval_steps = 200
-save_steps = 200
+eval_steps = 250
+save_steps = 250
 save_total_limit = 3
+
+# --- validation ---------------------------------------------------------------
+# two evaluators run together at eval_steps:
+#   - ColBERTTripletEvaluator: cheap divergence check. against BM25-sampled
+#     negatives it saturates above ~0.95 within a few hundred steps, so it tells
+#     you when something is broken, not when something is good.
+#   - ItIREvaluator: real nDCG@10 / MRR@10 on small pooled slices. this is the
+#     one that answers "has the curve flattened, or would more training help?"
+ir_eval_enabled = true
+ir_eval_mldr_queries = 150
+ir_eval_mldr_docs = 2000
+ir_eval_mmarco_queries = 300
+ir_eval_mmarco_docs = 3000
+
+# NO early stopping and NO load_best_model_at_end here, deliberately:
+#   - one epoch over ~1.7M unique triplets cannot overfit, so there is nothing
+#     for early stopping to protect against;
+#   - the schedule is warmup + linear decay, so stopping early leaves the model
+#     at a high learning rate — usually worse than the annealed endpoint, and
+#     load_best_model_at_end would then keep that mid-schedule checkpoint.
+# if the IR curve is still climbing at the last eval, train LONGER (2 epochs, or
+# batch 1024), do not stop sooner.
+early_stopping_patience = 0
+load_best_model_at_end = false
 seed = 42
 bf16 = true
 fp16 = false

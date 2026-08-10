@@ -98,9 +98,19 @@ nohup bash scripts/run_train.sh > outputs/logs/train_nohup.log 2>&1 &
 tail -f outputs/logs/phase1.log
 ```
 
-### Checkpoint selection
+### Validation
 
-Two signals are available; **prefer the retrieval one**.
+Both phases run `ItIREvaluator` (nDCG@10 / MRR@10 on small pooled slices)
+alongside their cheap proxy metric.
+
+**Phase 1** additionally keeps `ColBERTTripletEvaluator` as a divergence check,
+and has early stopping **off**: one epoch over ~1.7M unique triplets cannot
+overfit, and stopping early truncates the warmup+decay schedule, leaving the model
+at a high learning rate. If the IR curve is still climbing at the end, train
+longer — do not stop sooner.
+
+**Phase 2** selects checkpoints. Two signals are available; **prefer the retrieval
+one**.
 
 - `ir_eval_enabled = true` runs nDCG@10 on a pooled MLDR-it slice and MRR@10 on a
   pooled mMARCO-it slice every `eval_steps`, selecting on their mean
@@ -137,12 +147,12 @@ keeps it available as an ablation.
 ## Benchmark
 
 ```bash
-uv run python scripts/run_benchmark.py \
-  --benchmarks mldr-it mmarco-it miracl-ita squad-ita \
-  --mmarco-max-corpus-docs 100000 --extra-max-corpus-docs 50000 \
-  --colbert-doc-length 512 --top-k 100 \
-  --output-dir outputs/benchmark
+uv run python scripts/run_benchmark.py --output-dir outputs/benchmark
 ```
+
+Defaults: all four benchmarks, every ColBERT indexed at 512, mMARCO pooled to
+100k, bootstrap intervals on. Override with `--benchmarks`, `--colbert-doc-length`
+and `--mmarco-max-corpus-docs`.
 
 | Benchmark | Source | Corpus | Primary metric |
 |---|---|---|---|
@@ -156,10 +166,10 @@ resources. Label them as such anywhere you publish.
 
 ### Protocol
 
-- **Length matching.** `--colbert-doc-length 512` indexes every late-interaction
-  model at the same length. Earlier runs indexed `jina-colbert-v2` at 180 tokens
-  and ours at 512, handicapping the strongest baseline on long documents. The
-  per-model `effective_length` is recorded in `results.json`.
+- **Length matching is the default** (`--colbert-doc-length 512`), not an opt-in.
+  Earlier runs indexed `jina-colbert-v2` at 180 tokens and ours at 512,
+  handicapping the strongest baseline on long documents, and nothing in the output
+  revealed it. The per-model `effective_length` is now recorded in `results.json`.
 - **Long-document mode.** `--chunk-chars 2000 --chunk-overlap-chars 200` indexes
   chunks and max-pools per document, so text past the encoder's truncation point
   still counts.

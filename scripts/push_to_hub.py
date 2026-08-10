@@ -14,7 +14,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--model",
-        default="outputs/phase2/final",
+        default="outputs/final",
         help="local path to the trained colbert model",
     )
     parser.add_argument(
