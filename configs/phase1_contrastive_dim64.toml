@@ -1,13 +1,20 @@
-# phase 1 v2 — the load-bearing change: start from a model that can already retrieve.
+# phase 1, dim 64 — same recipe, half the index size.
+#
+# multi-vector index size is the main practical reason people skip ColBERT.
+# a 64-dim variant halves it for a small quality cost and is worth shipping
+# alongside the 128-dim model. train this only after 128 has a benchmark number
+# to compare against.
+#
+# phase 1 — the load-bearing change: start from a model that can already retrieve.
 #
 # v1 started from the raw MLM (DeepMount00/Italian-ModernBERT-base), which scores
 # 0.004 nDCG@10 on MLDR before training, then gave it lr 3e-6 for ~3.1k steps.
 # that is nowhere near enough signal to build a retriever from scratch.
 #
-# v2 changes vs phase1_contrastive.toml:
+# what changed vs the first attempt:
 #   init      raw MLM              -> mmarco-mnrl checkpoint (same architecture, already IR-tuned)
 #   lr        3e-6                 -> 1e-5
-#   batch     128 (mini 128)       -> 1024 (mini 32)  # gradcache was a no-op before
+#   batch     128 (mini 128)       -> 512 (mini 32)   # gradcache was a no-op before
 #   negatives bm25 triples only    -> + reranker-mined hard negatives
 #   samples   400k                 -> 1.5M
 
@@ -16,9 +23,9 @@
 # this is the GTE-ModernColBERT trick: start from a working dense retriever
 # instead of paying for retrieval pretraining yourself.
 model_name = "nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl"
-output_dir = "outputs/phase1_v2"
-run_name = "it-colbert-phase1-v2"
-dim = 128
+output_dir = "outputs/phase1_dim64"
+run_name = "it-colbert-phase1-dim64"
+dim = 64
 # train at the length you intend to index at; v1 trained 180 and indexed 512
 document_length = 512
 query_length = 32
@@ -33,11 +40,26 @@ include_mmarco_hn = true
 mmarco_hn_samples = 200000
 mmarco_hn_negatives_per_query = 4
 
+# widen past machine-translated mmarco. the init checkpoint is already a mmarco
+# specialist (39.7M mmarco samples, MLDR 0.302 = below BM25), so more mmarco
+# mostly reinforces the axis we are already fine on.
+include_italian_sources = true
+italian_source_max_samples = 50000
+
+# round 2: point this at scripts/mine_hard_negatives.py output and retrain.
+# leave empty for the first run.
+# mined_negatives_path = "outputs/mined_hn"
+
 num_train_epochs = 1.0
 # CachedContrastive/GradCache decouples batch size from VRAM: the batch sets how
 # many in-batch negatives each query sees, mini_batch_size sets peak memory.
-# v1 had them equal, so it paid for gradcache and got 256 negatives instead of 2048.
-per_device_train_batch_size = 1024
+# v1 had them equal, so it paid for gradcache and got 256 negatives instead of 1024.
+#
+# 512 rather than 1024: negatives help the loss, but you still need optimizer
+# steps. at 1024 the run is only ~1.7k steps, fewer than v1's 3.1k. 512 gives
+# ~3.4k steps and still 4x v1's negatives. raise to 1024 with 2 epochs if the
+# eval curve is still climbing at the end.
+per_device_train_batch_size = 512
 mini_batch_size = 32
 per_device_eval_batch_size = 32
 

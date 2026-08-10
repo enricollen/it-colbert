@@ -29,11 +29,14 @@ dependencies = [
 dev = [
     "ruff>=0.8.0",
 ]
+# community-comparable evaluation; heavy, so not a hard dependency
+mteb = [
+    "mteb>=1.29",
+]
 
 [project.scripts]
 it-colbert-phase1 = "it_colbert.cli:phase1"
 it-colbert-phase2 = "it_colbert.cli:phase2"
-it-colbert-eval = "it_colbert.cli:evaluate"
 it-colbert-infer = "it_colbert.cli:infer"
 it-colbert-benchmark = "it_colbert.cli:benchmark"
 

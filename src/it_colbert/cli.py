@@ -7,13 +7,11 @@ from pathlib import Path
 
 from it_colbert.config import (
     apply_overrides,
-    eval_from_toml,
     load_toml,
     phase1_from_toml,
     phase2_from_toml,
 )
 from it_colbert.benchmark.run import BenchmarkConfig, run_benchmark
-from it_colbert.evaluate import run_eval
 from it_colbert.infer import run_infer
 from it_colbert.train_phase1 import run_phase1
 from it_colbert.train_phase2 import run_phase2
@@ -64,20 +62,6 @@ def phase2(argv: list[str] | None = None) -> None:
     run_phase2(cfg)
 
 
-def evaluate(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description="evaluate italian colbert")
-    parser.add_argument(
-        "--config",
-        default=str(_repo_root() / "configs/eval.toml"),
-    )
-    parser.add_argument("--model", default=None, help="override model path")
-    args = parser.parse_args(argv)
-    cfg = eval_from_toml(args.config)
-    if args.model:
-        cfg.model_name_or_path = args.model
-    run_eval(cfg)
-
-
 def infer(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="italian colbert demo")
     parser.add_argument("--model", default="outputs/phase2/final")
@@ -94,10 +78,11 @@ def benchmark(argv: list[str] | None = None) -> None:
         "--benchmarks",
         nargs="+",
         default=["mldr-it", "mmarco-it"],
-        choices=["mldr-it", "mmarco-it"],
+        choices=["mldr-it", "mmarco-it", "miracl-ita", "squad-ita"],
     )
     parser.add_argument("--mmarco-max-corpus-docs", type=int, default=200_000)
     parser.add_argument("--mmarco-max-queries", type=int, default=None)
+    parser.add_argument("--extra-max-corpus-docs", type=int, default=50_000)
     parser.add_argument("--top-k", type=int, default=100)
     parser.add_argument("--only", nargs="+", default=None)
     parser.add_argument("--dense-batch-size", type=int, default=64)
@@ -112,6 +97,7 @@ def benchmark(argv: list[str] | None = None) -> None:
         benchmarks=list(args.benchmarks),
         mmarco_max_corpus_docs=args.mmarco_max_corpus_docs,
         mmarco_max_queries=args.mmarco_max_queries,
+        extra_max_corpus_docs=args.extra_max_corpus_docs,
         top_k=args.top_k,
         dense_batch_size=args.dense_batch_size,
         colbert_batch_size=args.colbert_batch_size,

@@ -156,6 +156,112 @@ def load_mmarco_italian_dev(
     )
 
 
+# italian retrieval sets that ship in the tevatron layout:
+#   query_id, query, positive_passages[{docid,title,text}], negative_passages[...]
+TEVATRON_STYLE_ITALIAN = {
+    "miracl-ita": {
+        "dataset_id": "yuri-no/miracl-ita-argos",
+        "split": "dev",
+        # external distractor corpus so the benchmark is not just the mined pool
+        "corpus_id": "yuri-no/miracl-corpus-ita-argos",
+        "corpus_split": "mini",
+        "note": "machine-translated MIRACL (argos); community resource, not official",
+    },
+    "squad-ita": {
+        "dataset_id": "yuri-no/squad-ita",
+        "split": "test",
+        "corpus_id": None,
+        "corpus_split": None,
+        "note": "translated SQuAD; short wiki passages, question-style queries",
+    },
+}
+
+
+def load_tevatron_style_italian(
+    dataset_id: str,
+    split: str = "dev",
+    corpus_id: str | None = None,
+    corpus_split: str | None = None,
+    max_corpus_docs: int | None = 50_000,
+    name: str | None = None,
+    seed: int = 42,
+) -> RetrievalSplit:
+    """load an italian retrieval set stored with positive/negative passage lists.
+
+    the corpus is every passage mentioned in the split (positives and mined
+    negatives) plus, when given, a sample of an external corpus as extra
+    distractors. positives are always kept, so recall is never capped by the
+    sampling.
+    """
+    from datasets import load_dataset
+
+    logger.info("loading %s [%s]...", dataset_id, split)
+    ds = load_dataset(dataset_id, split=split)
+
+    queries: dict[str, str] = {}
+    qrels: dict[str, dict[str, int]] = {}
+    docs_by_id: dict[str, str] = {}
+
+    def _passage_text(passage: dict) -> str:
+        title = (passage.get("title") or "").strip()
+        text = (passage.get("text") or "").strip()
+        return f"{title} {text}".strip() if title else text
+
+    for row in ds:
+        qid = str(row["query_id"])
+        positives = row.get("positive_passages") or []
+        if not positives:
+            continue
+        queries[qid] = row["query"]
+        for passage in positives:
+            did = str(passage["docid"])
+            docs_by_id[did] = _passage_text(passage)
+            qrels.setdefault(qid, {})[did] = 1
+        for passage in row.get("negative_passages") or []:
+            did = str(passage["docid"])
+            docs_by_id.setdefault(did, _passage_text(passage))
+
+    relevant = {d for rels in qrels.values() for d in rels}
+
+    if corpus_id:
+        logger.info("adding distractors from %s [%s]", corpus_id, corpus_split)
+        corpus = load_dataset(corpus_id, split=corpus_split or "train")
+        budget = None
+        if max_corpus_docs is not None:
+            budget = max(0, max_corpus_docs - len(docs_by_id))
+        if budget is None or budget > 0:
+            if budget is not None and len(corpus) > budget:
+                corpus = corpus.shuffle(seed=seed).select(range(budget))
+            for row in corpus:
+                did = str(row["docid"])
+                if did in docs_by_id:
+                    continue
+                docs_by_id[did] = _passage_text(row)
+
+    # trim distractors only, never the relevant documents
+    if max_corpus_docs is not None and len(docs_by_id) > max_corpus_docs:
+        rng = random.Random(seed)
+        distractors = [d for d in docs_by_id if d not in relevant]
+        rng.shuffle(distractors)
+        for did in distractors[: len(docs_by_id) - max_corpus_docs]:
+            docs_by_id.pop(did, None)
+
+    documents = [{"id": did, "text": text} for did, text in docs_by_id.items()]
+    logger.info(
+        "%s ready: %s queries, %s docs, qrels=%s",
+        name or dataset_id,
+        len(queries),
+        len(documents),
+        sum(len(v) for v in qrels.values()),
+    )
+    return RetrievalSplit(
+        name=name or f"{dataset_id.split('/')[-1]}-{split}",
+        documents=documents,
+        queries=queries,
+        qrels=qrels,
+    )
+
+
 def load_mldr_italian(
     split: str = "test",
     max_doc_chars: int | None = 12_000,

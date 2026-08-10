@@ -5,23 +5,30 @@ from __future__ import annotations
 import json
 import logging
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from pylate import evaluation
 
 from it_colbert.benchmark.datasets import (
     IR_METRICS,
+    TEVATRON_STYLE_ITALIAN,
     RetrievalSplit,
     load_mldr_italian,
     load_mmarco_italian_dev,
+    load_tevatron_style_italian,
 )
 from it_colbert.benchmark.retrievers import (
     BM25Retriever,
     ColBERTRetriever,
     DenseRetriever,
     clear_cuda,
+)
+from it_colbert.benchmark.stats import (
+    bootstrap_ci,
+    per_query_metrics,
+    save_per_query,
 )
 
 logger = logging.getLogger(__name__)
@@ -46,7 +53,7 @@ class ModelSpec:
     query_prompt: str | None = None
     doc_prompt: str | None = None
     max_seq_length: int | None = 512
-    document_length: int = 180
+    document_length: int = 512
     query_length: int = 32
     # for xmod / colbert-xm style models (e.g. "it_IT")
     language: str | None = None
@@ -112,6 +119,17 @@ DEFAULT_MODELS: list[ModelSpec] = [
         notes="multilingual late-interaction sota",
     ),
     ModelSpec(
+        name="SauerkrautLM-Multi-ModernColBERT",
+        kind="colbert",
+        model_id="VAGOsolutions/SauerkrautLM-Multi-ModernColBERT",
+        document_length=512,
+        query_length=32,
+        notes=(
+            "pylate/modernbert late-interaction tuned for 7 european languages "
+            "incl. italian; the closest existing competitor to this project"
+        ),
+    ),
+    ModelSpec(
         name="mLateOn",
         kind="colbert",
         model_id="lightonai/mLateOn",
@@ -132,60 +150,26 @@ DEFAULT_MODELS: list[ModelSpec] = [
         ),
     ),
     ModelSpec(
-        name="ItColBERT (ours)",
+        name="ItColBERT (phase1-only)",
+        kind="colbert",
+        model_id="outputs/final_phase1",
+        document_length=512,
+        query_length=32,
+        notes=(
+            "ablation: contrastive phase 1 with no distillation. tells you how "
+            "much the KD stage is actually worth once phase 1 is not broken"
+        ),
+    ),
+    ModelSpec(
+        name="ItColBERT",
         kind="colbert",
         model_id="outputs/final",
         document_length=512,
         query_length=32,
-        notes="ItColBERT; italian modernbert + pylate; trained doc_len=180",
-    ),
-    ModelSpec(
-        name="ItColBERT (doc256)",
-        kind="colbert",
-        model_id="outputs/final_doc256",
-        document_length=512,
-        query_length=32,
-        notes="retrain ablation; document_length=256 train+infer",
-    ),
-    ModelSpec(
-        name="ItColBERT (fullkd)",
-        kind="colbert",
-        model_id="outputs/final_fullkd",
-        document_length=512,
-        query_length=32,
-        notes="full lighton italian kd from phase1; train doc180, infer 512",
-    ),
-    ModelSpec(
-        name="ItColBERT (merge-80k-fullkd)",
-        kind="colbert",
-        model_id="outputs/final_merge_80k_fullkd",
-        document_length=512,
-        query_length=32,
         notes=(
-            "parameter average 0.5*final(80k kd)+0.5*final_fullkd; "
-            "jacolbert-style merge for dual-bench; infer 512"
-        ),
-    ),
-    ModelSpec(
-        name="ItColBERT (v2)",
-        kind="colbert",
-        model_id="outputs/final_v2",
-        document_length=512,
-        query_length=32,
-        notes=(
-            "v2 recipe: mnrl init, lr 1e-5, bs1024/mini32 contrastive with mined "
-            "hard negatives, proportional kd mixture, ir-metric checkpoint selection"
-        ),
-    ),
-    ModelSpec(
-        name="ItColBERT (mixkd)",
-        kind="colbert",
-        model_id="outputs/final_mixkd",
-        document_length=512,
-        query_length=32,
-        notes=(
-            "mix kd: lighton 400k + mmarco-it hn (bge-reranker scores); "
-            "train doc180, infer 512"
+            "mnrl init, contrastive phase 1 with mined hard negatives, "
+            "single-teacher kd over a proportional split mixture, "
+            "checkpoints selected on retrieval metrics"
         ),
     ),
 ]
@@ -201,6 +185,8 @@ class BenchmarkConfig:
     mmarco_max_corpus_docs: int = 200_000
     mmarco_max_queries: int | None = None
     mldr_split: str = "test"
+    # corpus cap for the miracl-ita / squad-ita style splits
+    extra_max_corpus_docs: int = 50_000
     top_k: int = 100
     dense_batch_size: int = 64
     colbert_batch_size: int = 32
@@ -213,6 +199,10 @@ class BenchmarkConfig:
     # long-doc mode: index chunks of this many characters and max-pool per document
     chunk_chars: int = 0
     chunk_overlap_chars: int = 0
+    # bootstrap confidence intervals on the headline metrics
+    ci_metrics: tuple[str, ...] = ("ndcg@10", "mrr@10", "recall@100")
+    bootstrap_samples: int = 2_000
+    bootstrap_seed: int = 42
 
 
 def _evaluate_run(
@@ -303,6 +293,16 @@ def _load_split(name: str, cfg: BenchmarkConfig) -> RetrievalSplit:
             max_corpus_docs=cfg.mmarco_max_corpus_docs,
             max_queries=cfg.mmarco_max_queries,
         )
+    if name in TEVATRON_STYLE_ITALIAN:
+        spec = TEVATRON_STYLE_ITALIAN[name]
+        return load_tevatron_style_italian(
+            dataset_id=spec["dataset_id"],
+            split=spec["split"],
+            corpus_id=spec["corpus_id"],
+            corpus_split=spec["corpus_split"],
+            max_corpus_docs=cfg.extra_max_corpus_docs,
+            name=name,
+        )
     raise ValueError(f"unknown benchmark: {name}")
 
 
@@ -375,6 +375,19 @@ def run_benchmark(cfg: BenchmarkConfig) -> dict[str, Any]:
             "n_docs": len(split.documents),
             "models": dict(prev),
         }
+        # pooled corpora inflate absolute scores (jina scores 0.849 here vs 0.337
+        # published on the full 8.8M mmarco corpus). mark the split so nobody
+        # quotes these as comparable to literature numbers.
+        pooled = bench == "mmarco-it" and cfg.mmarco_max_corpus_docs is not None
+        bench_results["comparable_to_literature"] = not pooled
+        if pooled:
+            bench_results["reporting"] = (
+                "RANK ONLY. corpus is pooled to "
+                f"{cfg.mmarco_max_corpus_docs} docs, so absolute mrr/ndcg are "
+                "inflated and must not be compared to published full-corpus "
+                "numbers. see published_mmarco_it_mrr10."
+            )
+
         for spec in models:
             existing = bench_results["models"].get(spec.name)
             if (
@@ -387,9 +400,22 @@ def run_benchmark(cfg: BenchmarkConfig) -> dict[str, Any]:
 
             logger.info("--- %s / %s ---", bench, spec.name)
             t0 = time.time()
+            confidence: dict[str, dict[str, float]] = {}
             try:
                 scores = _retrieve_for_model(spec, split, cfg)
                 metrics = _evaluate_run(split, scores, cfg.top_k)
+                # per-query scores -> bootstrap intervals. a mean without an
+                # interval cannot answer "is this difference real?", and on a
+                # 200-query set like MLDR-it most reported gaps are not.
+                qids = list(split.queries.keys())
+                per_query = per_query_metrics(
+                    scores, split.qrels, qids, metrics=cfg.ci_metrics
+                )
+                for metric, values in per_query.items():
+                    confidence[metric] = bootstrap_ci(
+                        values, n_boot=cfg.bootstrap_samples, seed=cfg.bootstrap_seed
+                    )
+                save_per_query(cfg.output_dir, bench, spec.name, per_query, qids)
                 err = None
             except Exception as exc:
                 logger.exception("failed on %s / %s", bench, spec.name)
@@ -409,6 +435,9 @@ def run_benchmark(cfg: BenchmarkConfig) -> dict[str, Any]:
                 ),
                 "chunk_chars": cfg.chunk_chars if spec.kind == "colbert" else 0,
                 "metrics": metrics,
+                # 95% bootstrap intervals; overlapping intervals between two
+                # models mean the gap is not established by this run
+                "confidence": confidence,
                 "seconds": round(elapsed, 1),
                 "error": err,
             }

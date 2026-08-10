@@ -30,16 +30,6 @@ def enable_cuda_fast_kernels() -> None:
         pass
 
 
-def _flash_attn_available() -> bool:
-    try:
-        import flash_attn  # noqa: F401
-        from transformers.utils import is_flash_attn_2_available
-
-        return bool(is_flash_attn_2_available())
-    except Exception:
-        return False
-
-
 def resolve_attn_implementation(requested: str | None = "auto") -> str | None:
     """pick an attention backend.
 

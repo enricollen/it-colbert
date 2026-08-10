@@ -39,6 +39,10 @@ def run_phase1(cfg: Phase1Config) -> Path:
         include_mmarco_hn=cfg.include_mmarco_hn,
         mmarco_hn_samples=cfg.mmarco_hn_samples,
         mmarco_hn_negatives_per_query=cfg.mmarco_hn_negatives_per_query,
+        include_italian_sources=cfg.include_italian_sources,
+        italian_source_max_samples=cfg.italian_source_max_samples,
+        mined_negatives_path=cfg.mined_negatives_path,
+        mined_negatives_per_query=cfg.mined_negatives_per_query,
     )
 
     model = build_colbert(

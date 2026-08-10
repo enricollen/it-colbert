@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import tomllib
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +27,12 @@ class Phase1Config:
     include_mmarco_hn: bool = False
     mmarco_hn_samples: int | None = None
     mmarco_hn_negatives_per_query: int = 4
+    # miracl-ita / squad-ita, to widen phase 1 past machine-translated mmarco
+    include_italian_sources: bool = False
+    italian_source_max_samples: int | None = None
+    # round-2 negatives from scripts/mine_hard_negatives.py
+    mined_negatives_path: str | None = None
+    mined_negatives_per_query: int = 4
     num_train_epochs: float = 1.0
     per_device_train_batch_size: int = 128
     per_device_eval_batch_size: int = 32
@@ -111,25 +117,6 @@ class Phase2Config:
     contrastive_anchor_temperature: float = 0.02
 
 
-@dataclass
-class EvalConfig:
-    model_name_or_path: str = "outputs/phase2/final"
-    output_dir: str = "outputs/eval"
-    mmarco_eval_samples: int = 2000
-    document_length: int = 256
-    query_length: int = 32
-    batch_size: int = 16
-    seed: int = 42
-
-
-@dataclass
-class SmokeConfig:
-    """short run overrides for validating the pipeline on gpu."""
-
-    phase1: dict[str, Any] = field(default_factory=dict)
-    phase2: dict[str, Any] = field(default_factory=dict)
-
-
 def load_toml(path: str | Path) -> dict[str, Any]:
     with open(path, "rb") as f:
         return tomllib.load(f)
@@ -156,11 +143,6 @@ def phase1_from_toml(path: str | Path) -> Phase1Config:
 def phase2_from_toml(path: str | Path) -> Phase2Config:
     data = load_toml(path)
     return _build(Phase2Config, data.get("phase2", data), path)
-
-
-def eval_from_toml(path: str | Path) -> EvalConfig:
-    data = load_toml(path)
-    return _build(EvalConfig, data.get("eval", data), path)
 
 
 def apply_overrides(cfg: Any, overrides: dict[str, Any]) -> Any:

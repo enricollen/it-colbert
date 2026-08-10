@@ -1,3 +1,6 @@
+# phase 2, dim 64 — identical to phase2_distill.toml except the phase 1
+# checkpoint it continues from. ship as the small-index variant.
+#
 # phase 2 — KD over a genuinely mixed set, selected on retrieval metrics.
 #
 # background (see TODO.md 0.1): an earlier version of load_kd_italian drained the
@@ -7,9 +10,9 @@
 # long-document quality. the budget is now spread proportionally across splits.
 
 [phase2]
-model_name_or_path = "outputs/phase1/final"
-output_dir = "outputs/phase2"
-run_name = "it-colbert-phase2"
+model_name_or_path = "outputs/phase1_dim64/final"
+output_dir = "outputs/phase2_dim64"
+run_name = "it-colbert-phase2-dim64"
 document_length = 512
 query_length = 32
 num_train_epochs = 1.0

@@ -1,3 +1,7 @@
+# ABLATION: phase 2 with the second teacher (mmarco hard negatives) enabled.
+# run this only to measure whether the extra branch earns its complexity against
+# configs/phase2_distill.toml. read that file's KD section first.
+#
 # phase 2 — KD over a genuinely mixed set, selected on retrieval metrics.
 #
 # background (see TODO.md 0.1): an earlier version of load_kd_italian drained the
@@ -8,8 +12,8 @@
 
 [phase2]
 model_name_or_path = "outputs/phase1/final"
-output_dir = "outputs/phase2"
-run_name = "it-colbert-phase2"
+output_dir = "outputs/phase2_mmarco_hn"
+run_name = "it-colbert-phase2-mmarco-hn"
 document_length = 512
 query_length = 32
 num_train_epochs = 1.0
@@ -41,8 +45,16 @@ compile_model = false
 # 3. it costs a temperature you have to guess, and pads short rows with filler.
 #
 # to run it as an ablation, use configs/phase2_distill_mmarco_hn.toml.
-include_mmarco_hn = false
-max_train_samples = 900000
+include_mmarco_hn = true
+max_train_samples = 600000
+mmarco_hn_max_samples = 300000
+mmarco_hn_dataset = "hotchpotch/mmarco-hard-negatives-reranker-filtered"
+mmarco_hn_config = "italian-hard-negatives"
+
+# bge probs -> logit(p) spans ~[-13.8, 13.8], softmaxing to a near one-hot target
+# ~3x sharper than the lighton mxbai labels (~5-9). MEASURE this with
+# scripts/inspect_kd_scores.py; 3.0 is a guess, not a measurement.
+mmarco_hn_score_temperature = 3.0
 
 # spend the lighton budget across every split instead of draining msmarco_it
 kd_split_sampling = "proportional"

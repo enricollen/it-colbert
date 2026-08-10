@@ -200,6 +200,81 @@ def load_mmarco_hn_contrastive_italian(
     return out
 
 
+# native-ish italian retrieval sets in the tevatron layout, used to widen phase 1
+# beyond machine-translated mmarco (the init checkpoint is already a mmarco
+# specialist, so more mmarco mostly reinforces what the model can already do)
+ITALIAN_CONTRASTIVE_SOURCES = (
+    ("yuri-no/miracl-ita-argos", "train"),
+    ("yuri-no/squad-ita", "train"),
+)
+
+
+def load_tevatron_style_contrastive_italian(
+    dataset_id: str,
+    split: str = "train",
+    max_samples: int | None = None,
+    negatives_per_query: int = 2,
+    seed: int = 42,
+) -> Dataset:
+    """triplets from a dataset with positive_passages / negative_passages lists."""
+    logger.info("loading %s [%s] as contrastive triplets...", dataset_id, split)
+    ds = load_dataset(dataset_id, split=split)
+    if max_samples is not None and max_samples < len(ds):
+        ds = ds.shuffle(seed=seed).select(range(max_samples))
+
+    def _text(passage: dict) -> str:
+        title = (passage.get("title") or "").strip()
+        body = (passage.get("text") or "").strip()
+        return f"{title} {body}".strip() if title else body
+
+    queries, positives, negatives = [], [], []
+    for row in ds:
+        pos_list = row.get("positive_passages") or []
+        neg_list = row.get("negative_passages") or []
+        if not pos_list or not neg_list:
+            continue
+        positive = _text(pos_list[0])
+        for passage in neg_list[:negatives_per_query]:
+            negative = _text(passage)
+            if not negative:
+                continue
+            queries.append(row["query"])
+            positives.append(positive)
+            negatives.append(negative)
+
+    out = Dataset.from_dict(
+        {"query": queries, "positive": positives, "negative": negatives}
+    ).shuffle(seed=seed)
+    logger.info("%s ready: %s triplets", dataset_id, len(out))
+    return out
+
+
+def load_mined_hard_negatives(
+    path: str,
+    negatives_per_query: int = 4,
+    seed: int = 42,
+) -> Dataset:
+    """load triplets mined by `scripts/mine_hard_negatives.py`.
+
+    round-2 self-mined negatives (retrieve with your own checkpoint, train on
+    what it wrongly ranks high) are the standard ColBERTv2 loop and consistently
+    beat any static negative pack.
+    """
+    logger.info("loading mined hard negatives from %s...", path)
+    ds = Dataset.load_from_disk(path)
+    queries, positives, negatives = [], [], []
+    for row in ds:
+        for negative in (row["negatives"] or [])[:negatives_per_query]:
+            queries.append(row["query"])
+            positives.append(row["positive"])
+            negatives.append(negative)
+    out = Dataset.from_dict(
+        {"query": queries, "positive": positives, "negative": negatives}
+    ).shuffle(seed=seed)
+    logger.info("mined hard negatives ready: %s triplets", len(out))
+    return out
+
+
 def build_phase1_dataset(
     mmarco_samples: int = 2_000_000,
     include_wiki_hn: bool = True,
@@ -209,11 +284,20 @@ def build_phase1_dataset(
     include_mmarco_hn: bool = False,
     mmarco_hn_samples: int | None = None,
     mmarco_hn_negatives_per_query: int = 4,
+    include_italian_sources: bool = False,
+    italian_source_max_samples: int | None = None,
+    mined_negatives_path: str | None = None,
+    mined_negatives_per_query: int = 4,
 ) -> tuple[Dataset, Dataset]:
     """build contrastive train/eval splits for phase 1.
 
-    `include_mmarco_hn` adds reranker-mined hard negatives on top of (or instead
-    of, with `mmarco_samples = 0`) the official BM25-negative triples.
+    sources, all optional and mixed by concatenation:
+    - `mmarco_samples`: official BM25-negative mmarco triples
+    - `include_mmarco_hn`: reranker-mined mmarco hard negatives (much harder)
+    - `include_wiki_hn`: native italian wiki retrieval pairs
+    - `include_italian_sources`: MIRACL-ita / SQuAD-ita, to widen the domain
+      past machine-translated mmarco
+    - `mined_negatives_path`: round-2 negatives mined with your own checkpoint
     """
     parts: list[Dataset] = []
     if mmarco_samples:
@@ -224,6 +308,24 @@ def build_phase1_dataset(
                 max_samples=mmarco_hn_samples,
                 negatives_per_query=mmarco_hn_negatives_per_query,
                 seed=seed + 17,
+            )
+        )
+    if include_italian_sources:
+        for dataset_id, source_split in ITALIAN_CONTRASTIVE_SOURCES:
+            parts.append(
+                load_tevatron_style_contrastive_italian(
+                    dataset_id=dataset_id,
+                    split=source_split,
+                    max_samples=italian_source_max_samples,
+                    seed=seed + 23,
+                )
+            )
+    if mined_negatives_path:
+        parts.append(
+            load_mined_hard_negatives(
+                path=mined_negatives_path,
+                negatives_per_query=mined_negatives_per_query,
+                seed=seed + 31,
             )
         )
     if include_wiki_hn:
@@ -621,12 +723,3 @@ def load_kd_italian_train_eval(
         max_train_samples=train_cap,
         exclude_eval_from_train=exclude_eval_from_train,
     )
-
-
-def build_mmarco_eval_triplet(
-    n_samples: int = 2000,
-    seed: int = 42,
-) -> Dataset:
-    """small held-out italian mmarco slice for quick triplet accuracy checks."""
-    ds = load_mmarco_italian(max_samples=n_samples + 1000, seed=seed + 7)
-    return ds.select(range(min(n_samples, len(ds))))

@@ -1,27 +1,68 @@
+# phase 1 — the load-bearing change: start from a model that can already retrieve.
+#
+# v1 started from the raw MLM (DeepMount00/Italian-ModernBERT-base), which scores
+# 0.004 nDCG@10 on MLDR before training, then gave it lr 3e-6 for ~3.1k steps.
+# that is nowhere near enough signal to build a retriever from scratch.
+#
+# what changed vs the first attempt:
+#   init      raw MLM              -> mmarco-mnrl checkpoint (same architecture, already IR-tuned)
+#   lr        3e-6                 -> 1e-5
+#   batch     128 (mini 128)       -> 512 (mini 32)   # gradcache was a no-op before
+#   negatives bm25 triples only    -> + reranker-mined hard negatives
+#   samples   400k                 -> 1.5M
+
 [phase1]
-model_name = "DeepMount00/Italian-ModernBERT-base"
+# same backbone family as the raw MLM, but already trained for retrieval.
+# this is the GTE-ModernColBERT trick: start from a working dense retriever
+# instead of paying for retrieval pretraining yourself.
+model_name = "nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl"
 output_dir = "outputs/phase1"
 run_name = "it-colbert-phase1"
 dim = 128
-document_length = 180
+# train at the length you intend to index at; v1 trained 180 and indexed 512
+document_length = 512
 query_length = 32
-mmarco_samples = 400000
-mmarco_eval_samples = 1000
+
+mmarco_samples = 1500000
+mmarco_eval_samples = 2000
 include_wiki_hn = true
 wiki_max_hard_negatives = 2
+
+# reranker-mined negatives: far harder than the official bm25 triples
+include_mmarco_hn = true
+mmarco_hn_samples = 200000
+mmarco_hn_negatives_per_query = 4
+
+# widen past machine-translated mmarco. the init checkpoint is already a mmarco
+# specialist (39.7M mmarco samples, MLDR 0.302 = below BM25), so more mmarco
+# mostly reinforces the axis we are already fine on.
+include_italian_sources = true
+italian_source_max_samples = 50000
+
+# round 2: point this at scripts/mine_hard_negatives.py output and retrain.
+# leave empty for the first run.
+# mined_negatives_path = "outputs/mined_hn"
+
 num_train_epochs = 1.0
-# sweet spot on 3090 24gb: 1 gradcache chunk without near-oom slowdown
-# (mini=192 filled 24gb but was ~7s/it; mini=64 was ~1.66s/it at 11gb)
-per_device_train_batch_size = 128
-per_device_eval_batch_size = 64
-mini_batch_size = 128
-learning_rate = 3.0e-6
+# CachedContrastive/GradCache decouples batch size from VRAM: the batch sets how
+# many in-batch negatives each query sees, mini_batch_size sets peak memory.
+# v1 had them equal, so it paid for gradcache and got 256 negatives instead of 1024.
+#
+# 512 rather than 1024: negatives help the loss, but you still need optimizer
+# steps. at 1024 the run is only ~1.7k steps, fewer than v1's 3.1k. 512 gives
+# ~3.4k steps and still 4x v1's negatives. raise to 1024 with 2 epochs if the
+# eval curve is still climbing at the end.
+per_device_train_batch_size = 512
+mini_batch_size = 32
+per_device_eval_batch_size = 32
+
+learning_rate = 1.0e-5
 temperature = 0.02
 warmup_ratio = 0.05
-logging_steps = 50
-eval_steps = 1000
-save_steps = 1000
-save_total_limit = 2
+logging_steps = 10
+eval_steps = 200
+save_steps = 200
+save_total_limit = 3
 seed = 42
 bf16 = true
 fp16 = false

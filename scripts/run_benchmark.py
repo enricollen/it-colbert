@@ -23,10 +23,11 @@ def main() -> None:
         "--benchmarks",
         nargs="+",
         default=["mldr-it", "mmarco-it"],
-        choices=["mldr-it", "mmarco-it"],
+        choices=["mldr-it", "mmarco-it", "miracl-ita", "squad-ita"],
     )
     parser.add_argument("--mmarco-max-corpus-docs", type=int, default=200_000)
     parser.add_argument("--mmarco-max-queries", type=int, default=None)
+    parser.add_argument("--extra-max-corpus-docs", type=int, default=50_000)
     parser.add_argument("--top-k", type=int, default=100)
     parser.add_argument(
         "--only",
@@ -67,6 +68,7 @@ def main() -> None:
         benchmarks=list(args.benchmarks),
         mmarco_max_corpus_docs=args.mmarco_max_corpus_docs,
         mmarco_max_queries=args.mmarco_max_queries,
+        extra_max_corpus_docs=args.extra_max_corpus_docs,
         top_k=args.top_k,
         dense_batch_size=args.dense_batch_size,
         colbert_batch_size=args.colbert_batch_size,

@@ -11,52 +11,82 @@ tags:
 - rag
 pipeline_tag: sentence-similarity
 license: apache-2.0
-base_model: DeepMount00/Italian-ModernBERT-base
+base_model: nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl
 ---
 
 # ItColBERT
 
-Monolingual **Italian late-interaction (ColBERT)** retriever for semantic search and RAG.
+Monolingual **Italian late-interaction (ColBERT)** retriever for semantic search
+and RAG, built with [PyLate](https://github.com/lightonai/pylate).
 
-Built with [PyLate](https://github.com/lightonai/pylate) from [`DeepMount00/Italian-ModernBERT-base`](https://huggingface.co/DeepMount00/Italian-ModernBERT-base).
+> **Fill in the results table before publishing.** The numbers below are
+> placeholders; replace them with your own benchmark output and keep the
+> confidence intervals.
 
 ## Why this model
 
-At release time there was no dedicated Italian-only ColBERT. Multilingual late-interaction models cover Italian, but this checkpoint is specialized on Italian IR data with a true MaxSim multi-vector architecture.
+Italian retrieval is mostly served by multilingual dense models and by
+multilingual late-interaction models that include Italian among many languages.
+This checkpoint is specialized on Italian retrieval data with a true MaxSim
+multi-vector architecture, and is published together with a reproducible Italian
+evaluation harness.
 
 ## Architecture
 
-- Backbone: Italian ModernBERT base
+- Backbone: Italian ModernBERT base (via an mMARCO-tuned dense checkpoint)
 - Projection: Dense `768 -> 128`
 - Similarity: MaxSim (late interaction)
 - Query length: 32 tokens
-- Document length: 256 tokens
+- Document length: 512 tokens
 
 ## Training
 
-Two-phase recipe (ColBERT-Zero / GTE-ModernColBERT style, without unsupervised mega-pretrain):
+Two-stage recipe, following the ColBERT-Zero efficiency result that a supervised
+contrastive stage followed by distillation reaches ~99.4% of full multi-vector
+pretraining at roughly 10× lower cost.
 
-1. **Supervised contrastive** (`CachedContrastive`, temperature 0.02) on:
-   - [`unicamp-dl/mmarco`](https://huggingface.co/datasets/unicamp-dl/mmarco) Italian triples (joined from official TSV files)
-   - [`nickprock/it-wiki-retrieval-synthetic-hn`](https://huggingface.co/datasets/nickprock/it-wiki-retrieval-synthetic-hn)
-2. **Knowledge distillation** (`Distillation` / KL) on:
-   - [`lightonai/embeddings-fine-tuning-filtered-it`](https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it) using cross-encoder `rerank_scores`
-   - [`hotchpotch/mmarco-hard-negatives-reranker-filtered`](https://huggingface.co/datasets/hotchpotch/mmarco-hard-negatives-reranker-filtered) (`italian-hard-negatives`, `bge-reranker-v2-m3` scores)
+**1. Supervised contrastive** (`CachedContrastive`, temperature 0.02):
 
-   The KD budget is spent proportionally across all LightOn splits. Earlier
-   checkpoints used a sequential budget that landed entirely on `msmarco_it`; the
-   resulting "more KD helps long documents" claim was a data-composition
-   artifact, not a scaling effect.
+- [`unicamp-dl/mmarco`](https://huggingface.co/datasets/unicamp-dl/mmarco) Italian triples
+- [`hotchpotch/mmarco-hard-negatives-reranker-filtered`](https://huggingface.co/datasets/hotchpotch/mmarco-hard-negatives-reranker-filtered) — reranker-mined hard negatives, with likely false negatives filtered out
+- [`nickprock/it-wiki-retrieval-synthetic-hn`](https://huggingface.co/datasets/nickprock/it-wiki-retrieval-synthetic-hn)
+- [`yuri-no/miracl-ita-argos`](https://huggingface.co/datasets/yuri-no/miracl-ita-argos) and [`yuri-no/squad-ita`](https://huggingface.co/datasets/yuri-no/squad-ita) — community machine translations, included to widen the domain past machine-translated mMARCO
+
+**2. Knowledge distillation** (`Distillation`, KL) from a single cross-encoder
+teacher: [`lightonai/embeddings-fine-tuning-filtered-it`](https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it)
+(`mxbai-rerank-large-v2` scores), with the sample budget spread proportionally
+across all 8 splits.
 
 Checkpoints are selected on pooled MLDR-it nDCG@10 and mMARCO-it MRR@10, not on
 hold-out KD KL divergence.
+
+## Evaluation
+
+| Benchmark | Metric | Score (95% CI) |
+|---|---|---|
+| MLDR-it (test, ~10k docs) | nDCG@10 | _fill in_ |
+| mMARCO-it (dev, pooled) | MRR@10 | _fill in — rank only_ |
+| MIRACL-ita (dev, pooled) | nDCG@10 | _fill in_ |
+| SQuAD-ita (test, pooled) | nDCG@10 | _fill in_ |
+
+Protocol notes that must travel with these numbers:
+
+- All late-interaction models are indexed at the **same** document length.
+- Pooled corpora inflate absolute scores and are **not** comparable to published
+  full-corpus numbers. Use them for relative ranking only.
+- MLDR-it has 200 queries; differences under ~0.03 nDCG@10 are inside the noise.
+  Report intervals, and use the paired bootstrap for any head-to-head claim.
+- MIRACL-ita and SQuAD-ita are community machine translations, not official
+  resources.
+
+Harness and exact protocol: see the project repository.
 
 ## Usage
 
 ```python
 from pylate import models, rank
 
-model = models.ColBERT("PATH_OR_HUB_ID")
+model = models.ColBERT("PATH_OR_HUB_ID", document_length=512, query_length=32)
 
 docs = [
     "Roma è la capitale d'Italia.",
@@ -79,10 +109,16 @@ print(results)
 
 ## Limitations
 
-- Optimized for Italian; cross-lingual retrieval is not the focus
-- mMARCO Italian is machine-translated; wiki HN and LightOn KD help with native / higher-quality signal
-- Index size is larger than dense bi-encoders (multi-vector)
+- Optimized for Italian; cross-lingual retrieval is not the focus.
+- Most training data derives from machine-translated mMARCO. Long-document and
+  native-Italian performance is weaker than short-passage performance.
+- Multi-vector indexes are substantially larger than dense bi-encoder indexes. A
+  64-dimension variant is available if index size matters more than the last
+  points of quality.
+- Documents longer than 512 tokens are truncated at index time unless you chunk
+  and max-pool.
 
 ## Citation
 
-If you use this model, please also cite ColBERT, PyLate, mMARCO, and Italian-ModernBERT.
+If you use this model, please also cite ColBERT/ColBERTv2, PyLate, mMARCO, MLDR
+and Italian-ModernBERT.
