@@ -1,0 +1,8 @@
+[eval]
+model_name_or_path = "outputs/phase2/final"
+output_dir = "outputs/eval"
+mmarco_eval_samples = 2000
+document_length = 256
+query_length = 32
+batch_size = 16
+seed = 42

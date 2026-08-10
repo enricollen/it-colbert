@@ -1,0 +1,51 @@
+[project]
+name = "it-colbert"
+version = "0.1.0"
+description = "ItColBERT: Italian late-interaction (ColBERT) retriever for RAG, trained with PyLate"
+readme = "README.md"
+authors = [
+    { name = "Enrico Nello", email = "nello.enrico@gmail.com" }
+]
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "accelerate>=1.0.0",
+    "datasets>=3.0.0",
+    "huggingface-hub>=0.26.0",
+    "pylate[voyager]>=1.2.0",
+    "sentence-transformers>=3.4.0",
+    "torch>=2.4.0",
+    "transformers>=4.48.0",
+    "tomli>=2.0.0; python_version < '3.11'",
+    "ranx>=0.3.21",
+    "faiss-cpu>=1.15.0",
+    "rank-bm25>=0.2.2",
+    "numpy>=2.4.6",
+    "einops>=0.8.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.8.0",
+]
+
+[project.scripts]
+it-colbert-phase1 = "it_colbert.cli:phase1"
+it-colbert-phase2 = "it_colbert.cli:phase2"
+it-colbert-eval = "it_colbert.cli:evaluate"
+it-colbert-infer = "it_colbert.cli:infer"
+it-colbert-benchmark = "it_colbert.cli:benchmark"
+
+[build-system]
+requires = ["uv_build>=0.11.29,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+package = true
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu124" }

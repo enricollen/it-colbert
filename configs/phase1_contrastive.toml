@@ -1,0 +1,28 @@
+[phase1]
+model_name = "DeepMount00/Italian-ModernBERT-base"
+output_dir = "outputs/phase1"
+run_name = "it-colbert-phase1"
+dim = 128
+document_length = 180
+query_length = 32
+mmarco_samples = 400000
+mmarco_eval_samples = 1000
+include_wiki_hn = true
+wiki_max_hard_negatives = 2
+num_train_epochs = 1.0
+# sweet spot on 3090 24gb: 1 gradcache chunk without near-oom slowdown
+# (mini=192 filled 24gb but was ~7s/it; mini=64 was ~1.66s/it at 11gb)
+per_device_train_batch_size = 128
+per_device_eval_batch_size = 64
+mini_batch_size = 128
+learning_rate = 3.0e-6
+temperature = 0.02
+warmup_ratio = 0.05
+logging_steps = 50
+eval_steps = 1000
+save_steps = 1000
+save_total_limit = 2
+seed = 42
+bf16 = true
+fp16 = false
+compile_model = false

@@ -1,0 +1,40 @@
+# python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.eggs/
+
+# env / secrets
+.venv/
+.env
+.env.*
+!.env.example
+
+# local project notes (not for repo)
+WORKLOG.md
+
+# training / eval artifacts (checkpoints, indexes, logs)
+outputs/
+data/
+wandb/
+
+# weights
+*.pt
+*.bin
+*.safetensors
+
+# caches
+.cache/
+.huggingface/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# editor / os
+.idea/
+.vscode/
+*.swp
+.DS_Store
