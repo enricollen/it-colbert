@@ -36,6 +36,9 @@ def run_phase1(cfg: Phase1Config) -> Path:
         wiki_max_hard_negatives=cfg.wiki_max_hard_negatives,
         eval_samples=cfg.mmarco_eval_samples,
         seed=cfg.seed,
+        include_mmarco_hn=cfg.include_mmarco_hn,
+        mmarco_hn_samples=cfg.mmarco_hn_samples,
+        mmarco_hn_negatives_per_query=cfg.mmarco_hn_negatives_per_query,
     )
 
     model = build_colbert(

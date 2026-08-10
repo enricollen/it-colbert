@@ -107,7 +107,7 @@ DEFAULT_MODELS: list[ModelSpec] = [
         name="jina-colbert-v2",
         kind="colbert",
         model_id="jinaai/jina-colbert-v2",
-        document_length=180,
+        document_length=512,
         query_length=32,
         notes="multilingual late-interaction sota",
     ),
@@ -123,7 +123,7 @@ DEFAULT_MODELS: list[ModelSpec] = [
         name="ColBERT-XM",
         kind="colbert",
         model_id="antoinelouis/colbert-xm",
-        document_length=256,
+        document_length=512,
         query_length=32,
         language="it_IT",
         notes=(
@@ -135,7 +135,7 @@ DEFAULT_MODELS: list[ModelSpec] = [
         name="ItColBERT (ours)",
         kind="colbert",
         model_id="outputs/final",
-        document_length=180,
+        document_length=512,
         query_length=32,
         notes="ItColBERT; italian modernbert + pylate; trained doc_len=180",
     ),
@@ -143,7 +143,7 @@ DEFAULT_MODELS: list[ModelSpec] = [
         name="ItColBERT (doc256)",
         kind="colbert",
         model_id="outputs/final_doc256",
-        document_length=256,
+        document_length=512,
         query_length=32,
         notes="retrain ablation; document_length=256 train+infer",
     ),
@@ -164,6 +164,17 @@ DEFAULT_MODELS: list[ModelSpec] = [
         notes=(
             "parameter average 0.5*final(80k kd)+0.5*final_fullkd; "
             "jacolbert-style merge for dual-bench; infer 512"
+        ),
+    ),
+    ModelSpec(
+        name="ItColBERT (v2)",
+        kind="colbert",
+        model_id="outputs/final_v2",
+        document_length=512,
+        query_length=32,
+        notes=(
+            "v2 recipe: mnrl init, lr 1e-5, bs1024/mini32 contrastive with mined "
+            "hard negatives, proportional kd mixture, ir-metric checkpoint selection"
         ),
     ),
     ModelSpec(
@@ -195,6 +206,13 @@ class BenchmarkConfig:
     colbert_batch_size: int = 32
     models: list[ModelSpec] = field(default_factory=lambda: list(DEFAULT_MODELS))
     only_models: list[str] | None = None
+    # length-match every colbert model instead of comparing at each spec's own
+    # length; the old defaults indexed jina at 180 tokens and ours at 512, which
+    # silently handicapped the strongest baseline on long-doc MLDR
+    colbert_document_length: int | None = None
+    # long-doc mode: index chunks of this many characters and max-pool per document
+    chunk_chars: int = 0
+    chunk_overlap_chars: int = 0
 
 
 def _evaluate_run(
@@ -255,16 +273,19 @@ def _retrieve_for_model(
             + "_"
             + spec.name.lower().replace(" ", "_").replace("(", "").replace(")", "")
         )
+        doc_len = cfg.colbert_document_length or spec.document_length
         retr = ColBERTRetriever(
             model_name_or_path=spec.model_id,
             documents=split.documents,
             index_folder=str(Path(cfg.index_root) / safe),
             index_name=safe,
             batch_size=cfg.colbert_batch_size,
-            document_length=spec.document_length,
+            document_length=doc_len,
             query_length=spec.query_length,
             language=spec.language,
             override_index=True,
+            chunk_chars=cfg.chunk_chars,
+            chunk_overlap_chars=cfg.chunk_overlap_chars,
         )
         scores = retr.retrieve(qtexts, k=cfg.top_k)
         del retr
@@ -338,6 +359,10 @@ def run_benchmark(cfg: BenchmarkConfig) -> dict[str, Any]:
             "metrics": IR_METRICS,
             "top_k": cfg.top_k,
             "mmarco_max_corpus_docs": cfg.mmarco_max_corpus_docs,
+            "colbert_document_length": cfg.colbert_document_length,
+            "chunk_chars": cfg.chunk_chars,
+            "chunk_overlap_chars": cfg.chunk_overlap_chars,
+            "bm25_analyzer": "italian: lowercase + stopwords + snowball stem",
         }
     )
 
@@ -375,6 +400,14 @@ def run_benchmark(cfg: BenchmarkConfig) -> dict[str, Any]:
                 "kind": spec.kind,
                 "model_id": spec.model_id,
                 "notes": spec.notes,
+                # record the length each model actually saw; comparing colbert
+                # models indexed at different lengths is not a fair ranking
+                "effective_length": (
+                    (cfg.colbert_document_length or spec.document_length)
+                    if spec.kind == "colbert"
+                    else spec.max_seq_length
+                ),
+                "chunk_chars": cfg.chunk_chars if spec.kind == "colbert" else 0,
                 "metrics": metrics,
                 "seconds": round(elapsed, 1),
                 "error": err,

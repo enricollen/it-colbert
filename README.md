@@ -68,6 +68,21 @@ bash scripts/run_phase2_mixkd.sh
 # or: nohup bash scripts/run_phase2_mixkd.sh > outputs/logs/mixkd_nohup.log 2>&1 &
 ```
 
+### Phase 2 checkpoint selection
+
+Two signals are available; **prefer the IR one**.
+
+- `ir_eval_enabled = true` runs nDCG@10 on a pooled MLDR-it slice and MRR@10 on a
+  pooled mMARCO-it slice every `eval_steps`, and selects on their mean
+  (`it-ir_score`, higher is better). This is the metric that penalises trading
+  long-doc quality for short-passage quality.
+- Hold-out KL (below) only measures how closely the student copies the teacher on
+  the teacher's own distribution. fullkd selected its best-KL step while pooled
+  mMARCO MRR@10 fell 0.491 → 0.341, so KL alone is not a safe selection signal.
+
+Both can run together: KL stays in the logs for overfitting diagnosis while
+`it-ir_score` drives early stopping and `load_best_model_at_end`.
+
 ### Phase 2 validation (overfitting check)
 
 Phase 2 holds out **`kd_eval_samples`** rows from the KD train mixture (never used in train on fresh runs) and runs PyLate `ColBERTDistillationEvaluator`: **KL(student ‖ teacher)** every `eval_steps` (default 2000). This is the right signal for KD overfitting — not mMARCO train triplets alone (those overlap phase 1).
@@ -141,7 +156,10 @@ Protocol notes:
 - **MLDR-it:** full Italian corpus (~10k docs), official test split; primary metric **nDCG@10**
 - **mMARCO-it (this repo):** pooled **100k** docs (qrel positives + reservoir sample) for relative ranking. Absolute MRR is inflated vs published full 8.8M-corpus numbers
 - **MIRACL:** no Italian language split; not used
-- Pending comparative ColBERTs: `lightonai/mLateOn`, `antoinelouis/colbert-xm` (wired in code; run after fullkd)
+- **Length matching:** pass `--colbert-doc-length 512` so every late-interaction model is indexed at the same length. Earlier runs indexed `jina-colbert-v2` at 180 tokens and ours at 512, which handicapped the strongest baseline on long documents; the per-model `effective_length` is now recorded in `results.json`
+- **Long-doc mode:** `--chunk-chars 2000 --chunk-overlap-chars 200` indexes chunks and max-pools per document, so text past the encoder's truncation point still counts
+- **BM25:** Italian analyzer (lowercase, punctuation strip, stopwords, Snowball stem). The old `text.lower().split()` understated the lexical baseline
+- Pending comparative ColBERTs: `lightonai/mLateOn`, `antoinelouis/colbert-xm` (wired in code)
 
 ### Results so far (`outputs/benchmark/results.json`)
 
@@ -151,7 +169,34 @@ mMARCO-it pooled 100k (MRR@10): jina **0.849** · e5-large **0.824** · **ours 0
 
 Published full-corpus mMARCO-it MRR@10 (literature): jina-colbert-v2 0.337 · mColBERT 0.292 · mE5-base 0.280 · BM25 0.153
 
-**Running / next:** mixkd (LightOn 400k + mMARCO HN CE scores) to recover mMARCO without giving up MLDR gains.
+> ⚠️ **These numbers came from a buggy KD split budget — see below.** They are kept
+> as the record of what was actually run, but the conclusion drawn from them
+> ("KD scale lifts MLDR") was wrong.
+
+### KD split budget — the bug behind the fullkd/80k trade-off
+
+`load_kd_italian` used to drain the LightOn splits **in order** and stop when
+`max_train_samples` ran out. `msmarco_it` is first and holds ~522k of the ~1.56M
+rows, so:
+
+| run | budget | splits it actually saw |
+|---|---|---|
+| ours (80k KD) | 80,000 | **msmarco_it only** |
+| mixkd | 400,000 | **msmarco_it only** + mMARCO HN |
+| fullkd | uncapped | all 8 splits |
+
+So the MLDR gain 0.277 → 0.352 was **not** KD scale. It was data composition:
+fullkd is the only run that ever saw `trivia_it`, `nq_it`, `hotpotqa_it`,
+`fever_it`, `squadv2_it`. (`mldr_it` itself is only ~1.4k rows, 0.09% of the set,
+so it contributed almost nothing either way.) And mixkd was never a mixture at
+all — both of its branches were short-passage MS MARCO.
+
+Fixed: `kd_split_sampling = "proportional"` (now the default) spends the budget
+across every split by row count, with a `kd_split_min_share` floor so the small
+on-domain splits survive. The legacy configs pin `"sequential"` so the runs above
+stay reproducible.
+
+**Next:** the v2 recipe — see [TODO.md](TODO.md).
 
 ## Citation / related work
 

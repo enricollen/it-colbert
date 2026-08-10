@@ -19,6 +19,8 @@ dependencies = [
     "ranx>=0.3.21",
     "faiss-cpu>=1.15.0",
     "rank-bm25>=0.2.2",
+    # italian stemming for a bm25 baseline that is actually competitive
+    "snowballstemmer>=2.2.0",
     "numpy>=2.4.6",
     "einops>=0.8.2",
 ]

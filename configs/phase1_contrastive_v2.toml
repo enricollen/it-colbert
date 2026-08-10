@@ -1,0 +1,54 @@
+# phase 1 v2 — the load-bearing change: start from a model that can already retrieve.
+#
+# v1 started from the raw MLM (DeepMount00/Italian-ModernBERT-base), which scores
+# 0.004 nDCG@10 on MLDR before training, then gave it lr 3e-6 for ~3.1k steps.
+# that is nowhere near enough signal to build a retriever from scratch.
+#
+# v2 changes vs phase1_contrastive.toml:
+#   init      raw MLM              -> mmarco-mnrl checkpoint (same architecture, already IR-tuned)
+#   lr        3e-6                 -> 1e-5
+#   batch     128 (mini 128)       -> 1024 (mini 32)  # gradcache was a no-op before
+#   negatives bm25 triples only    -> + reranker-mined hard negatives
+#   samples   400k                 -> 1.5M
+
+[phase1]
+# same backbone family as the raw MLM, but already trained for retrieval.
+# this is the GTE-ModernColBERT trick: start from a working dense retriever
+# instead of paying for retrieval pretraining yourself.
+model_name = "nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl"
+output_dir = "outputs/phase1_v2"
+run_name = "it-colbert-phase1-v2"
+dim = 128
+# train at the length you intend to index at; v1 trained 180 and indexed 512
+document_length = 512
+query_length = 32
+
+mmarco_samples = 1500000
+mmarco_eval_samples = 2000
+include_wiki_hn = true
+wiki_max_hard_negatives = 2
+
+# reranker-mined negatives: far harder than the official bm25 triples
+include_mmarco_hn = true
+mmarco_hn_samples = 200000
+mmarco_hn_negatives_per_query = 4
+
+num_train_epochs = 1.0
+# CachedContrastive/GradCache decouples batch size from VRAM: the batch sets how
+# many in-batch negatives each query sees, mini_batch_size sets peak memory.
+# v1 had them equal, so it paid for gradcache and got 256 negatives instead of 2048.
+per_device_train_batch_size = 1024
+mini_batch_size = 32
+per_device_eval_batch_size = 32
+
+learning_rate = 1.0e-5
+temperature = 0.02
+warmup_ratio = 0.05
+logging_steps = 10
+eval_steps = 200
+save_steps = 200
+save_total_limit = 3
+seed = 42
+bf16 = true
+fp16 = false
+compile_model = false

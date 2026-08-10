@@ -102,6 +102,9 @@ def benchmark(argv: list[str] | None = None) -> None:
     parser.add_argument("--only", nargs="+", default=None)
     parser.add_argument("--dense-batch-size", type=int, default=64)
     parser.add_argument("--colbert-batch-size", type=int, default=32)
+    parser.add_argument("--colbert-doc-length", type=int, default=None)
+    parser.add_argument("--chunk-chars", type=int, default=0)
+    parser.add_argument("--chunk-overlap-chars", type=int, default=0)
     args = parser.parse_args(argv)
     cfg = BenchmarkConfig(
         output_dir=args.output_dir,
@@ -113,5 +116,8 @@ def benchmark(argv: list[str] | None = None) -> None:
         dense_batch_size=args.dense_batch_size,
         colbert_batch_size=args.colbert_batch_size,
         only_models=args.only,
+        colbert_document_length=args.colbert_doc_length,
+        chunk_chars=args.chunk_chars,
+        chunk_overlap_chars=args.chunk_overlap_chars,
     )
     run_benchmark(cfg)

@@ -32,3 +32,9 @@ per_device_eval_batch_size = 32
 early_stopping_patience = 3
 load_best_model_at_end = true
 metric_for_best_model = "kd-holdout_kl_divergence"
+
+# NOTE: this config reproduces a run from the published results table. it keeps
+# the legacy sequential split budget, which spends max_train_samples entirely on
+# msmarco_it (see README "KD split budget"). use configs/phase2_distill_v2.toml
+# for the fixed proportional mixture.
+kd_split_sampling = "sequential"

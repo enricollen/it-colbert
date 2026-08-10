@@ -1,0 +1,73 @@
+# phase 2 v2 — KD over a genuinely mixed set, selected on retrieval metrics.
+#
+# what v1 actually did (bug, now fixed in data.py): max_train_samples drained the
+# lighton splits in order, so a budget of 80k or 400k was spent entirely on
+# msmarco_it. "ours" saw only short passages; only the uncapped fullkd run ever
+# saw trivia/nq/hotpotqa/fever/squadv2. the MLDR gain attributed to "KD scale"
+# was really data composition.
+#
+# v2 changes vs phase2_distill_mixkd.toml:
+#   split budget   msmarco_it only  -> proportional across all 8 lighton splits
+#   teacher scale  raw bge logits   -> temperature-matched to the lighton labels
+#   selection      hold-out KL      -> real nDCG@10 / MRR@10
+#   n_ways         11               -> 32
+#   doc length     180              -> 512 (matches indexing)
+
+[phase2]
+model_name_or_path = "outputs/phase1_v2/final"
+output_dir = "outputs/phase2_v2"
+run_name = "it-colbert-phase2-v2"
+document_length = 512
+query_length = 32
+num_train_epochs = 1.0
+# 32-way KD at length 512 is heavy; drop if VRAM complains (and keep the change
+# in the run log — n_ways and batch size both move the effective negatives)
+per_device_train_batch_size = 8
+learning_rate = 1.0e-5
+warmup_ratio = 0.05
+logging_steps = 50
+save_steps = 2000
+save_total_limit = 3
+seed = 42
+bf16 = true
+fp16 = false
+compile_model = false
+
+# --- KD mixture -------------------------------------------------------------
+include_mmarco_hn = true
+max_train_samples = 600000
+mmarco_hn_max_samples = 300000
+mmarco_hn_dataset = "hotchpotch/mmarco-hard-negatives-reranker-filtered"
+mmarco_hn_config = "italian-hard-negatives"
+kd_n_ways = 32
+
+# spend the lighton budget across every split instead of draining msmarco_it
+kd_split_sampling = "proportional"
+kd_split_min_share = 0.02
+
+# bge scores are probabilities; logit(p) spans ~[-13.8, 13.8], which softmaxes to
+# a near one-hot target, ~3x sharper than the lighton mxbai labels (~5-9).
+# set this from `scripts/inspect_kd_scores.py` output — 3.0 is the starting guess,
+# not a measured value.
+mmarco_hn_score_temperature = 3.0
+
+# --- checkpoint selection ---------------------------------------------------
+# real retrieval metrics, not KL. fullkd picked its best-KL step while pooled
+# mMARCO MRR@10 fell 0.491 -> 0.341; this makes that impossible to miss.
+ir_eval_enabled = true
+ir_eval_mldr_queries = 200
+ir_eval_mldr_docs = 3000
+ir_eval_mmarco_queries = 500
+ir_eval_mmarco_docs = 5000
+eval_steps = 2000
+per_device_eval_batch_size = 32
+early_stopping_patience = 4
+load_best_model_at_end = true
+
+# keep the KL curve alongside the IR metrics for overfitting diagnosis
+kd_eval_samples = 512
+
+# experimental replay stream; leave off for the first v2 run so the KD mixture
+# change is measured on its own
+contrastive_anchor_enabled = false
+contrastive_anchor_samples = 100000

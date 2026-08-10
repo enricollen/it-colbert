@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 import torch
@@ -27,10 +27,170 @@ def scores_to_pylate(
     return out
 
 
+def maxsim_topk(
+    doc_embeddings: list,
+    query_embeddings: list,
+    doc_ids: list[str],
+    k: int = 100,
+    doc_chunk: int = 256,
+    log_every: int = 0,
+) -> tuple[list[list[str]], list[list[float]]]:
+    """exact late-interaction maxsim of every query against the whole corpus.
+
+    kept separate from ColBERTRetriever so the training-time IR evaluator can
+    score a checkpoint without building a second model/index.
+    """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    n_docs = len(doc_embeddings)
+    ranked_ids: list[list[str]] = []
+    ranked_scores: list[list[float]] = []
+
+    # pre-pad the corpus once into fixed chunks on cpu, then stream to gpu
+    chunk_tensors: list[tuple[torch.Tensor, torch.Tensor, int, int]] = []
+    for start in range(0, n_docs, doc_chunk):
+        end = min(start + doc_chunk, n_docs)
+        chunk = doc_embeddings[start:end]
+        max_len = max(int(np.asarray(d).shape[0]) for d in chunk)
+        dim = int(np.asarray(chunk[0]).shape[-1])
+        padded = torch.zeros((len(chunk), max_len, dim), dtype=torch.float32)
+        mask = torch.zeros((len(chunk), max_len), dtype=torch.bool)
+        for i, d in enumerate(chunk):
+            arr = np.asarray(d, dtype=np.float32)
+            padded[i, : arr.shape[0]] = torch.from_numpy(arr)
+            mask[i, : arr.shape[0]] = True
+        chunk_tensors.append((padded, mask, start, end))
+
+    for qi, qe in enumerate(query_embeddings):
+        q = torch.as_tensor(qe, dtype=torch.float32, device=device)
+        if q.ndim != 2:
+            q = q.reshape(q.shape[-2], q.shape[-1])
+        all_scores = torch.empty(n_docs, dtype=torch.float32, device=device)
+        for padded, mask, start, end in chunk_tensors:
+            docs = padded.to(device, non_blocking=True)
+            dmask = mask.to(device, non_blocking=True)
+            sim = torch.einsum("qd,ntd->nqt", q, docs)  # (n, tq, td)
+            sim = sim.masked_fill(~dmask.unsqueeze(1), float("-inf"))
+            token_max = sim.max(dim=-1).values  # (n, tq)
+            token_max = torch.nan_to_num(token_max, nan=0.0, neginf=0.0)
+            all_scores[start:end] = token_max.sum(dim=-1)
+        topk = min(k, n_docs)
+        vals, idxs = torch.topk(all_scores, k=topk)
+        ranked_ids.append([doc_ids[int(i)] for i in idxs.tolist()])
+        ranked_scores.append([float(v) for v in vals.tolist()])
+        if log_every and (qi + 1) % log_every == 0:
+            logger.info("maxsim %s/%s queries", qi + 1, len(query_embeddings))
+    return ranked_ids, ranked_scores
+
+
+def chunk_long_documents(
+    documents: list[dict],
+    chunk_chars: int,
+    overlap_chars: int = 0,
+) -> tuple[list[dict], list[str]]:
+    """split long documents into overlapping chunks for max-pooled scoring.
+
+    a colbert encoder truncates at document_length tokens, so on MLDR-style
+    corpora everything past the first ~512 tokens is invisible. chunking and
+    taking the best chunk per document recovers that tail without retraining.
+
+    returns the chunk documents plus the parent doc id of each chunk.
+    """
+    if chunk_chars <= 0:
+        return documents, [d["id"] for d in documents]
+    step = max(1, chunk_chars - max(0, overlap_chars))
+    chunks: list[dict] = []
+    parents: list[str] = []
+    for doc in documents:
+        text = doc["text"]
+        if len(text) <= chunk_chars:
+            chunks.append(doc)
+            parents.append(doc["id"])
+            continue
+        for i, start in enumerate(range(0, len(text), step)):
+            piece = text[start : start + chunk_chars]
+            if not piece.strip():
+                continue
+            chunks.append({"id": f"{doc['id']}::chunk{i}", "text": piece})
+            parents.append(doc["id"])
+            if start + chunk_chars >= len(text):
+                break
+    logger.info(
+        "chunked %s documents into %s chunks (chunk_chars=%s, overlap=%s)",
+        len(documents),
+        len(chunks),
+        chunk_chars,
+        overlap_chars,
+    )
+    return chunks, parents
+
+
+def maxpool_chunks_to_documents(
+    ranked: list[list[dict]],
+    chunk_to_parent: dict[str, str],
+    k: int,
+) -> list[list[dict]]:
+    """collapse a chunk-level ranking to a document ranking by best chunk score."""
+    out: list[list[dict]] = []
+    for row in ranked:
+        best: dict[str, float] = {}
+        for hit in row:
+            parent = chunk_to_parent.get(hit["id"], hit["id"])
+            score = float(hit["score"])
+            if score > best.get(parent, float("-inf")):
+                best[parent] = score
+        ordered = sorted(best.items(), key=lambda kv: -kv[1])[:k]
+        out.append([{"id": did, "score": sc} for did, sc in ordered])
+    return out
+
+
+ITALIAN_STOPWORDS = {
+    "a", "ad", "agli", "ai", "al", "all", "alla", "alle", "allo", "anche",
+    "che", "chi", "ci", "coi", "col", "come", "con", "cui", "da", "dai", "dal",
+    "dall", "dalla", "dalle", "dallo", "degli", "dei", "del", "dell", "della",
+    "delle", "dello", "di", "e", "ed", "gli", "ha", "hai", "hanno", "ho", "i",
+    "il", "in", "io", "la", "le", "lei", "li", "lo", "loro", "lui", "ma", "mi",
+    "ne", "negli", "nei", "nel", "nell", "nella", "nelle", "nello", "noi",
+    "non", "o", "per", "perché", "più", "quale", "quanto", "quello", "questo",
+    "sei", "si", "sia", "siamo", "sono", "su", "sugli", "sui", "sul", "sull",
+    "sulla", "sulle", "sullo", "ti", "tra", "tu", "tuo", "un", "una", "uno",
+    "vi", "voi", "è",
+}
+
+
+def make_italian_bm25_tokenizer() -> "Callable[[str], list[str]]":
+    """italian analyzer for bm25: lowercase, strip punctuation, stopwords, stem.
+
+    the previous `text.lower().split()` left punctuation glued to tokens and did
+    no stemming, which understates the lexical baseline on an inflected language.
+    falls back to stopword removal only if `snowballstemmer` is not installed.
+    """
+    import re
+
+    token_re = re.compile(r"\w+", flags=re.UNICODE)
+    try:
+        import snowballstemmer
+
+        stem = snowballstemmer.stemmer("italian").stemWord
+    except Exception:  # noqa: BLE001
+        logger.warning("snowballstemmer missing; bm25 runs unstemmed (weaker baseline)")
+
+        def stem(word: str) -> str:
+            return word
+
+    def tokenize(text: str) -> list[str]:
+        return [
+            stem(tok)
+            for tok in token_re.findall(text.lower())
+            if tok not in ITALIAN_STOPWORDS and len(tok) > 1
+        ]
+
+    return tokenize
+
+
 class BM25Retriever:
     def __init__(self, documents: list[dict], tokenizer=None):
         self.doc_ids = [d["id"] for d in documents]
-        self.tokenizer = tokenizer or (lambda t: t.lower().split())
+        self.tokenizer = tokenizer or make_italian_bm25_tokenizer()
         tokenized = [self.tokenizer(d["text"]) for d in documents]
         self.bm25 = BM25Okapi(tokenized)
 
@@ -142,8 +302,21 @@ class ColBERTRetriever:
         language: str | None = None,
         override_index: bool = True,
         brute_force_limit: int = 25_000,
+        chunk_chars: int = 0,
+        chunk_overlap_chars: int = 0,
     ):
         from pylate import models
+
+        # long-doc mode: index chunks, then max-pool chunk scores back per document
+        self.chunk_to_parent: dict[str, str] | None = None
+        if chunk_chars > 0:
+            chunks, parents = chunk_long_documents(
+                documents, chunk_chars=chunk_chars, overlap_chars=chunk_overlap_chars
+            )
+            self.chunk_to_parent = {
+                c["id"]: p for c, p in zip(chunks, parents, strict=True)
+            }
+            documents = chunks
 
         self.doc_ids = [d["id"] for d in documents]
         self.use_bruteforce = len(documents) <= brute_force_limit
@@ -229,58 +402,18 @@ class ColBERTRetriever:
             is_query=True,
             show_progress_bar=True,
         )
+        # over-fetch when chunking so max-pooling still yields k distinct documents
+        fetch_k = k * 4 if self.chunk_to_parent else k
         if self.use_bruteforce:
-            return self._bruteforce_retrieve(q_emb, k=k)
-        return self.retriever.retrieve(queries_embeddings=q_emb, k=k)
-
-    def _bruteforce_retrieve(
-        self,
-        queries_embeddings: list,
-        k: int = 100,
-        doc_chunk: int = 256,
-    ) -> list[list[dict]]:
-        """exact late-interaction maxsim against the full in-memory corpus."""
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        ranked_ids: list[list[str]] = []
-        ranked_scores: list[list[float]] = []
-        n_docs = len(self.doc_emb)
-
-        # pre-pad all docs once into chunks on cpu
-        chunk_tensors: list[tuple[torch.Tensor, torch.Tensor, int, int]] = []
-        for start in range(0, n_docs, doc_chunk):
-            end = min(start + doc_chunk, n_docs)
-            chunk = self.doc_emb[start:end]
-            max_len = max(int(np.asarray(d).shape[0]) for d in chunk)
-            dim = int(np.asarray(chunk[0]).shape[-1])
-            padded = torch.zeros((len(chunk), max_len, dim), dtype=torch.float32)
-            mask = torch.zeros((len(chunk), max_len), dtype=torch.bool)
-            for i, d in enumerate(chunk):
-                arr = np.asarray(d, dtype=np.float32)
-                padded[i, : arr.shape[0]] = torch.from_numpy(arr)
-                mask[i, : arr.shape[0]] = True
-            chunk_tensors.append((padded, mask, start, end))
-
-        for qi, qe in enumerate(queries_embeddings):
-            q = torch.as_tensor(qe, dtype=torch.float32, device=device)
-            if q.ndim != 2:
-                q = q.reshape(q.shape[-2], q.shape[-1])
-            all_scores = torch.empty(n_docs, dtype=torch.float32, device=device)
-            for padded, mask, start, end in chunk_tensors:
-                docs = padded.to(device, non_blocking=True)
-                dmask = mask.to(device, non_blocking=True)
-                # (n, tq, td)
-                sim = torch.einsum("qd,ntd->nqt", q, docs)
-                sim = sim.masked_fill(~dmask.unsqueeze(1), float("-inf"))
-                token_max = sim.max(dim=-1).values  # (n, tq)
-                token_max = torch.nan_to_num(token_max, nan=0.0, neginf=0.0)
-                all_scores[start:end] = token_max.sum(dim=-1)
-            topk = min(k, n_docs)
-            vals, idxs = torch.topk(all_scores, k=topk)
-            ranked_ids.append([self.doc_ids[int(i)] for i in idxs.tolist()])
-            ranked_scores.append([float(v) for v in vals.tolist()])
-            if (qi + 1) % 20 == 0:
-                logger.info("bruteforce retrieve %s/%s queries", qi + 1, len(queries_embeddings))
-        return scores_to_pylate([], ranked_ids, ranked_scores)
+            ranked_ids, ranked_scores = maxsim_topk(
+                self.doc_emb, q_emb, self.doc_ids, k=fetch_k, log_every=20
+            )
+            ranked = scores_to_pylate([], ranked_ids, ranked_scores)
+        else:
+            ranked = self.retriever.retrieve(queries_embeddings=q_emb, k=fetch_k)
+        if self.chunk_to_parent:
+            ranked = maxpool_chunks_to_documents(ranked, self.chunk_to_parent, k=k)
+        return ranked
 
 
 def build_base_modernbert_dense(

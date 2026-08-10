@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -20,6 +23,10 @@ class Phase1Config:
     mmarco_eval_samples: int = 2_000
     include_wiki_hn: bool = True
     wiki_max_hard_negatives: int = 2
+    # reranker-mined hard negatives; much harder than the official bm25 triples
+    include_mmarco_hn: bool = False
+    mmarco_hn_samples: int | None = None
+    mmarco_hn_negatives_per_query: int = 4
     num_train_epochs: float = 1.0
     per_device_train_batch_size: int = 128
     per_device_eval_batch_size: int = 32
@@ -66,7 +73,16 @@ class Phase2Config:
     mmarco_hn_max_samples: int | None = None
     mmarco_hn_dataset: str = "hotchpotch/mmarco-hard-negatives-reranker-filtered"
     mmarco_hn_config: str = "italian-hard-negatives"
+    # bge probs -> logits span ~[-13.8, 13.8]; divide to match lighton label sharpness
+    mmarco_hn_score_temperature: float = 1.0
+    mmarco_hn_score_clip: float | None = None
     kd_n_ways: int = 11
+    # how max_train_samples is spent across lighton kd splits:
+    # "proportional" (every split, sized by row count) or "sequential" (legacy: drain in order)
+    kd_split_sampling: str = "proportional"
+    kd_split_min_share: float = 0.02
+    # explicit per-split row counts; overrides kd_split_sampling when set
+    kd_split_quotas: dict[str, int] | None = None
     # cheap overfitting check on mixed/lighton kd (0 = disabled)
     kd_eval_samples: int = 512
     # if false, eval may overlap train (needed for mid-run resume with same max_steps)
@@ -76,8 +92,23 @@ class Phase2Config:
     # stop if val kl does not improve for this many evals; 0 = monitor only
     early_stopping_patience: int = 3
     load_best_model_at_end: bool = True
-    # kl lower is better
+    # kl lower is better; overridden automatically when ir_eval_enabled
     metric_for_best_model: str = "kd-holdout_kl_divergence"
+    greater_is_better: bool | None = None
+    # select checkpoints on real retrieval metrics instead of hold-out kl
+    ir_eval_enabled: bool = False
+    ir_eval_name: str = "it-ir"
+    ir_eval_mldr_queries: int = 200
+    ir_eval_mldr_docs: int = 3_000
+    ir_eval_mmarco_queries: int = 500
+    ir_eval_mmarco_docs: int = 5_000
+    ir_eval_mmarco_pool_docs: int = 50_000
+    ir_eval_weights: tuple[float, float] = (0.5, 0.5)
+    # anti-forgetting: replay phase-1 contrastive alongside kd (experimental)
+    contrastive_anchor_enabled: bool = False
+    contrastive_anchor_samples: int = 100_000
+    contrastive_anchor_mini_batch_size: int = 16
+    contrastive_anchor_temperature: float = 0.02
 
 
 @dataclass
@@ -104,25 +135,32 @@ def load_toml(path: str | Path) -> dict[str, Any]:
         return tomllib.load(f)
 
 
+def _build(cls: Any, section: dict[str, Any], path: str | Path) -> Any:
+    """instantiate a config dataclass, warning about keys it does not recognize.
+
+    unknown keys used to be dropped silently, so a typo in a toml turned into a
+    run with the default value and no way to tell from the logs.
+    """
+    known = {f.name for f in cls.__dataclass_fields__.values()}
+    unknown = sorted(set(section) - known)
+    if unknown:
+        logger.warning("%s: ignoring unknown config keys %s", path, unknown)
+    return cls(**{k: v for k, v in section.items() if k in known})
+
+
 def phase1_from_toml(path: str | Path) -> Phase1Config:
     data = load_toml(path)
-    section = data.get("phase1", data)
-    known = {f.name for f in Phase1Config.__dataclass_fields__.values()}  # type: ignore[attr-defined]
-    return Phase1Config(**{k: v for k, v in section.items() if k in known})
+    return _build(Phase1Config, data.get("phase1", data), path)
 
 
 def phase2_from_toml(path: str | Path) -> Phase2Config:
     data = load_toml(path)
-    section = data.get("phase2", data)
-    known = {f.name for f in Phase2Config.__dataclass_fields__.values()}  # type: ignore[attr-defined]
-    return Phase2Config(**{k: v for k, v in section.items() if k in known})
+    return _build(Phase2Config, data.get("phase2", data), path)
 
 
 def eval_from_toml(path: str | Path) -> EvalConfig:
     data = load_toml(path)
-    section = data.get("eval", data)
-    known = {f.name for f in EvalConfig.__dataclass_fields__.values()}  # type: ignore[attr-defined]
-    return EvalConfig(**{k: v for k, v in section.items() if k in known})
+    return _build(EvalConfig, data.get("eval", data), path)
 
 
 def apply_overrides(cfg: Any, overrides: dict[str, Any]) -> Any:

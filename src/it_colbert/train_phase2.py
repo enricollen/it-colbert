@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Any
 
+from datasets import DatasetDict
 from sentence_transformers import SentenceTransformerTrainer
 from transformers import TrainerCallback
 from transformers.trainer_callback import TrainerControl, TrainerState
@@ -13,7 +15,8 @@ from transformers.training_args import TrainingArguments
 from pylate import evaluation, losses, utils
 
 from it_colbert.config import Phase2Config
-from it_colbert.data import load_kd_italian_train_eval
+from it_colbert.data import build_phase1_dataset, load_kd_italian_train_eval
+from it_colbert.ir_eval import CombinedEvaluator, ItIREvaluator
 from it_colbert.model_utils import (
     build_colbert,
     enable_cuda_fast_kernels,
@@ -110,6 +113,11 @@ def run_phase2(cfg: Phase2Config) -> Path:
         mmarco_hn_max_samples=cfg.mmarco_hn_max_samples,
         mmarco_hn_dataset=cfg.mmarco_hn_dataset,
         mmarco_hn_config=cfg.mmarco_hn_config,
+        mmarco_hn_score_temperature=cfg.mmarco_hn_score_temperature,
+        mmarco_hn_score_clip=cfg.mmarco_hn_score_clip,
+        split_sampling=cfg.kd_split_sampling,
+        split_min_share=cfg.kd_split_min_share,
+        split_quotas=cfg.kd_split_quotas,
     )
     if cfg.include_mmarco_hn:
         logger.info(
@@ -127,14 +135,40 @@ def run_phase2(cfg: Phase2Config) -> Path:
         compile_model=cfg.compile_model,
     )
 
-    train_loss = losses.Distillation(model=model)
+    train_loss: Any = losses.Distillation(model=model)
+    train_data: Any = train_ds
 
-    # kl(student || teacher) on lighton rows; true hold-out when exclude_eval_from_train
-    do_eval = eval_ds is not None and len(eval_ds) > 0
-    evaluator = None
+    # anti-forgetting replay: keep a contrastive stream on mmarco next to the kd
+    # stream so long kd runs cannot drift off the short-passage distribution
+    if cfg.contrastive_anchor_enabled:
+        anchor_ds, _ = build_phase1_dataset(
+            mmarco_samples=cfg.contrastive_anchor_samples,
+            include_wiki_hn=False,
+            eval_samples=0,
+            seed=cfg.seed,
+        )
+        train_data = DatasetDict({"kd": train_ds, "contrastive": anchor_ds})
+        train_loss = {
+            "kd": train_loss,
+            "contrastive": losses.CachedContrastive(
+                model=model,
+                mini_batch_size=cfg.contrastive_anchor_mini_batch_size,
+                temperature=cfg.contrastive_anchor_temperature,
+            ),
+        }
+        logger.info(
+            "phase2 contrastive anchor on: %s replay triplets alongside %s kd rows",
+            len(anchor_ds),
+            len(train_ds),
+        )
+
+    # eval: hold-out KL says the student copies the teacher; the IR evaluator says
+    # it actually retrieves better. select on the latter when it is enabled.
+    evaluators: list[Any] = []
     callbacks = []
-    if do_eval:
-        evaluator = evaluation.ColBERTDistillationEvaluator(
+    kl_eval = eval_ds is not None and len(eval_ds) > 0
+    if kl_eval:
+        kd_evaluator = evaluation.ColBERTDistillationEvaluator(
             queries=list(eval_ds["query"]),
             documents=list(eval_ds["documents"]),
             scores=list(eval_ds["scores"]),
@@ -144,24 +178,55 @@ def run_phase2(cfg: Phase2Config) -> Path:
             write_csv=True,
         )
         # pylate evaluator leaves primary_metric=None; st 5.x prefix_name_to_metrics crashes
-        evaluator.primary_metric = "kl_divergence"
+        kd_evaluator.primary_metric = "kl_divergence"
+        evaluators.append(kd_evaluator)
         logger.info(
             "phase2 kd val enabled: %s examples every %s steps (kl, exclude_from_train=%s)",
             len(eval_ds),
             cfg.eval_steps,
             exclude_eval,
         )
-        if int(cfg.early_stopping_patience or 0) > 0:
-            callbacks.append(
-                KdEarlyStoppingCallback(
-                    early_stopping_patience=int(cfg.early_stopping_patience)
-                )
+
+    metric_for_best_model = cfg.metric_for_best_model
+    greater_is_better = cfg.greater_is_better
+    if cfg.ir_eval_enabled:
+        ir_evaluator = ItIREvaluator(
+            name=cfg.ir_eval_name,
+            mldr_queries=cfg.ir_eval_mldr_queries,
+            mldr_docs=cfg.ir_eval_mldr_docs,
+            mmarco_queries=cfg.ir_eval_mmarco_queries,
+            mmarco_docs=cfg.ir_eval_mmarco_docs,
+            mmarco_pool_docs=cfg.ir_eval_mmarco_pool_docs,
+            batch_size=cfg.per_device_eval_batch_size,
+            seed=cfg.seed,
+            weights=tuple(cfg.ir_eval_weights),
+        )
+        evaluators.append(ir_evaluator)
+        metric_for_best_model = ir_evaluator.primary_metric
+        greater_is_better = True
+        logger.info("phase2 selecting checkpoints on %s (higher is better)", metric_for_best_model)
+    elif greater_is_better is None:
+        greater_is_better = False  # kl
+
+    do_eval = bool(evaluators)
+    evaluator: Any = None
+    if len(evaluators) == 1:
+        evaluator = evaluators[0]
+    elif evaluators:
+        evaluator = CombinedEvaluator(evaluators, primary_metric=metric_for_best_model)
+
+    if do_eval and int(cfg.early_stopping_patience or 0) > 0:
+        callbacks.append(
+            KdEarlyStoppingCallback(
+                early_stopping_patience=int(cfg.early_stopping_patience)
             )
-            logger.info(
-                "early stopping on %s (patience=%s, lower is better, non-stateful cb)",
-                cfg.metric_for_best_model,
-                cfg.early_stopping_patience,
-            )
+        )
+        logger.info(
+            "early stopping on %s (patience=%s, greater_is_better=%s)",
+            metric_for_best_model,
+            cfg.early_stopping_patience,
+            greater_is_better,
+        )
 
     # keep more ckpts when selecting by val kl
     save_total_limit = cfg.save_total_limit
@@ -186,14 +251,14 @@ def run_phase2(cfg: Phase2Config) -> Path:
         max_steps=cfg.max_steps,
         eval_strategy="steps" if do_eval else "no",
         load_best_model_at_end=bool(do_eval and cfg.load_best_model_at_end),
-        metric_for_best_model=cfg.metric_for_best_model if do_eval else None,
-        greater_is_better=False if do_eval else None,
+        metric_for_best_model=metric_for_best_model if do_eval else None,
+        greater_is_better=greater_is_better if do_eval else None,
     )
 
     trainer = SentenceTransformerTrainer(
         model=model,
         args=args,
-        train_dataset=train_ds,
+        train_dataset=train_data,
         loss=train_loss,
         evaluator=evaluator,
         callbacks=callbacks or None,
@@ -210,8 +275,8 @@ def run_phase2(cfg: Phase2Config) -> Path:
     to_save.save_pretrained(str(final_dir))
     if do_eval and cfg.load_best_model_at_end:
         logger.info(
-            "phase 2 final is best val-kl checkpoint (metric=%s, best=%s, step=%s)",
-            cfg.metric_for_best_model,
+            "phase 2 final is the best-val checkpoint (metric=%s, best=%s, step=%s)",
+            metric_for_best_model,
             getattr(trainer.state, "best_metric", None),
             getattr(trainer.state, "best_global_step", None),
         )

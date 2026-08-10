@@ -142,17 +142,90 @@ def load_wiki_hn_italian(
     return out
 
 
+def load_mmarco_hn_contrastive_italian(
+    max_samples: int | None = None,
+    negatives_per_query: int = 4,
+    seed: int = 42,
+    dataset_id: str = MMARCO_HN_KD_REPO,
+    config_name: str = MMARCO_HN_KD_CONFIG,
+    false_negative_margin: float = 0.1,
+    skip_hardest: int = 1,
+) -> Dataset:
+    """reranker-mined mmarco-it hard negatives as contrastive triplets.
+
+    the official `triples.train.ids.small` negatives are BM25-sampled and easy;
+    these are mined by a dense retriever and re-scored by bge-reranker-v2-m3, so
+    they sit much closer to the positive and give the contrastive loss real work.
+
+    `false_negative_margin` drops negatives the teacher scores within that margin
+    of the positive (they are usually unlabelled positives), and `skip_hardest`
+    drops the top-scoring negatives outright, which is the standard guard against
+    training on mislabelled mmarco passages.
+    """
+    logger.info("loading %s [%s] as contrastive triplets...", dataset_id, config_name)
+    ds = load_dataset(dataset_id, config_name, split="train")
+    if max_samples is not None and max_samples < len(ds):
+        ds = ds.shuffle(seed=seed).select(range(max_samples))
+
+    queries, positives, negatives = [], [], []
+    dropped_fn = 0
+    for row in ds:
+        q, pos = row["query"], row["pos_text"]
+        pos_score = float(row["pos_score"])
+        negs = list(row["negs_text"] or [])
+        neg_scores = [float(x) for x in (row["negs_score"] or [])]
+        n = min(len(negs), len(neg_scores))
+        # hardest first, then drop the ones too close to the positive
+        ranked = sorted(zip(negs[:n], neg_scores[:n]), key=lambda x: -x[1])
+        ranked = ranked[skip_hardest:]
+        kept = []
+        for text, score in ranked:
+            if score >= pos_score - false_negative_margin:
+                dropped_fn += 1
+                continue
+            kept.append(text)
+            if len(kept) >= negatives_per_query:
+                break
+        for neg in kept:
+            queries.append(q)
+            positives.append(pos)
+            negatives.append(neg)
+
+    if dropped_fn:
+        logger.info("mmarco-hn contrastive: dropped %s likely false negatives", dropped_fn)
+    out = Dataset.from_dict(
+        {"query": queries, "positive": positives, "negative": negatives}
+    ).shuffle(seed=seed)
+    logger.info("mmarco-hn contrastive ready: %s triplets", len(out))
+    return out
+
+
 def build_phase1_dataset(
     mmarco_samples: int = 2_000_000,
     include_wiki_hn: bool = True,
     wiki_max_hard_negatives: int = 2,
     eval_samples: int = 2_000,
     seed: int = 42,
+    include_mmarco_hn: bool = False,
+    mmarco_hn_samples: int | None = None,
+    mmarco_hn_negatives_per_query: int = 4,
 ) -> tuple[Dataset, Dataset]:
-    """build contrastive train/eval splits for phase 1."""
-    parts: list[Dataset] = [
-        load_mmarco_italian(max_samples=mmarco_samples, seed=seed)
-    ]
+    """build contrastive train/eval splits for phase 1.
+
+    `include_mmarco_hn` adds reranker-mined hard negatives on top of (or instead
+    of, with `mmarco_samples = 0`) the official BM25-negative triples.
+    """
+    parts: list[Dataset] = []
+    if mmarco_samples:
+        parts.append(load_mmarco_italian(max_samples=mmarco_samples, seed=seed))
+    if include_mmarco_hn:
+        parts.append(
+            load_mmarco_hn_contrastive_italian(
+                max_samples=mmarco_hn_samples,
+                negatives_per_query=mmarco_hn_negatives_per_query,
+                seed=seed + 17,
+            )
+        )
     if include_wiki_hn:
         parts.append(
             load_wiki_hn_italian(
@@ -160,7 +233,12 @@ def build_phase1_dataset(
                 seed=seed,
             )
         )
-    combined = concatenate_datasets(parts).shuffle(seed=seed)
+    if not parts:
+        raise RuntimeError("phase 1 dataset is empty; enable at least one source")
+    combined = concatenate_datasets(parts).shuffle(seed=seed) if len(parts) > 1 else parts[0].shuffle(seed=seed)
+    if eval_samples <= 0:
+        logger.info("phase1 dataset: %s train / no eval split", len(combined))
+        return combined, combined.select(range(0))
     n_eval = min(eval_samples, max(1, len(combined) // 100))
     split = combined.train_test_split(test_size=n_eval, seed=seed)
     train_ds, eval_ds = split["train"], split["test"]
@@ -172,18 +250,60 @@ def build_phase1_dataset(
     return train_ds, eval_ds
 
 
+def _proportional_quotas(
+    sizes: dict[str, int],
+    budget: int,
+    min_share: float = 0.0,
+) -> dict[str, int]:
+    """split a row budget across kd splits proportionally to their size.
+
+    `min_share` guarantees every split at least that fraction of the budget
+    (capped by its real size), so tiny but on-domain splits like mldr_it are not
+    erased by a big one like msmarco_it. remainder goes back to the big splits.
+    """
+    quotas: dict[str, int] = {}
+    floor = int(budget * min_share) if min_share > 0 else 0
+    for name, size in sizes.items():
+        quotas[name] = min(size, floor)
+    left = budget - sum(quotas.values())
+    if left <= 0:
+        return quotas
+
+    # distribute what is left proportionally to remaining capacity
+    for _ in range(3):  # a couple of passes reclaim rows freed by exhausted splits
+        capacity = {n: sizes[n] - quotas[n] for n in sizes if sizes[n] > quotas[n]}
+        total = sum(capacity.values())
+        if not capacity or left <= 0:
+            break
+        for name, cap in capacity.items():
+            add = min(cap, int(left * cap / total))
+            quotas[name] += add
+        left = budget - sum(quotas.values())
+    return quotas
+
+
 def load_kd_italian(
     max_samples: int | None = None,
     seed: int = 42,
     splits: tuple[str, ...] = KD_SPLITS,
     n_ways: int = 11,
     use_rerank_scores: bool = True,
+    split_sampling: str = "proportional",
+    split_min_share: float = 0.02,
+    split_quotas: dict[str, int] | None = None,
 ) -> Dataset:
     """
     load lighton italian kd dataset for pylate Distillation.
 
     returns rows with: query (str), documents (list[str]), scores (list[float])
     teacher labels prefer cross-encoder `rerank_scores` when available.
+
+    when `max_samples` caps the budget, `split_sampling` decides how it is spent:
+    - "proportional" (default): every split contributes, sized by its row count
+      with a `split_min_share` floor. keeps long-doc splits (mldr_it, trivia_it)
+      in the mix instead of spending the whole budget on msmarco_it.
+    - "sequential": legacy behaviour — drain splits in `splits` order.
+    `split_quotas` overrides both with explicit per-split row counts.
     """
     logger.info("loading lightonai/embeddings-fine-tuning-filtered-it...")
     scores_dd: DatasetDict = load_dataset(
@@ -196,16 +316,34 @@ def load_kd_italian(
         "lightonai/embeddings-fine-tuning-filtered-it", "documents"
     )
 
-    # if only a small sample is needed, prefer the largest split first
     ordered = [s for s in splits if s in scores_dd]
-    if max_samples is not None and max_samples <= 10_000:
-        ordered = ["msmarco_it"] if "msmarco_it" in scores_dd else ordered[:1]
+    if not ordered:
+        raise RuntimeError(f"none of {splits} present in kd dataset")
+
+    # per-split row budget
+    quotas: dict[str, int] | None = None
+    if split_quotas:
+        quotas = {s: int(n) for s, n in split_quotas.items() if s in scores_dd and n > 0}
+        ordered = [s for s in ordered if s in quotas]
+    elif max_samples is not None and split_sampling == "proportional":
+        quotas = _proportional_quotas(
+            {s: len(scores_dd[s]) for s in ordered},
+            budget=max_samples,
+            min_share=split_min_share,
+        )
+    if quotas is not None:
+        logger.info("kd split quotas: %s", quotas)
 
     prepared_parts: list[Dataset] = []
-    remaining = max_samples
+    remaining = None if quotas is not None else max_samples
     for split in ordered:
         scores = scores_dd[split]
-        if remaining is not None:
+        if quotas is not None:
+            take = min(quotas.get(split, 0), len(scores))
+            if take <= 0:
+                continue
+            scores = scores.shuffle(seed=seed).select(range(take))
+        elif remaining is not None:
             take = min(remaining, len(scores))
             scores = scores.shuffle(seed=seed).select(range(take))
 
@@ -249,7 +387,9 @@ def load_kd_italian(
         raise RuntimeError("no kd splits could be prepared")
 
     prepared = concatenate_datasets(prepared_parts).shuffle(seed=seed)
-    if max_samples is not None and max_samples < len(prepared):
+    # quota mode already spends the budget across splits; re-capping here would
+    # just truncate the shuffled mix again for no reason
+    if quotas is None and max_samples is not None and max_samples < len(prepared):
         prepared = prepared.select(range(max_samples))
     logger.info("kd italian ready: %s examples", len(prepared))
     return prepared
@@ -261,11 +401,20 @@ def load_mmarco_hn_kd_italian(
     n_ways: int = 11,
     dataset_id: str = MMARCO_HN_KD_REPO,
     config_name: str = MMARCO_HN_KD_CONFIG,
+    score_temperature: float = 1.0,
+    score_clip: float | None = None,
 ) -> Dataset:
     """convert mmarco-it ce-scored hard negatives into pylate kd rows.
 
     source: hotchpotch/mmarco-hard-negatives-reranker-filtered (italian-hard-negatives).
     teacher scores are from BAAI/bge-reranker-v2-m3 (already in the dataset).
+
+    `score_temperature` / `score_clip` shape how peaked the teacher distribution is
+    after logit conversion. bge probs saturate near 0 and 1, so raw logits span
+    ~[-13.8, +13.8] and softmax over them is nearly one-hot — far sharper than the
+    lighton mxbai labels (~5-9). dividing by a temperature (or clipping the range)
+    brings the two sources to comparable entropy so neither dominates the mixed KL.
+    run `scripts/inspect_kd_scores.py` to pick the value.
 
     returns rows with: query, documents (pos + negs), scores (aligned floats).
     """
@@ -283,9 +432,14 @@ def load_mmarco_hn_kd_italian(
         # expects logits (docstring + colbertv2: log_softmax on teacher scores).
         eps = 1e-6
 
+        temp = float(score_temperature) if score_temperature else 1.0
+
         def _prob_to_logit(p: float) -> float:
             x = min(max(float(p), eps), 1.0 - eps)
-            return math.log(x / (1.0 - x))
+            z = math.log(x / (1.0 - x))
+            if score_clip is not None:
+                z = min(max(z, -abs(score_clip)), abs(score_clip))
+            return z / temp
 
         for q, pos, negs, pos_s, neg_s in zip(
             batch["query"],
@@ -324,7 +478,13 @@ def load_mmarco_hn_kd_italian(
         load_from_cache_file=False,
     )
     mapped = mapped.shuffle(seed=seed)
-    logger.info("mmarco-hn kd ready: %s examples (n_ways<=%s)", len(mapped), n_ways)
+    logger.info(
+        "mmarco-hn kd ready: %s examples (n_ways<=%s, temp=%s, clip=%s)",
+        len(mapped),
+        n_ways,
+        score_temperature,
+        score_clip,
+    )
     return mapped
 
 
@@ -382,6 +542,11 @@ def load_kd_italian_train_eval(
     mmarco_hn_max_samples: int | None = None,
     mmarco_hn_dataset: str = MMARCO_HN_KD_REPO,
     mmarco_hn_config: str = MMARCO_HN_KD_CONFIG,
+    mmarco_hn_score_temperature: float = 1.0,
+    mmarco_hn_score_clip: float | None = None,
+    split_sampling: str = "proportional",
+    split_min_share: float = 0.02,
+    split_quotas: dict[str, int] | None = None,
 ) -> tuple[Dataset, Dataset | None]:
     """load lighton (+ optional mmarco hn) kd and optionally hold out for kl monitoring.
 
@@ -412,6 +577,9 @@ def load_kd_italian_train_eval(
                 splits=splits,
                 n_ways=n_ways,
                 use_rerank_scores=use_rerank_scores,
+                split_sampling=split_sampling,
+                split_min_share=split_min_share,
+                split_quotas=split_quotas,
             )
         )
 
@@ -423,6 +591,8 @@ def load_kd_italian_train_eval(
                 n_ways=n_ways,
                 dataset_id=mmarco_hn_dataset,
                 config_name=mmarco_hn_config,
+                score_temperature=mmarco_hn_score_temperature,
+                score_clip=mmarco_hn_score_clip,
             )
         )
 

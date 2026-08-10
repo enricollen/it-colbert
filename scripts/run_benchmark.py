@@ -41,6 +41,19 @@ def main() -> None:
     )
     parser.add_argument("--dense-batch-size", type=int, default=64)
     parser.add_argument("--colbert-batch-size", type=int, default=32)
+    parser.add_argument(
+        "--colbert-doc-length",
+        type=int,
+        default=None,
+        help="index every colbert model at this length (fair length-matched ranking)",
+    )
+    parser.add_argument(
+        "--chunk-chars",
+        type=int,
+        default=0,
+        help="long-doc mode: split docs into chunks of N chars, max-pool per document",
+    )
+    parser.add_argument("--chunk-overlap-chars", type=int, default=0)
     args = parser.parse_args()
 
     if args.list_models:
@@ -58,6 +71,9 @@ def main() -> None:
         dense_batch_size=args.dense_batch_size,
         colbert_batch_size=args.colbert_batch_size,
         only_models=args.only,
+        colbert_document_length=args.colbert_doc_length,
+        chunk_chars=args.chunk_chars,
+        chunk_overlap_chars=args.chunk_overlap_chars,
     )
     payload = run_benchmark(cfg)
     print(json.dumps({k: v for k, v in payload["results"].items()}, indent=2)[:2000])

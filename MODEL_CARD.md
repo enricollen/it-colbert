@@ -41,6 +41,15 @@ Two-phase recipe (ColBERT-Zero / GTE-ModernColBERT style, without unsupervised m
    - [`nickprock/it-wiki-retrieval-synthetic-hn`](https://huggingface.co/datasets/nickprock/it-wiki-retrieval-synthetic-hn)
 2. **Knowledge distillation** (`Distillation` / KL) on:
    - [`lightonai/embeddings-fine-tuning-filtered-it`](https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it) using cross-encoder `rerank_scores`
+   - [`hotchpotch/mmarco-hard-negatives-reranker-filtered`](https://huggingface.co/datasets/hotchpotch/mmarco-hard-negatives-reranker-filtered) (`italian-hard-negatives`, `bge-reranker-v2-m3` scores)
+
+   The KD budget is spent proportionally across all LightOn splits. Earlier
+   checkpoints used a sequential budget that landed entirely on `msmarco_it`; the
+   resulting "more KD helps long documents" claim was a data-composition
+   artifact, not a scaling effect.
+
+Checkpoints are selected on pooled MLDR-it nDCG@10 and mMARCO-it MRR@10, not on
+hold-out KD KL divergence.
 
 ## Usage
 
