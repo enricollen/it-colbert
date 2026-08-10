@@ -15,6 +15,7 @@ from it_colbert.config import Phase1Config
 from it_colbert.data import build_phase1_dataset
 from it_colbert.ir_eval import CombinedEvaluator, ItIREvaluator
 from it_colbert.callbacks import EarlyStoppingCallback
+from it_colbert.checkpoints import resolve_resume
 from it_colbert.model_utils import (
     build_colbert,
     enable_cuda_fast_kernels,
@@ -46,6 +47,7 @@ def run_phase1(cfg: Phase1Config) -> Path:
         italian_source_max_samples=cfg.italian_source_max_samples,
         mined_negatives_path=cfg.mined_negatives_path,
         mined_negatives_per_query=cfg.mined_negatives_per_query,
+        cache_dir=cfg.dataset_cache_dir,
     )
 
     model = build_colbert(
@@ -144,7 +146,10 @@ def run_phase1(cfg: Phase1Config) -> Path:
         data_collator=utils.ColBERTCollator(model.tokenize),
     )
 
-    trainer.train(resume_from_checkpoint=cfg.resume_from_checkpoint)
+    resume_from = resolve_resume(
+        cfg.output_dir, explicit=cfg.resume_from_checkpoint, auto=cfg.auto_resume
+    )
+    trainer.train(resume_from_checkpoint=resume_from)
 
     final_dir = Path(cfg.output_dir) / "final"
     final_dir.mkdir(parents=True, exist_ok=True)

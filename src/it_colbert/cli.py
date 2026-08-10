@@ -32,11 +32,25 @@ def phase1(argv: list[str] | None = None) -> None:
         action="store_true",
         help="apply smoke.toml overrides for a short gpu validation run",
     )
+    parser.add_argument(
+        "--resume",
+        default=None,
+        help="resume from a specific trainer checkpoint directory",
+    )
+    parser.add_argument(
+        "--no-auto-resume",
+        action="store_true",
+        help="start fresh instead of continuing the newest checkpoint",
+    )
     args = parser.parse_args(argv)
     cfg = phase1_from_toml(args.config)
     if args.smoke:
         smoke = load_toml(_repo_root() / "configs/smoke.toml")
         cfg = apply_overrides(cfg, smoke.get("phase1", {}))
+    if args.resume:
+        cfg.resume_from_checkpoint = args.resume
+    if args.no_auto_resume:
+        cfg.auto_resume = False
     run_phase1(cfg)
 
 
@@ -50,7 +64,12 @@ def phase2(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--resume",
         default=None,
-        help="resume from a trainer checkpoint directory",
+        help="resume from a specific trainer checkpoint directory",
+    )
+    parser.add_argument(
+        "--no-auto-resume",
+        action="store_true",
+        help="start fresh instead of continuing the newest checkpoint",
     )
     args = parser.parse_args(argv)
     cfg = phase2_from_toml(args.config)
@@ -59,6 +78,8 @@ def phase2(argv: list[str] | None = None) -> None:
         cfg = apply_overrides(cfg, smoke.get("phase2", {}))
     if args.resume:
         cfg.resume_from_checkpoint = args.resume
+    if args.no_auto_resume:
+        cfg.auto_resume = False
     run_phase2(cfg)
 
 

@@ -22,6 +22,8 @@ from __future__ import annotations
 import argparse
 import logging
 import random
+import shutil
+from pathlib import Path
 
 from datasets import Dataset
 
@@ -64,6 +66,11 @@ def main() -> None:
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--index-folder", default="outputs/mining_index")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="re-mine even if the output dataset already exists",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -71,6 +78,15 @@ def main() -> None:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     rng = random.Random(args.seed)
+
+    # mining is one long job with no mid-run checkpoint, so make re-running the
+    # command after an interrupt cheap rather than destructive
+    output = Path(args.output)
+    if output.exists() and not args.overwrite:
+        logger.info(
+            "%s already exists; nothing to do (pass --overwrite to re-mine)", output
+        )
+        return
 
     # mmarco triples give (query, positive); the negatives are what we re-mine
     logger.info("loading mmarco-it triples for %s queries", args.queries)
@@ -131,7 +147,15 @@ def main() -> None:
             "negatives": out_negatives,
         }
     )
-    mined.save_to_disk(args.output)
+    # write then rename, so an interrupt cannot leave a partial dataset that a
+    # later run would treat as complete
+    tmp = output.with_name(output.name + ".tmp")
+    if tmp.exists():
+        shutil.rmtree(tmp)
+    mined.save_to_disk(str(tmp))
+    if output.exists():
+        shutil.rmtree(output)
+    tmp.rename(output)
     logger.info(
         "wrote %s rows to %s (avg %.1f negatives/query)",
         len(mined),

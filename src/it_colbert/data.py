@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import math
+import shutil
 from pathlib import Path
 
 from datasets import Dataset, DatasetDict, concatenate_datasets, load_dataset
@@ -275,6 +278,12 @@ def load_mined_hard_negatives(
     return out
 
 
+def _cache_key(**parts) -> str:
+    """short stable digest of the arguments that define a built dataset."""
+    payload = json.dumps(parts, sort_keys=True, default=str)
+    return hashlib.sha1(payload.encode("utf-8")).hexdigest()[:16]
+
+
 def build_phase1_dataset(
     mmarco_samples: int = 2_000_000,
     include_wiki_hn: bool = True,
@@ -288,6 +297,7 @@ def build_phase1_dataset(
     italian_source_max_samples: int | None = None,
     mined_negatives_path: str | None = None,
     mined_negatives_per_query: int = 4,
+    cache_dir: str | None = "outputs/dataset_cache",
 ) -> tuple[Dataset, Dataset]:
     """build contrastive train/eval splits for phase 1.
 
@@ -298,7 +308,35 @@ def build_phase1_dataset(
     - `include_italian_sources`: MIRACL-ita / SQuAD-ita, to widen the domain
       past machine-translated mmarco
     - `mined_negatives_path`: round-2 negatives mined with your own checkpoint
+
+    the result is cached under `cache_dir` keyed by these arguments. building it
+    means indexing the full 8.8M-passage mmarco collection into memory, so
+    without the cache every overnight stop/resume pays that cost again.
     """
+    cache_path: Path | None = None
+    if cache_dir:
+        key = _cache_key(
+            mmarco_samples=mmarco_samples,
+            include_wiki_hn=include_wiki_hn,
+            wiki_max_hard_negatives=wiki_max_hard_negatives,
+            eval_samples=eval_samples,
+            seed=seed,
+            include_mmarco_hn=include_mmarco_hn,
+            mmarco_hn_samples=mmarco_hn_samples,
+            mmarco_hn_negatives_per_query=mmarco_hn_negatives_per_query,
+            include_italian_sources=include_italian_sources,
+            italian_source_max_samples=italian_source_max_samples,
+            mined_negatives_path=mined_negatives_path,
+            mined_negatives_per_query=mined_negatives_per_query,
+        )
+        cache_path = Path(cache_dir) / f"phase1-{key}"
+        if (cache_path / "train").exists() and (cache_path / "eval").exists():
+            logger.info("reusing cached phase1 dataset at %s", cache_path)
+            return (
+                Dataset.load_from_disk(str(cache_path / "train")),
+                Dataset.load_from_disk(str(cache_path / "eval")),
+            )
+
     parts: list[Dataset] = []
     if mmarco_samples:
         parts.append(load_mmarco_italian(max_samples=mmarco_samples, seed=seed))
@@ -340,15 +378,28 @@ def build_phase1_dataset(
     combined = concatenate_datasets(parts).shuffle(seed=seed) if len(parts) > 1 else parts[0].shuffle(seed=seed)
     if eval_samples <= 0:
         logger.info("phase1 dataset: %s train / no eval split", len(combined))
-        return combined, combined.select(range(0))
-    n_eval = min(eval_samples, max(1, len(combined) // 100))
-    split = combined.train_test_split(test_size=n_eval, seed=seed)
-    train_ds, eval_ds = split["train"], split["test"]
-    logger.info(
-        "phase1 dataset: %s train / %s eval",
-        len(train_ds),
-        len(eval_ds),
-    )
+        train_ds, eval_ds = combined, combined.select(range(0))
+    else:
+        n_eval = min(eval_samples, max(1, len(combined) // 100))
+        split = combined.train_test_split(test_size=n_eval, seed=seed)
+        train_ds, eval_ds = split["train"], split["test"]
+        logger.info(
+            "phase1 dataset: %s train / %s eval",
+            len(train_ds),
+            len(eval_ds),
+        )
+
+    if cache_path is not None:
+        # write to a temp dir then rename, so an interrupt cannot leave a
+        # half-written cache that later loads as a silently truncated dataset
+        tmp = cache_path.with_name(cache_path.name + ".tmp")
+        if tmp.exists():
+            shutil.rmtree(tmp)
+        train_ds.save_to_disk(str(tmp / "train"))
+        eval_ds.save_to_disk(str(tmp / "eval"))
+        tmp.rename(cache_path)
+        logger.info("cached phase1 dataset at %s", cache_path)
+
     return train_ds, eval_ds
 
 

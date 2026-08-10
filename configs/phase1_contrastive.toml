@@ -50,7 +50,7 @@ num_train_epochs = 1.0
 #
 # 512 rather than 1024: negatives help the loss, but you still need optimizer
 # steps. at 1024 the run is only ~1.7k steps, fewer than v1's 3.1k. 512 gives
-# ~3.4k steps and still 4x v1's negatives. raise to 1024 with 2 epochs if the
+# ~4.6k steps and still 4x the old negative count. raise to 1024 with 2 epochs if
 # eval curve is still climbing at the end.
 per_device_train_batch_size = 512
 mini_batch_size = 32
@@ -78,7 +78,7 @@ ir_eval_mmarco_queries = 300
 ir_eval_mmarco_docs = 3000
 
 # NO early stopping and NO load_best_model_at_end here, deliberately:
-#   - one epoch over ~1.7M unique triplets cannot overfit, so there is nothing
+#   - one epoch over ~2.4M triplets cannot overfit, so there is nothing
 #     for early stopping to protect against;
 #   - the schedule is warmup + linear decay, so stopping early leaves the model
 #     at a high learning rate — usually worse than the annealed endpoint, and

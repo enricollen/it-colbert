@@ -71,7 +71,7 @@ mkdir -p outputs/logs
 
 | Script | Purpose |
 |---|---|
-| `run_train.sh` | phase 1 → phase1-only benchmark → phase 2 → benchmark |
+| `run_train.sh` | phase 1 → phase1-only benchmark → phase 2 → benchmark; interruptible and resumable |
 | `train_phase1_contrastive.py` / `train_phase2_distill.py` | individual phases |
 | `inspect_kd_scores.py` | teacher sharpness + real documents-per-row (sets `kd_n_ways`) |
 | `run_benchmark.py` | Italian IR benchmark across all models |
@@ -98,13 +98,31 @@ nohup bash scripts/run_train.sh > outputs/logs/train_nohup.log 2>&1 &
 tail -f outputs/logs/phase1.log
 ```
 
+### Interrupt and resume
+
+The pipeline is built to be stopped overnight. Kill it at any point and re-run the
+same command: finished stages are skipped via their `final/` model, an interrupted
+stage resumes from its newest **complete** checkpoint (one truncated by an
+interrupt mid-save is detected and ignored), the benchmark skips models already in
+`results.json`, and the built phase-1 dataset is cached under
+`outputs/dataset_cache` so restarts do not re-index the 8.8M-passage mMARCO
+collection.
+
+```bash
+STAGE=phase1 bash scripts/run_train.sh    # one stage only
+rm -rf outputs/phase1                     # genuinely start that stage over
+uv run python scripts/train_phase1_contrastive.py --no-auto-resume   # same, per-phase
+```
+
+Stages: `cache`, `phase1`, `phase1_bench`, `phase2`, `bench`.
+
 ### Validation
 
 Both phases run `ItIREvaluator` (nDCG@10 / MRR@10 on small pooled slices)
 alongside their cheap proxy metric.
 
 **Phase 1** additionally keeps `ColBERTTripletEvaluator` as a divergence check,
-and has early stopping **off**: one epoch over ~1.7M unique triplets cannot
+and has early stopping **off**: one epoch over ~2.4M triplets cannot
 overfit, and stopping early truncates the warmup+decay schedule, leaving the model
 at a high learning rate. If the IR curve is still climbing at the end, train
 longer — do not stop sooner.

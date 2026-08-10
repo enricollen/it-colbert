@@ -61,7 +61,7 @@ class Phase1Config:
     ir_eval_mmarco_docs: int = 3_000
     ir_eval_mmarco_pool_docs: int = 50_000
     # deliberately no early stopping and no load_best_model_at_end here:
-    #  - one epoch over ~1.7M unique triplets cannot overfit, so there is
+    #  - one epoch over ~2.4M triplets cannot overfit, so there is
     #    nothing for early stopping to protect against;
     #  - the schedule is warmup + linear decay, so stopping early leaves the
     #    model at a high learning rate, usually worse than the annealed end.
@@ -76,6 +76,12 @@ class Phase1Config:
     compile_model: bool = False
     max_steps: int | None = None
     resume_from_checkpoint: str | None = None
+    # pick up the newest complete checkpoint automatically, so re-running the
+    # same command after an overnight stop continues instead of starting over
+    auto_resume: bool = True
+    # built dataset cache; joining the mmarco tsvs indexes 8.8M passages, which
+    # would otherwise be re-paid on every resume
+    dataset_cache_dir: str | None = "outputs/dataset_cache"
 
 
 @dataclass
@@ -100,6 +106,7 @@ class Phase2Config:
     # caps lighton kd rows (none = all). when mix is on, this is the lighton budget only.
     max_train_samples: int | None = None
     resume_from_checkpoint: str | None = None
+    auto_resume: bool = True
     # option b: mix lighton kd with mmarco-it hard-negatives already scored by a ce teacher
     include_mmarco_hn: bool = False
     mmarco_hn_max_samples: int | None = None

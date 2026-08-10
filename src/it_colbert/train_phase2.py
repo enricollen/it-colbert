@@ -12,6 +12,7 @@ from sentence_transformers import SentenceTransformerTrainer
 from pylate import evaluation, losses, utils
 
 from it_colbert.callbacks import EarlyStoppingCallback
+from it_colbert.checkpoints import resolve_resume
 from it_colbert.config import Phase2Config
 from it_colbert.data import build_phase1_dataset, load_kd_italian_train_eval
 from it_colbert.ir_eval import CombinedEvaluator, ItIREvaluator
@@ -33,9 +34,13 @@ def run_phase2(cfg: Phase2Config) -> Path:
     logger.info("starting phase 2 distillation training")
     logger.info("config: %s", cfg)
 
+    resume_from = resolve_resume(
+        cfg.output_dir, explicit=cfg.resume_from_checkpoint, auto=cfg.auto_resume
+    )
+
     # mid-run resume: keep full train size so max_steps/scheduler match the original job
     exclude_eval = bool(cfg.kd_eval_exclude_from_train)
-    if cfg.resume_from_checkpoint and exclude_eval and int(cfg.kd_eval_samples or 0) > 0:
+    if resume_from and exclude_eval and int(cfg.kd_eval_samples or 0) > 0:
         logger.warning(
             "resume + kd_eval: keeping full train set (eval may overlap) so step counts match"
         )
@@ -84,6 +89,7 @@ def run_phase2(cfg: Phase2Config) -> Path:
             include_wiki_hn=False,
             eval_samples=0,
             seed=cfg.seed,
+            cache_dir="outputs/dataset_cache",
         )
         train_data = DatasetDict({"kd": train_ds, "contrastive": anchor_ds})
         train_loss = {
@@ -203,7 +209,7 @@ def run_phase2(cfg: Phase2Config) -> Path:
         data_collator=utils.ColBERTCollator(tokenize_fn=model.tokenize),
     )
 
-    trainer.train(resume_from_checkpoint=cfg.resume_from_checkpoint)
+    trainer.train(resume_from_checkpoint=resume_from)
 
     final_dir = Path(cfg.output_dir) / "final"
     final_dir.mkdir(parents=True, exist_ok=True)
