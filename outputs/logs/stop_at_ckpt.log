@@ -1,0 +1,4 @@
+[2026-08-11T23:20:56+02:00] waiting for outputs/phase1/checkpoint-2500 then stopping training
+[2026-08-11T23:21:25+02:00] watcher (re)started; waiting for outputs/phase1/checkpoint-2500
+[2026-08-11T23:59:54+02:00] checkpoint-2500 ready — stopping train
+[2026-08-12T00:02:30+02:00] killed PIDs 18423/18418/17957 after ckpt-2500

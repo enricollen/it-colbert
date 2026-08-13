@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import shutil
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -32,6 +34,28 @@ from it_colbert.benchmark.stats import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
+    # write to a sibling tmp then replace, so an enospc mid-write cannot leave a
+    # truncated results.json that blocks resume
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    data = json.dumps(payload, indent=2)
+    with tmp.open("w", encoding="utf-8") as f:
+        f.write(data)
+        f.flush()
+        os.fsync(f.fileno())
+    tmp.replace(path)
+
+
+def _colbert_index_dir(cfg: "BenchmarkConfig", bench: str, spec: "ModelSpec") -> Path:
+    safe = (
+        bench
+        + "_"
+        + spec.name.lower().replace(" ", "_").replace("(", "").replace(")", "")
+    )
+    return Path(cfg.index_root) / safe
 
 
 # published full-corpus mmarco-it mrr@10 from literature (not re-run here)
@@ -259,17 +283,13 @@ def _retrieve_for_model(
 
     if spec.kind == "colbert":
         assert spec.model_id is not None
-        safe = (
-            split.name
-            + "_"
-            + spec.name.lower().replace(" ", "_").replace("(", "").replace(")", "")
-        )
+        index_dir = _colbert_index_dir(cfg, split.name, spec)
         doc_len = cfg.colbert_document_length or spec.document_length
         retr = ColBERTRetriever(
             model_name_or_path=spec.model_id,
             documents=split.documents,
-            index_folder=str(Path(cfg.index_root) / safe),
-            index_name=safe,
+            index_folder=str(index_dir),
+            index_name=index_dir.name,
             batch_size=cfg.colbert_batch_size,
             document_length=doc_len,
             query_length=spec.query_length,
@@ -443,11 +463,18 @@ def run_benchmark(cfg: BenchmarkConfig) -> dict[str, Any]:
                 "error": err,
             }
             payload["results"][bench] = bench_results
-            results_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            _atomic_write_json(results_path, payload)
+            # drop colbert indexes after metrics are on disk — each mmarco-sized
+            # index is ~9–12gb and we only need the numbers for ranking
+            if spec.kind == "colbert":
+                index_dir = _colbert_index_dir(cfg, split.name, spec)
+                if index_dir.exists():
+                    shutil.rmtree(index_dir, ignore_errors=True)
+                    logger.info("freed colbert index %s", index_dir)
             clear_cuda()
 
         payload["results"][bench] = bench_results
 
-    results_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    _atomic_write_json(results_path, payload)
     logger.info("wrote %s", results_path)
     return payload

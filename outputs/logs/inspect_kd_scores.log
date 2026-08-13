@@ -1,0 +1,24 @@
+max entropy for a uniform 11-way target: 2.398 nats
+read two things: (1) match mmarco_hn entropy to the lighton splits by picking a temperature; (2) check docs(mean/min) before raising kd_n_ways above 11 — padded slots cost encoder passes and teach nothing.
+
+--- lighton kd, per split ---
+msmarco_it                         rows=2000   range=[ -7.188,  14.312] top1=0.552 entropy(mean/med)=1.296/1.406 docs(mean/min)=11.0/11
+nq_it                              rows=2000   range=[ -7.250,  13.938] top1=0.750 entropy(mean/med)=0.734/0.678 docs(mean/min)=11.0/11
+hotpotqa_it                        rows=2000   range=[ -6.375,  15.312] top1=0.866 entropy(mean/med)=0.415/0.221 docs(mean/min)=11.0/11
+fever_it                           rows=2000   range=[ -6.688,  14.312] top1=0.854 entropy(mean/med)=0.455/0.322 docs(mean/min)=11.0/11
+trivia_it                          rows=2000   range=[ -7.062,  14.688] top1=0.628 entropy(mean/med)=1.054/1.088 docs(mean/min)=11.0/11
+squadv2_it                         rows=2000   range=[ -7.312,  14.438] top1=0.809 entropy(mean/med)=0.614/0.456 docs(mean/min)=11.0/11
+fiqa_it                            rows=2000   range=[ -6.688,  13.000] top1=0.555 entropy(mean/med)=1.318/1.413 docs(mean/min)=11.0/11
+mldr_it                            rows=1386   range=[ -4.062,  12.750] top1=0.703 entropy(mean/med)=0.974/0.859 docs(mean/min)=11.0/11
+
+--- mmarco hard negatives, by temperature ---
+mmarco-hn-to-kd-logit11:   0%|          | 0/2000 [00:00<?, ? examples/s]mmarco-hn-to-kd-logit11: 100%|██████████| 2000/2000 [00:00<00:00, 23632.61 examples/s]
+mmarco_hn (T=1.0)                  rows=2000   range=[-13.816,  13.816] top1=0.959 entropy(mean/med)=0.141/0.012 docs(mean/min)=10.5/2
+mmarco-hn-to-kd-logit11:   0%|          | 0/2000 [00:00<?, ? examples/s]mmarco-hn-to-kd-logit11: 100%|██████████| 2000/2000 [00:00<00:00, 27524.30 examples/s]
+mmarco_hn (T=2.0)                  rows=2000   range=[ -6.908,   6.908] top1=0.856 entropy(mean/med)=0.537/0.362 docs(mean/min)=10.5/2
+mmarco-hn-to-kd-logit11:   0%|          | 0/2000 [00:00<?, ? examples/s]mmarco-hn-to-kd-logit11: 100%|██████████| 2000/2000 [00:00<00:00, 29816.41 examples/s]
+mmarco_hn (T=3.0)                  rows=2000   range=[ -4.605,   4.605] top1=0.725 entropy(mean/med)=0.993/1.037 docs(mean/min)=10.5/2
+mmarco-hn-to-kd-logit11:   0%|          | 0/2000 [00:00<?, ? examples/s]mmarco-hn-to-kd-logit11: 100%|██████████| 2000/2000 [00:00<00:00, 30321.77 examples/s]
+mmarco_hn (T=4.0)                  rows=2000   range=[ -3.454,   3.454] top1=0.608 entropy(mean/med)=1.367/1.543 docs(mean/min)=10.5/2
+mmarco-hn-to-kd-logit11:   0%|          | 0/2000 [00:00<?, ? examples/s]mmarco-hn-to-kd-logit11: 100%|██████████| 2000/2000 [00:00<00:00, 29290.86 examples/s]
+mmarco_hn (T=5.0)                  rows=2000   range=[ -2.763,   2.763] top1=0.512 entropy(mean/med)=1.646/1.851 docs(mean/min)=10.5/2

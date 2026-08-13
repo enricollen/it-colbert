@@ -17,9 +17,10 @@ wheels/
 WORKLOG.md
 
 # training / eval artifacts (checkpoints, indexes, logs)
-outputs/
+outputs/dataset_cache/
 data/
 wandb/
+outputs_v1_archive/
 
 # weights
 *.pt
