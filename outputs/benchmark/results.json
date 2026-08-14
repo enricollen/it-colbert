@@ -603,10 +603,44 @@
           "notes": "mnrl init, contrastive phase 1 with mined hard negatives, single-teacher kd over a proportional split mixture, checkpoints selected on retrieval metrics",
           "effective_length": 512,
           "chunk_chars": 0,
-          "metrics": {},
-          "confidence": {},
-          "seconds": 0.4,
-          "error": "outputs/final is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'\nIf this is a private repository, make sure to pass a token having permission to this repo either by logging in with `hf auth login` or by passing `token=<your_token>`"
+          "metrics": {
+            "mrr@10": 0.3596964285714286,
+            "ndcg@1": 0.28,
+            "ndcg@5": 0.3810042347171705,
+            "ndcg@10": 0.40077345017601246,
+            "ndcg@100": 0.4325942297471025,
+            "map@100": 0.3656986832459903,
+            "recall@1": 0.28,
+            "recall@5": 0.47,
+            "recall@10": 0.53,
+            "recall@100": 0.685,
+            "precision@10": 0.053,
+            "hits@1": 0.28,
+            "hits@5": 0.47,
+            "hits@10": 0.53
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.40077345017601246,
+              "ci_low": 0.34158545138957574,
+              "ci_high": 0.45887535478790986,
+              "n_queries": 200
+            },
+            "mrr@10": {
+              "mean": 0.3596964285714286,
+              "ci_low": 0.3004071428571429,
+              "ci_high": 0.4189136408730157,
+              "n_queries": 200
+            },
+            "recall@100": {
+              "mean": 0.685,
+              "ci_low": 0.62,
+              "ci_high": 0.745,
+              "n_queries": 200
+            }
+          },
+          "seconds": 156.1,
+          "error": null
         }
       },
       "comparable_to_literature": true
@@ -1161,10 +1195,44 @@
           "notes": "mnrl init, contrastive phase 1 with mined hard negatives, single-teacher kd over a proportional split mixture, checkpoints selected on retrieval metrics",
           "effective_length": 512,
           "chunk_chars": 0,
-          "metrics": {},
-          "confidence": {},
-          "seconds": 0.6,
-          "error": "outputs/final is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'\nIf this is a private repository, make sure to pass a token having permission to this repo either by logging in with `hf auth login` or by passing `token=<your_token>`"
+          "metrics": {
+            "mrr@10": 0.7196373425205803,
+            "ndcg@1": 0.6389684813753582,
+            "ndcg@5": 0.7364165492601114,
+            "ndcg@10": 0.7508653801438233,
+            "ndcg@100": 0.7637766316113734,
+            "map@100": 0.7156261413181788,
+            "recall@1": 0.6192335243553009,
+            "recall@5": 0.8170964660936008,
+            "recall@10": 0.8604465138490927,
+            "recall@100": 0.9182784145176695,
+            "precision@10": 0.09130372492836676,
+            "hits@1": 0.6389684813753582,
+            "hits@5": 0.8643266475644699,
+            "hits@10": 0.9130372492836676
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.7508653801438233,
+              "ci_low": 0.742323558103541,
+              "ci_high": 0.7595649699052278,
+              "n_queries": 6980
+            },
+            "mrr@10": {
+              "mean": 0.7196373425205803,
+              "ci_low": 0.7103590644471733,
+              "ci_high": 0.7291373965297676,
+              "n_queries": 6980
+            },
+            "recall@100": {
+              "mean": 0.9182784145176695,
+              "ci_low": 0.9117353151862463,
+              "ci_high": 0.9247134670487106,
+              "n_queries": 6980
+            }
+          },
+          "seconds": 1355.9,
+          "error": null
         }
       },
       "comparable_to_literature": false,
@@ -1675,10 +1743,44 @@
           "notes": "ablation: contrastive phase 1 with no distillation. tells you how much the KD stage is actually worth once phase 1 is not broken",
           "effective_length": 512,
           "chunk_chars": 0,
-          "metrics": {},
-          "confidence": {},
-          "seconds": 1.0,
-          "error": "outputs/final_phase1 is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'\nIf this is a private repository, make sure to pass a token having permission to this repo either by logging in with `hf auth login` or by passing `token=<your_token>`"
+          "metrics": {
+            "mrr@10": 0.7064237042334666,
+            "ndcg@1": 0.5832290362953693,
+            "ndcg@5": 0.6207369033900326,
+            "ndcg@10": 0.6903479528060046,
+            "ndcg@100": 0.7307575076236521,
+            "map@100": 0.6030493095379155,
+            "recall@1": 0.2668327292232173,
+            "recall@5": 0.6659050273881313,
+            "recall@10": 0.8497431403251179,
+            "recall@100": 0.9740091781393408,
+            "precision@10": 0.24342928660826033,
+            "hits@1": 0.5832290362953693,
+            "hits@5": 1.7546933667083855,
+            "hits@10": 2.434292866082603
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.6903479528060046,
+              "ci_low": 0.6693775774461692,
+              "ci_high": 0.7092026306535858,
+              "n_queries": 799
+            },
+            "mrr@10": {
+              "mean": 0.7064237042334666,
+              "ci_low": 0.6798316099489441,
+              "ci_high": 0.7313000501619088,
+              "n_queries": 799
+            },
+            "recall@100": {
+              "mean": 0.9740091781393408,
+              "ci_low": 0.9638297872340426,
+              "ci_high": 0.9826032540675844,
+              "n_queries": 799
+            }
+          },
+          "seconds": 493.6,
+          "error": null
         },
         "ItColBERT": {
           "kind": "colbert",
@@ -1686,10 +1788,44 @@
           "notes": "mnrl init, contrastive phase 1 with mined hard negatives, single-teacher kd over a proportional split mixture, checkpoints selected on retrieval metrics",
           "effective_length": 512,
           "chunk_chars": 0,
-          "metrics": {},
-          "confidence": {},
-          "seconds": 0.7,
-          "error": "outputs/final is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'\nIf this is a private repository, make sure to pass a token having permission to this repo either by logging in with `hf auth login` or by passing `token=<your_token>`"
+          "metrics": {
+            "mrr@10": 0.7435753024614101,
+            "ndcg@1": 0.6357947434292867,
+            "ndcg@5": 0.65376598376008,
+            "ndcg@10": 0.7194211776542384,
+            "ndcg@100": 0.7546226101241899,
+            "map@100": 0.6361982242846508,
+            "recall@1": 0.29937340506802335,
+            "recall@5": 0.6868116621245532,
+            "recall@10": 0.8636980840047173,
+            "recall@100": 0.9674647873333729,
+            "precision@10": 0.24493116395494371,
+            "hits@1": 0.6357947434292867,
+            "hits@5": 1.8085106382978724,
+            "hits@10": 2.4493116395494368
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.7194211776542384,
+              "ci_low": 0.698521366545783,
+              "ci_high": 0.7378638913645843,
+              "n_queries": 799
+            },
+            "mrr@10": {
+              "mean": 0.7435753024614101,
+              "ci_low": 0.7173854595029501,
+              "ci_high": 0.7673223597949819,
+              "n_queries": 799
+            },
+            "recall@100": {
+              "mean": 0.9674647873333729,
+              "ci_low": 0.9571142397964989,
+              "ci_high": 0.9770979676525671,
+              "n_queries": 799
+            }
+          },
+          "seconds": 481.6,
+          "error": null
         }
       },
       "comparable_to_literature": true
@@ -2199,10 +2335,44 @@
           "notes": "ablation: contrastive phase 1 with no distillation. tells you how much the KD stage is actually worth once phase 1 is not broken",
           "effective_length": 512,
           "chunk_chars": 0,
-          "metrics": {},
-          "confidence": {},
-          "seconds": 0.8,
-          "error": "outputs/final_phase1 is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'\nIf this is a private repository, make sure to pass a token having permission to this repo either by logging in with `hf auth login` or by passing `token=<your_token>`"
+          "metrics": {
+            "mrr@10": 0.8824381423836017,
+            "ndcg@1": 0.829018267840715,
+            "ndcg@5": 0.8982015027276641,
+            "ndcg@10": 0.9040635084564432,
+            "ndcg@100": 0.9099108898689012,
+            "map@100": 0.8837609231103029,
+            "recall@1": 0.829018267840715,
+            "recall@5": 0.9518990668944671,
+            "recall@10": 0.9699040609804179,
+            "recall@100": 0.9959258772506243,
+            "precision@10": 0.09699040609804183,
+            "hits@1": 0.829018267840715,
+            "hits@5": 0.9518990668944671,
+            "hits@10": 0.9699040609804179
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.9040635084564432,
+              "ci_low": 0.8988517402925205,
+              "ci_high": 0.9093747794214616,
+              "n_queries": 7609
+            },
+            "mrr@10": {
+              "mean": 0.8824381423836016,
+              "ci_low": 0.8762886551431367,
+              "ci_high": 0.888662514837275,
+              "n_queries": 7609
+            },
+            "recall@100": {
+              "mean": 0.9959258772506243,
+              "ci_low": 0.9944769352083059,
+              "ci_high": 0.9972433959784465,
+              "n_queries": 7609
+            }
+          },
+          "seconds": 278.8,
+          "error": null
         },
         "ItColBERT": {
           "kind": "colbert",
@@ -2210,10 +2380,44 @@
           "notes": "mnrl init, contrastive phase 1 with mined hard negatives, single-teacher kd over a proportional split mixture, checkpoints selected on retrieval metrics",
           "effective_length": 512,
           "chunk_chars": 0,
-          "metrics": {},
-          "confidence": {},
-          "seconds": 0.5,
-          "error": "outputs/final is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'\nIf this is a private repository, make sure to pass a token having permission to this repo either by logging in with `hf auth login` or by passing `token=<your_token>`"
+          "metrics": {
+            "mrr@10": 0.8806821287239214,
+            "ndcg@1": 0.8257326849783152,
+            "ndcg@5": 0.8960764149565659,
+            "ndcg@10": 0.902579938850153,
+            "ndcg@100": 0.9084213211617945,
+            "map@100": 0.8819999249208816,
+            "recall@1": 0.8257326849783152,
+            "recall@5": 0.9492706006045473,
+            "recall@10": 0.969246944407938,
+            "recall@100": 0.9954001839926403,
+            "precision@10": 0.09692469444079381,
+            "hits@1": 0.8257326849783152,
+            "hits@5": 0.9492706006045473,
+            "hits@10": 0.969246944407938
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.902579938850153,
+              "ci_low": 0.8972791641811023,
+              "ci_high": 0.9076639735104842,
+              "n_queries": 7609
+            },
+            "mrr@10": {
+              "mean": 0.8806821287239214,
+              "ci_low": 0.8745701401535776,
+              "ci_high": 0.8866075561626061,
+              "n_queries": 7609
+            },
+            "recall@100": {
+              "mean": 0.9954001839926403,
+              "ci_low": 0.9936916809041924,
+              "ci_high": 0.9968458404520962,
+              "n_queries": 7609
+            }
+          },
+          "seconds": 274.5,
+          "error": null
         }
       },
       "comparable_to_literature": true

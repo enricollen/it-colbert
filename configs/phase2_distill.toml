@@ -13,9 +13,9 @@ run_name = "it-colbert-phase2"
 document_length = 512
 query_length = 32
 num_train_epochs = 1.0
-# 32-way KD at length 512 is heavy; drop if VRAM complains (and keep the change
-# in the run log — n_ways and batch size both move the effective negatives)
-per_device_train_batch_size = 8
+# 11-way KD at length 512 is heavy; batch 8 oom'd on 3090 during backward.
+# drop to 4 before touching kd_n_ways (see TODO.md §5).
+per_device_train_batch_size = 4
 learning_rate = 1.0e-5
 warmup_ratio = 0.05
 logging_steps = 50

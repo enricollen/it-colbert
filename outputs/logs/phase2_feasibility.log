@@ -1,0 +1,74 @@
+2026-08-13 16:40:14,231 INFO it_colbert.train_phase2: starting phase 2 distillation training
+2026-08-13 16:40:14,231 INFO it_colbert.train_phase2: config: Phase2Config(model_name_or_path='outputs/phase1/final', output_dir='outputs/phase2_feasibility', run_name='it-colbert-phase2-feasibility', document_length=512, query_length=32, num_train_epochs=1.0, per_device_train_batch_size=4, learning_rate=1e-05, warmup_ratio=0.05, logging_steps=1, save_steps=40, save_total_limit=1, seed=42, bf16=True, fp16=False, compile_model=False, max_steps=30, max_train_samples=1024, resume_from_checkpoint=None, auto_resume=False, include_mmarco_hn=False, mmarco_hn_max_samples=None, mmarco_hn_dataset='hotchpotch/mmarco-hard-negatives-reranker-filtered', mmarco_hn_config='italian-hard-negatives', mmarco_hn_score_temperature=1.0, mmarco_hn_score_clip=None, kd_n_ways=11, kd_split_sampling='proportional', kd_split_min_share=0.02, kd_split_quotas=None, kd_eval_samples=0, kd_eval_exclude_from_train=True, eval_steps=99999, per_device_eval_batch_size=4, early_stopping_patience=0, load_best_model_at_end=False, metric_for_best_model='kd-holdout_kl_divergence', greater_is_better=None, ir_eval_enabled=False, ir_eval_name='it-ir', ir_eval_mldr_queries=200, ir_eval_mldr_docs=3000, ir_eval_mmarco_queries=500, ir_eval_mmarco_docs=5000, ir_eval_mmarco_pool_docs=50000, ir_eval_weights=(0.5, 0.5), contrastive_anchor_enabled=False, contrastive_anchor_samples=100000, contrastive_anchor_mini_batch_size=16, contrastive_anchor_temperature=0.02)
+2026-08-13 16:40:14,232 INFO it_colbert.data: loading lightonai/embeddings-fine-tuning-filtered-it...
+Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+2026-08-13 16:40:14,232 WARNING datasets.load: Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'scores' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/scores/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Wed Aug 12 22:33:47 2026).
+2026-08-13 16:40:14,232 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'scores' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/scores/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Wed Aug 12 22:33:47 2026).
+Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+2026-08-13 16:40:14,343 WARNING datasets.load: Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'queries' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/queries/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Wed Aug  5 23:53:59 2026).
+2026-08-13 16:40:14,344 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'queries' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/queries/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Wed Aug  5 23:53:59 2026).
+Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+2026-08-13 16:40:14,388 WARNING datasets.load: Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'documents' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/documents/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Wed Aug  5 23:57:42 2026).
+2026-08-13 16:40:14,388 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'documents' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/documents/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Wed Aug  5 23:57:42 2026).
+2026-08-13 16:40:14,641 INFO it_colbert.data: kd split quotas: {'msmarco_it': 308, 'nq_it': 83, 'hotpotqa_it': 99, 'fever_it': 90, 'trivia_it': 304, 'squadv2_it': 91, 'fiqa_it': 27, 'mldr_it': 20}
+kd-join-msmarco_it:   0%|          | 0/308 [00:00<?, ? examples/s]kd-join-msmarco_it:  16%|█▌        | 48/308 [00:00<00:00, 465.01 examples/s]kd-join-msmarco_it:  34%|███▍      | 104/308 [00:00<00:00, 512.67 examples/s]kd-join-msmarco_it:  51%|█████     | 157/308 [00:00<00:00, 512.16 examples/s]kd-join-msmarco_it:  69%|██████▉   | 214/308 [00:00<00:00, 531.92 examples/s]kd-join-msmarco_it:  88%|████████▊ | 271/308 [00:00<00:00, 543.05 examples/s]kd-join-msmarco_it: 100%|██████████| 308/308 [00:00<00:00, 532.64 examples/s]
+2026-08-13 16:40:45,445 INFO it_colbert.data: kd split msmarco_it: 308 examples
+kd-join-nq_it:   0%|          | 0/83 [00:00<?, ? examples/s]kd-join-nq_it:  66%|██████▋   | 55/83 [00:00<00:00, 536.66 examples/s]kd-join-nq_it: 100%|██████████| 83/83 [00:00<00:00, 569.59 examples/s]
+2026-08-13 16:40:53,415 INFO it_colbert.data: kd split nq_it: 83 examples
+kd-join-hotpotqa_it:   0%|          | 0/99 [00:00<?, ? examples/s]kd-join-hotpotqa_it:  51%|█████     | 50/99 [00:00<00:00, 490.32 examples/s]kd-join-hotpotqa_it: 100%|██████████| 99/99 [00:00<00:00, 555.66 examples/s]
+2026-08-13 16:41:00,000 INFO it_colbert.data: kd split hotpotqa_it: 99 examples
+kd-join-fever_it:   0%|          | 0/90 [00:00<?, ? examples/s]kd-join-fever_it:  70%|███████   | 63/90 [00:00<00:00, 616.22 examples/s]kd-join-fever_it: 100%|██████████| 90/90 [00:00<00:00, 648.93 examples/s]
+2026-08-13 16:41:02,264 INFO it_colbert.data: kd split fever_it: 90 examples
+kd-join-trivia_it:   0%|          | 0/304 [00:00<?, ? examples/s]kd-join-trivia_it:  18%|█▊        | 54/304 [00:00<00:00, 525.47 examples/s]kd-join-trivia_it:  37%|███▋      | 113/304 [00:00<00:00, 557.59 examples/s]kd-join-trivia_it:  59%|█████▉    | 179/304 [00:00<00:00, 597.10 examples/s]kd-join-trivia_it:  81%|████████  | 245/304 [00:00<00:00, 614.31 examples/s]kd-join-trivia_it: 100%|██████████| 304/304 [00:00<00:00, 609.69 examples/s]
+2026-08-13 16:41:23,431 INFO it_colbert.data: kd split trivia_it: 304 examples
+kd-join-squadv2_it:   0%|          | 0/91 [00:00<?, ? examples/s]kd-join-squadv2_it:  81%|████████▏ | 74/91 [00:00<00:00, 731.42 examples/s]kd-join-squadv2_it: 100%|██████████| 91/91 [00:00<00:00, 779.45 examples/s]
+2026-08-13 16:41:24,528 INFO it_colbert.data: kd split squadv2_it: 91 examples
+kd-join-fiqa_it:   0%|          | 0/27 [00:00<?, ? examples/s]kd-join-fiqa_it: 100%|██████████| 27/27 [00:00<00:00, 554.26 examples/s]
+2026-08-13 16:41:24,827 INFO it_colbert.data: kd split fiqa_it: 27 examples
+kd-join-mldr_it:   0%|          | 0/20 [00:00<?, ? examples/s]kd-join-mldr_it: 100%|██████████| 20/20 [00:00<00:00, 219.87 examples/s]
+2026-08-13 16:41:24,980 INFO it_colbert.data: kd split mldr_it: 20 examples
+2026-08-13 16:41:24,985 INFO it_colbert.data: kd italian ready: 1022 examples
+2026-08-13 16:41:25,040 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
+2026-08-13 16:41:25,041 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-13 16:41:25,041 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/phase1/final
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 4394.45it/s]
+{'loss': '1.058', 'grad_norm': '3.268', 'learning_rate': '0', 'epoch': '0.003906'}
+{'loss': '0.894', 'grad_norm': '3.428', 'learning_rate': '5e-06', 'epoch': '0.007812'}
+{'loss': '1.047', 'grad_norm': '4.042', 'learning_rate': '1e-05', 'epoch': '0.01172'}
+{'loss': '1.011', 'grad_norm': '3.052', 'learning_rate': '9.643e-06', 'epoch': '0.01562'}
+{'loss': '1.35', 'grad_norm': '4.744', 'learning_rate': '9.286e-06', 'epoch': '0.01953'}
+{'loss': '1.089', 'grad_norm': '2.726', 'learning_rate': '8.929e-06', 'epoch': '0.02344'}
+{'loss': '1.29', 'grad_norm': '2.535', 'learning_rate': '8.571e-06', 'epoch': '0.02734'}
+{'loss': '0.8924', 'grad_norm': '5.688', 'learning_rate': '8.214e-06', 'epoch': '0.03125'}
+{'loss': '1.14', 'grad_norm': '2.398', 'learning_rate': '7.857e-06', 'epoch': '0.03516'}
+{'loss': '1.714', 'grad_norm': '6.062', 'learning_rate': '7.5e-06', 'epoch': '0.03906'}
+{'loss': '1.473', 'grad_norm': '2.603', 'learning_rate': '7.143e-06', 'epoch': '0.04297'}
+{'loss': '1.199', 'grad_norm': '3.356', 'learning_rate': '6.786e-06', 'epoch': '0.04688'}
+{'loss': '1.606', 'grad_norm': '9.056', 'learning_rate': '6.429e-06', 'epoch': '0.05078'}
+{'loss': '1.114', 'grad_norm': '2.547', 'learning_rate': '6.071e-06', 'epoch': '0.05469'}
+{'loss': '0.9642', 'grad_norm': '4.015', 'learning_rate': '5.714e-06', 'epoch': '0.05859'}
+{'loss': '0.5263', 'grad_norm': '1.299', 'learning_rate': '5.357e-06', 'epoch': '0.0625'}
+{'loss': '0.6198', 'grad_norm': '2.036', 'learning_rate': '5e-06', 'epoch': '0.06641'}
+{'loss': '0.5091', 'grad_norm': '2.925', 'learning_rate': '4.643e-06', 'epoch': '0.07031'}
+{'loss': '0.9336', 'grad_norm': '2.681', 'learning_rate': '4.286e-06', 'epoch': '0.07422'}
+{'loss': '1.149', 'grad_norm': '4.176', 'learning_rate': '3.929e-06', 'epoch': '0.07812'}
+{'loss': '1.106', 'grad_norm': '2.738', 'learning_rate': '3.571e-06', 'epoch': '0.08203'}
+{'loss': '0.8594', 'grad_norm': '3.678', 'learning_rate': '3.214e-06', 'epoch': '0.08594'}
+{'loss': '1.406', 'grad_norm': '5.459', 'learning_rate': '2.857e-06', 'epoch': '0.08984'}
+{'loss': '1.576', 'grad_norm': '5.468', 'learning_rate': '2.5e-06', 'epoch': '0.09375'}
+{'loss': '0.8889', 'grad_norm': '2.357', 'learning_rate': '2.143e-06', 'epoch': '0.09766'}
+{'loss': '1.538', 'grad_norm': '2.641', 'learning_rate': '1.786e-06', 'epoch': '0.1016'}
+{'loss': '0.7008', 'grad_norm': '3.396', 'learning_rate': '1.429e-06', 'epoch': '0.1055'}
+{'loss': '1.332', 'grad_norm': '3.317', 'learning_rate': '1.071e-06', 'epoch': '0.1094'}
+{'loss': '1.245', 'grad_norm': '4.785', 'learning_rate': '7.143e-07', 'epoch': '0.1133'}
+{'loss': '2.055', 'grad_norm': '6.387', 'learning_rate': '3.571e-07', 'epoch': '0.1172'}
+2026-08-13 16:41:45,940 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase2_feasibility/checkpoint-30
+2026-08-13 16:41:45,940 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase2_feasibility/checkpoint-30
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.16it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.16it/s]
+{'train_runtime': '21.11', 'train_samples_per_second': '5.685', 'train_steps_per_second': '1.421', 'train_loss': '1.143', 'epoch': '0.1172'}
+2026-08-13 16:41:47,829 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase2_feasibility/final
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.46it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.46it/s]
+2026-08-13 16:41:48,542 INFO it_colbert.train_phase2: phase 2 model saved to outputs/phase2_feasibility/final
