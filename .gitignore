@@ -13,9 +13,6 @@ wheels/
 .env.*
 !.env.example
 
-# local project notes (not for repo)
-WORKLOG.md
-
 # training / eval artifacts (checkpoints, indexes, logs)
 outputs/dataset_cache/
 outputs/mined_hn/
