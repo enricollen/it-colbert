@@ -16,10 +16,11 @@ num_train_epochs = 1.0
 # 11-way KD at length 512 is heavy; batch 8 oom'd on 3090 during backward.
 # drop to 4 before touching kd_n_ways (see TODO.md §5).
 per_device_train_batch_size = 4
-learning_rate = 1.0e-5
-warmup_ratio = 0.05
+# refinement stage on phase-1 weights; round 1 degraded as lr climbed (§7)
+learning_rate = 2.0e-6
+warmup_ratio = 0.01
 logging_steps = 50
-save_steps = 2000
+save_steps = 500
 save_total_limit = 3
 seed = 42
 bf16 = true
@@ -62,7 +63,11 @@ ir_eval_mldr_queries = 200
 ir_eval_mldr_docs = 3000
 ir_eval_mmarco_queries = 500
 ir_eval_mmarco_docs = 5000
-eval_steps = 2000
+ir_eval_miracl_queries = 200
+ir_eval_miracl_docs = 5000
+ir_eval_miracl_pool_docs = 30000
+ir_eval_weights = [0.35, 0.35, 0.30]
+eval_steps = 500
 per_device_eval_batch_size = 32
 early_stopping_patience = 4
 load_best_model_at_end = true
@@ -70,7 +75,6 @@ load_best_model_at_end = true
 # keep the KL curve alongside the IR metrics for overfitting diagnosis
 kd_eval_samples = 512
 
-# experimental replay stream; leave off for the first run so the KD mixture
-# change is measured on its own
-contrastive_anchor_enabled = false
+# replay stream: on after §7.1 smoke passed
+contrastive_anchor_enabled = true
 contrastive_anchor_samples = 100000

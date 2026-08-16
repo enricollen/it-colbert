@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Any, Callable
 
 import numpy as np
@@ -301,6 +302,7 @@ class ColBERTRetriever:
         query_length: int = 32,
         language: str | None = None,
         override_index: bool = True,
+        encode_documents: bool = True,
         brute_force_limit: int = 25_000,
         chunk_chars: int = 0,
         chunk_overlap_chars: int = 0,
@@ -351,6 +353,17 @@ class ColBERTRetriever:
                     "language=%s requested but model has no set_default_language",
                     language,
                 )
+
+        self.retriever = None
+        self.doc_emb = None
+        if not encode_documents:
+            self.use_bruteforce = False
+            self._load_index_only(
+                index_folder=index_folder,
+                index_name=index_name,
+            )
+            return
+
         logger.info(
             "encoding %s documents with colbert (bruteforce=%s)",
             len(documents),
@@ -362,40 +375,77 @@ class ColBERTRetriever:
             is_query=False,
             show_progress_bar=True,
         )
-        self.retriever = None
         if not self.use_bruteforce:
-            from pylate import indexes
-            from pylate import retrieve as pylate_retrieve
-
-            self.index = None
-            last_err: Exception | None = None
-            for factory in (
-                lambda: indexes.PLAID(
-                    index_folder=index_folder,
-                    index_name=index_name,
-                    override=override_index,
-                ),
-                lambda: indexes.Voyager(
-                    index_folder=index_folder,
-                    index_name=index_name,
-                    override=override_index,
-                ),
-            ):
-                try:
-                    self.index = factory()
-                    break
-                except Exception as exc:  # noqa: BLE001
-                    last_err = exc
-                    logger.warning("index backend failed (%s); trying next", exc)
-            if self.index is None:
-                raise RuntimeError(f"no colbert index backend available: {last_err}")
-            self.index.add_documents(
-                documents_ids=self.doc_ids,
-                documents_embeddings=self.doc_emb,
+            self._build_index(
+                index_folder=index_folder,
+                index_name=index_name,
+                override_index=override_index,
             )
-            self.retriever = pylate_retrieve.ColBERT(index=self.index)
 
-    def retrieve(self, queries: list[str], k: int = 100) -> list[list[dict]]:
+    def _load_index_only(self, index_folder: str, index_name: str) -> None:
+        from pylate import indexes
+        from pylate import retrieve as pylate_retrieve
+
+        index_path = Path(index_folder) / index_name / "index.voyager"
+        if not index_path.exists():
+            raise FileNotFoundError(f"no saved index at {index_path}")
+        logger.info("loading saved colbert index from %s (skip document encoding)", index_path)
+        self.index = indexes.Voyager(
+            index_folder=index_folder,
+            index_name=index_name,
+            override=False,
+        )
+        self.retriever = pylate_retrieve.ColBERT(index=self.index)
+
+    def _build_index(
+        self,
+        index_folder: str,
+        index_name: str,
+        override_index: bool,
+    ) -> None:
+        from pylate import indexes
+        from pylate import retrieve as pylate_retrieve
+
+        self.index = None
+        last_err: Exception | None = None
+        for factory in (
+            lambda: indexes.PLAID(
+                index_folder=index_folder,
+                index_name=index_name,
+                override=override_index,
+            ),
+            lambda: indexes.Voyager(
+                index_folder=index_folder,
+                index_name=index_name,
+                override=override_index,
+            ),
+        ):
+            try:
+                self.index = factory()
+                break
+            except Exception as exc:  # noqa: BLE001
+                last_err = exc
+                logger.warning("index backend failed (%s); trying next", exc)
+        if self.index is None:
+            raise RuntimeError(f"no colbert index backend available: {last_err}")
+        self.index.add_documents(
+            documents_ids=self.doc_ids,
+            documents_embeddings=self.doc_emb,
+        )
+        self.retriever = pylate_retrieve.ColBERT(index=self.index)
+        # indexed embeddings live on disk/in the index backend; drop the
+        # in-memory copy so retrieval over large corpora does not oom
+        self.doc_emb = None
+        import gc
+
+        gc.collect()
+
+    def retrieve(
+        self,
+        queries: list[str],
+        k: int = 100,
+        retrieve_batch_size: int = 5,
+    ) -> list[list[dict]]:
         q_emb = self.model.encode(
             queries,
             batch_size=32,
@@ -410,7 +460,11 @@ class ColBERTRetriever:
             )
             ranked = scores_to_pylate([], ranked_ids, ranked_scores)
         else:
-            ranked = self.retriever.retrieve(queries_embeddings=q_emb, k=fetch_k)
+            ranked = self.retriever.retrieve(
+                queries_embeddings=q_emb,
+                k=fetch_k,
+                batch_size=retrieve_batch_size,
+            )
         if self.chunk_to_parent:
             ranked = maxpool_chunks_to_documents(ranked, self.chunk_to_parent, k=k)
         return ranked

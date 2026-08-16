@@ -1,0 +1,7 @@
+[2026-08-15T18:49:49+02:00] armed: will stop training in 13211s at 22:30
+[2026-08-15T22:30:00+02:00] 22:30 reached — stopping training
+[2026-08-15T22:30:00+02:00] sending SIGTERM to: 9456
+9460
+93901
+93903
+146855

@@ -142,7 +142,11 @@ class Phase2Config:
     ir_eval_mmarco_queries: int = 500
     ir_eval_mmarco_docs: int = 5_000
     ir_eval_mmarco_pool_docs: int = 50_000
-    ir_eval_weights: tuple[float, float] = (0.5, 0.5)
+    ir_eval_miracl_queries: int = 200
+    ir_eval_miracl_docs: int = 5_000
+    ir_eval_miracl_pool_docs: int = 30_000
+    # mldr, miracl, mmarco — phase 2 helps the first two; down-weight mmarco (§7)
+    ir_eval_weights: tuple[float, ...] = (0.35, 0.35, 0.30)
     # anti-forgetting: replay phase-1 contrastive alongside kd (experimental)
     contrastive_anchor_enabled: bool = False
     contrastive_anchor_samples: int = 100_000

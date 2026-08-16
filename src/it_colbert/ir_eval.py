@@ -21,9 +21,11 @@ from sentence_transformers.evaluation import SentenceEvaluator
 from pylate import evaluation
 
 from it_colbert.benchmark.datasets import (
+    TEVATRON_STYLE_ITALIAN,
     RetrievalSplit,
     load_mldr_italian,
     load_mmarco_italian_dev,
+    load_tevatron_style_italian,
 )
 from it_colbert.benchmark.retrievers import maxsim_topk, scores_to_pylate
 
@@ -62,12 +64,11 @@ def _subsample(
 
 
 class ItIREvaluator(SentenceEvaluator):
-    """nDCG@10 / MRR@10 on pooled MLDR-it and mMARCO-it slices.
+    """nDCG@10 / MRR@10 on pooled MLDR-it, MIRACL-ita and mMARCO-it slices.
 
-    reports `<name>_mldr_ndcg@10`, `<name>_mmarco_mrr@10` and `<name>_score`,
-    the mean of the two. `score` is the one to select checkpoints on: it is the
-    metric that penalises trading long-doc quality for short-passage quality,
-    which is exactly the failure mode the KD runs kept hitting.
+    reports per-split metrics and `<name>_score`, the weighted mean of the
+    primary metric on each enabled split. `score` is the one to select
+    checkpoints on.
     """
 
     def __init__(
@@ -78,10 +79,13 @@ class ItIREvaluator(SentenceEvaluator):
         mmarco_queries: int = 500,
         mmarco_docs: int = 5_000,
         mmarco_pool_docs: int = 50_000,
+        miracl_queries: int = 0,
+        miracl_docs: int = 0,
+        miracl_pool_docs: int = 30_000,
         batch_size: int = 32,
         top_k: int = 100,
         seed: int = 42,
-        weights: tuple[float, float] = (0.5, 0.5),
+        weights: tuple[float, ...] = (0.5, 0.5),
     ):
         super().__init__()
         self.name = name
@@ -108,6 +112,23 @@ class ItIREvaluator(SentenceEvaluator):
                 seed=seed,
             )
             self.splits.append(("mmarco", mmarco, "mrr@10"))
+        if miracl_queries and miracl_docs:
+            meta = TEVATRON_STYLE_ITALIAN["miracl-ita"]
+            miracl = _subsample(
+                load_tevatron_style_italian(
+                    dataset_id=meta["dataset_id"],
+                    split=meta["split"],
+                    corpus_id=meta["corpus_id"],
+                    corpus_split=meta["corpus_split"],
+                    max_corpus_docs=miracl_pool_docs,
+                    name="miracl-ita",
+                    seed=seed,
+                ),
+                max_queries=miracl_queries,
+                max_docs=miracl_docs,
+                seed=seed + 3,
+            )
+            self.splits.append(("miracl", miracl, "ndcg@10"))
         if not self.splits:
             raise ValueError("ItIREvaluator needs at least one split enabled")
 

@@ -39,9 +39,8 @@ mmarco_hn_negatives_per_query = 4
 include_italian_sources = true
 italian_source_max_samples = 50000
 
-# round 2: point this at scripts/mine_hard_negatives.py output and retrain.
-# leave empty for the first run.
-# mined_negatives_path = "outputs/mined_hn"
+# round 2: self-mined hard negatives from outputs/final (round 1)
+mined_negatives_path = "outputs/mined_hn"
 
 num_train_epochs = 1.0
 # CachedContrastive/GradCache decouples batch size from VRAM: the batch sets how

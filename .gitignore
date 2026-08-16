@@ -18,14 +18,24 @@ WORKLOG.md
 
 # training / eval artifacts (checkpoints, indexes, logs)
 outputs/dataset_cache/
+outputs/mined_hn/
+outputs/mining_index/
+outputs/mining_state/
+outputs/smoke_phase*/
+outputs/final_round1/
+outputs/**/checkpoint-*/
 data/
 wandb/
 outputs_v1_archive/
 
-# weights
+# weights / binary dumps
 *.pt
+*.pth
 *.bin
 *.safetensors
+*.pkl
+*.arrow
+*.voyager
 
 # caches
 .cache/

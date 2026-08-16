@@ -1,0 +1,255 @@
+=== PHASE1 SMOKE 2026-08-15T12:48:44+02:00 ===
+2026-08-15 12:48:48,884 INFO it_colbert.train_phase1: starting phase 1 contrastive training
+2026-08-15 12:48:48,884 INFO it_colbert.train_phase1: config: Phase1Config(model_name='nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl', output_dir='outputs/smoke_phase1', run_name='it-colbert-smoke-phase1', dim=128, document_length=512, query_length=32, mmarco_samples=2048, mmarco_eval_samples=128, include_wiki_hn=True, wiki_max_hard_negatives=1, include_mmarco_hn=True, mmarco_hn_samples=512, mmarco_hn_negatives_per_query=2, include_italian_sources=True, italian_source_max_samples=128, mined_negatives_path=None, mined_negatives_per_query=4, num_train_epochs=1.0, per_device_train_batch_size=16, per_device_eval_batch_size=8, mini_batch_size=4, learning_rate=1e-05, temperature=0.02, warmup_ratio=0.05, logging_steps=5, eval_steps=10, save_steps=20, save_total_limit=3, ir_eval_enabled=True, ir_eval_name='it-ir', ir_eval_mldr_queries=20, ir_eval_mldr_docs=300, ir_eval_mmarco_queries=20, ir_eval_mmarco_docs=300, ir_eval_mmarco_pool_docs=20000, early_stopping_patience=0, load_best_model_at_end=False, metric_for_best_model='it-ir_score', seed=42, bf16=True, fp16=False, compile_model=False, max_steps=20, resume_from_checkpoint=None, auto_resume=True, dataset_cache_dir='outputs/dataset_cache')
+2026-08-15 12:48:48,884 INFO it_colbert.data: downloading unicamp-dl/mmarco italian tsv files...
+2026-08-15 12:49:06,674 INFO httpx: HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+2026-08-15 12:49:07,589 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/triples.train.ids.small.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:49:08,676 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/collections/italian_collection.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:49:09,880 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/queries/train/italian_queries.train.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:49:09,881 INFO it_colbert.data: indexing italian collection and queries...
+2026-08-15 12:49:22,061 INFO it_colbert.data: mmarco-it ready: 2048 examples
+2026-08-15 12:49:22,872 INFO it_colbert.data: loading hotchpotch/mmarco-hard-negatives-reranker-filtered [italian-hard-negatives] as contrastive triplets...
+2026-08-15 12:49:40,419 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/hotchpotch/mmarco-hard-negatives-reranker-filtered/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:49:41,243 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/hotchpotch/mmarco-hard-negatives-reranker-filtered/6d1dd795ef4c668230b03c952f9d3b8e43fbba00/README.md "HTTP/1.1 200 OK"
+2026-08-15 12:49:42,310 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/hotchpotch/mmarco-hard-negatives-reranker-filtered/resolve/6d1dd795ef4c668230b03c952f9d3b8e43fbba00/mmarco-hard-negatives-reranker-filtered.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:50:14,242 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/hotchpotch/mmarco-hard-negatives-reranker-filtered/revision/6d1dd795ef4c668230b03c952f9d3b8e43fbba00 "HTTP/1.1 200 OK"
+2026-08-15 12:50:15,229 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/hotchpotch/mmarco-hard-negatives-reranker-filtered/resolve/6d1dd795ef4c668230b03c952f9d3b8e43fbba00/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-08-15 12:50:27,775 INFO httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=hotchpotch/mmarco-hard-negatives-reranker-filtered "HTTP/1.1 200 OK"
+Using the latest cached version of the dataset since hotchpotch/mmarco-hard-negatives-reranker-filtered couldn't be found on the Hugging Face Hub
+2026-08-15 12:50:47,799 WARNING datasets.load: Using the latest cached version of the dataset since hotchpotch/mmarco-hard-negatives-reranker-filtered couldn't be found on the Hugging Face Hub
+Found the latest cached dataset configuration 'italian-hard-negatives' at /home/enricollen/.cache/huggingface/datasets/hotchpotch___mmarco-hard-negatives-reranker-filtered/italian-hard-negatives/0.0.0/6d1dd795ef4c668230b03c952f9d3b8e43fbba00 (last modified on Thu Aug 13 16:48:48 2026).
+2026-08-15 12:50:47,801 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'italian-hard-negatives' at /home/enricollen/.cache/huggingface/datasets/hotchpotch___mmarco-hard-negatives-reranker-filtered/italian-hard-negatives/0.0.0/6d1dd795ef4c668230b03c952f9d3b8e43fbba00 (last modified on Thu Aug 13 16:48:48 2026).
+2026-08-15 12:50:48,121 INFO it_colbert.data: mmarco-hn contrastive: dropped 20 likely false negatives
+2026-08-15 12:50:48,127 INFO it_colbert.data: mmarco-hn contrastive ready: 1006 triplets
+2026-08-15 12:50:48,131 INFO it_colbert.data: loading yuri-no/miracl-ita-argos [train] as contrastive triplets...
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/datasets/yuri-no/miracl-ita-argos/resolve/b6862f9cbc64ef9e858118b8269743d83e9804cf/miracl-ita-argos.py
+2026-08-15 12:51:48,195 WARNING huggingface_hub.utils._http: '[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/datasets/yuri-no/miracl-ita-argos/resolve/b6862f9cbc64ef9e858118b8269743d83e9804cf/miracl-ita-argos.py
+Retrying in 1s [Retry 1/5].
+2026-08-15 12:51:48,196 WARNING huggingface_hub.utils._http: Retrying in 1s [Retry 1/5].
+Using the latest cached version of the dataset since yuri-no/miracl-ita-argos couldn't be found on the Hugging Face Hub
+2026-08-15 12:51:49,196 WARNING datasets.load: Using the latest cached version of the dataset since yuri-no/miracl-ita-argos couldn't be found on the Hugging Face Hub
+Found the latest cached dataset configuration 'default' at /home/enricollen/.cache/huggingface/datasets/yuri-no___miracl-ita-argos/default/0.0.0/b6862f9cbc64ef9e858118b8269743d83e9804cf (last modified on Tue Aug 11 09:52:55 2026).
+2026-08-15 12:51:49,197 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'default' at /home/enricollen/.cache/huggingface/datasets/yuri-no___miracl-ita-argos/default/0.0.0/b6862f9cbc64ef9e858118b8269743d83e9804cf (last modified on Tue Aug 11 09:52:55 2026).
+2026-08-15 12:51:49,248 INFO it_colbert.data: yuri-no/miracl-ita-argos ready: 242 triplets
+2026-08-15 12:51:49,248 INFO it_colbert.data: loading yuri-no/squad-ita [train] as contrastive triplets...
+2026-08-15 12:52:34,848 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/yuri-no/squad-ita/resolve/44c063da6d9c8ce6e1b132854cd6d2661734a8f6/squad-ita.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:52:35,483 INFO httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yuri-no/squad-ita/yuri-no/squad-ita.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:52:35,769 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/yuri-no/squad-ita/revision/44c063da6d9c8ce6e1b132854cd6d2661734a8f6 "HTTP/1.1 200 OK"
+2026-08-15 12:52:36,012 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/yuri-no/squad-ita/resolve/44c063da6d9c8ce6e1b132854cd6d2661734a8f6/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-08-15 12:52:36,562 INFO httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=yuri-no/squad-ita "HTTP/1.1 200 OK"
+2026-08-15 12:52:36,833 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/yuri-no/squad-ita/tree/44c063da6d9c8ce6e1b132854cd6d2661734a8f6/data?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:52:37,122 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/yuri-no/squad-ita/tree/44c063da6d9c8ce6e1b132854cd6d2661734a8f6?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:52:37,377 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/yuri-no/squad-ita/resolve/44c063da6d9c8ce6e1b132854cd6d2661734a8f6/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-08-15 12:52:37,482 INFO it_colbert.data: yuri-no/squad-ita ready: 256 triplets
+2026-08-15 12:52:37,482 INFO it_colbert.data: loading nickprock/it-wiki-retrieval-synthetic-hn...
+2026-08-15 12:52:37,753 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/nickprock/it-wiki-retrieval-synthetic-hn/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:37,837 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/nickprock/it-wiki-retrieval-synthetic-hn/d6472bf5b9059cd2f6ffa0d117edca63a2529e98/README.md "HTTP/1.1 200 OK"
+2026-08-15 12:52:38,121 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/nickprock/it-wiki-retrieval-synthetic-hn/resolve/d6472bf5b9059cd2f6ffa0d117edca63a2529e98/it-wiki-retrieval-synthetic-hn.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:52:38,311 INFO httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/nickprock/it-wiki-retrieval-synthetic-hn/nickprock/it-wiki-retrieval-synthetic-hn.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:52:38,584 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/nickprock/it-wiki-retrieval-synthetic-hn/revision/d6472bf5b9059cd2f6ffa0d117edca63a2529e98 "HTTP/1.1 200 OK"
+2026-08-15 12:52:38,858 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/nickprock/it-wiki-retrieval-synthetic-hn/resolve/d6472bf5b9059cd2f6ffa0d117edca63a2529e98/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-08-15 12:52:39,136 INFO httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=nickprock/it-wiki-retrieval-synthetic-hn "HTTP/1.1 200 OK"
+2026-08-15 12:52:39,456 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/nickprock/it-wiki-retrieval-synthetic-hn/tree/d6472bf5b9059cd2f6ffa0d117edca63a2529e98/data?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:52:39,833 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/nickprock/it-wiki-retrieval-synthetic-hn/tree/d6472bf5b9059cd2f6ffa0d117edca63a2529e98?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:52:40,179 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/nickprock/it-wiki-retrieval-synthetic-hn/resolve/d6472bf5b9059cd2f6ffa0d117edca63a2529e98/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-08-15 12:52:40,987 INFO it_colbert.data: wiki-hn ready: 50001 triplet examples
+2026-08-15 12:52:41,013 INFO it_colbert.data: phase1 dataset: 53425 train / 128 eval
+Saving the dataset (0/1 shards):   0%|          | 0/53425 [00:00<?, ? examples/s]Saving the dataset (0/1 shards):  82%|████████▏ | 44000/53425 [00:00<00:00, 426524.27 examples/s]Saving the dataset (1/1 shards): 100%|██████████| 53425/53425 [00:00<00:00, 426524.27 examples/s]Saving the dataset (1/1 shards): 100%|██████████| 53425/53425 [00:00<00:00, 421845.80 examples/s]
+Saving the dataset (0/1 shards):   0%|          | 0/128 [00:00<?, ? examples/s]Saving the dataset (1/1 shards): 100%|██████████| 128/128 [00:00<00:00, 76184.32 examples/s]Saving the dataset (1/1 shards): 100%|██████████| 128/128 [00:00<00:00, 72063.21 examples/s]
+2026-08-15 12:52:41,143 INFO it_colbert.data: cached phase1 dataset at outputs/dataset_cache/phase1-de8084db71025770
+2026-08-15 12:52:41,144 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
+2026-08-15 12:52:41,144 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-15 12:52:41,145 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl
+2026-08-15 12:52:41,498 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:41,699 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-15 12:52:42,069 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:42,289 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-15 12:52:42,634 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:42,812 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-15 12:52:43,073 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:43,140 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/README.md "HTTP/1.1 200 OK"
+2026-08-15 12:52:43,359 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:43,439 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-15 12:52:43,744 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:43,920 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-08-15 12:52:44,337 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-08-15 12:52:44,709 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:44,914 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+The `reference_compile` argument is deprecated and will be removed in `transformers v5.2.0`Use `torch.compile()` directly on the model instead.
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 2498.19it/s]
+2026-08-15 12:52:45,455 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:45,655 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+2026-08-15 12:52:46,008 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:46,197 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-08-15 12:52:46,549 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-08-15 12:52:46,902 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:52:47,275 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:47,446 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-08-15 12:52:47,884 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl "HTTP/1.1 200 OK"
+2026-08-15 12:52:48,222 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:48,408 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-15 12:52:48,930 INFO pylate.models.colbert: The checkpoint does not contain a linear projection layer. Adding one with output dimensions (768, 128).
+2026-08-15 12:52:48,931 INFO pylate.models.colbert: Created a PyLate model from base encoder.
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+2026-08-15 12:52:49,088 WARNING sentence_transformers.evaluation.TripletEvaluator: The 'main_distance_function' parameter is deprecated. Please use 'main_similarity_function' instead. 'main_distance_function' will be removed in a future release.
+2026-08-15 12:52:49,089 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-15 12:52:49,405 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/test.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-15 12:52:49,723 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/corpus.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-15 12:52:50,044 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/qrels/qrels.mldr-v1.0-it-test.tsv "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:52:50,187 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/Shitao/MLDR/d67138e705d963e346253a80e59676ddb418810a/qrels%2Fqrels.mldr-v1.0-it-test.tsv "HTTP/1.1 200 OK"
+2026-08-15 12:52:52,257 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-15 12:52:52,259 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
+2026-08-15 12:52:52,680 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/collections/italian_collection.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:52:53,120 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/queries/dev/italian_queries.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:52:53,581 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/qrels.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:53:01,932 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 20000 docs (qrel=7433), qrels=7437
+2026-08-15 12:53:01,936 INFO it_colbert.ir_eval: ir eval mldr: 20 queries / 300 docs
+2026-08-15 12:53:01,936 INFO it_colbert.ir_eval: ir eval mmarco: 20 queries / 300 docs
+2026-08-15 12:53:01,936 INFO it_colbert.train_phase1: phase1 ir eval on, every 10 steps
+2026-08-15 12:53:02,092 INFO it_colbert.checkpoints: no checkpoint in outputs/smoke_phase1; starting fresh
+2026-08-15 12:53:15,202 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.0029940119760479044 after 10 steps:
+2026-08-15 12:53:15,827 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.80
+2026-08-15 12:53:22,601 INFO it_colbert.ir_eval: ir eval @ step 10: {'it-ir_mldr_ndcg@10': 0.3360093070283937, 'it-ir_mldr_mrr@10': 0.31714285714285717, 'it-ir_mldr_recall@10': 0.4, 'it-ir_mmarco_ndcg@10': 0.5939220137667116, 'it-ir_mmarco_mrr@10': 0.571031746031746, 'it-ir_mmarco_recall@10': 0.725, 'it-ir_score': 0.45352052653006986}
+2026-08-15 12:53:34,843 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.005988023952095809 after 20 steps:
+2026-08-15 12:53:35,474 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.80
+2026-08-15 12:53:38,621 INFO it_colbert.ir_eval: ir eval @ step 20: {'it-ir_mldr_ndcg@10': 0.31534236935619436, 'it-ir_mldr_mrr@10': 0.29000000000000004, 'it-ir_mldr_recall@10': 0.4, 'it-ir_mmarco_ndcg@10': 0.6118313027611426, 'it-ir_mmarco_mrr@10': 0.5680555555555556, 'it-ir_mmarco_recall@10': 0.775, 'it-ir_score': 0.44169896245587503}
+2026-08-15 12:53:38,621 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/smoke_phase1/checkpoint-20
+2026-08-15 12:53:38,621 INFO sentence_transformers.SentenceTransformer: Save model to outputs/smoke_phase1/checkpoint-20
+{'loss': '18.99', 'grad_norm': '2.879e+04', 'learning_rate': '8.421e-06', 'epoch': '0.001497'}
+{'loss': '15.14', 'grad_norm': '3.427e+04', 'learning_rate': '5.789e-06', 'epoch': '0.002994'}
+{'eval_loss': '20.44', 'eval_accuracy': '0.7969', 'eval_it-ir_mldr_ndcg@10': '0.336', 'eval_it-ir_mldr_mrr@10': '0.3171', 'eval_it-ir_mldr_recall@10': '0.4', 'eval_it-ir_mmarco_ndcg@10': '0.5939', 'eval_it-ir_mmarco_mrr@10': '0.571', 'eval_it-ir_mmarco_recall@10': '0.725', 'eval_it-ir_score': '0.4535', 'eval_runtime': '9.655', 'eval_samples_per_second': '13.26', 'eval_steps_per_second': '1.657', 'epoch': '0.002994'}
+{'loss': '24.82', 'grad_norm': '3.843e+04', 'learning_rate': '3.158e-06', 'epoch': '0.004491'}
+{'loss': '18.72', 'grad_norm': '2.522e+04', 'learning_rate': '5.263e-07', 'epoch': '0.005988'}
+{'eval_loss': '17.58', 'eval_accuracy': '0.8047', 'eval_it-ir_mldr_ndcg@10': '0.3153', 'eval_it-ir_mldr_mrr@10': '0.29', 'eval_it-ir_mldr_recall@10': '0.4', 'eval_it-ir_mmarco_ndcg@10': '0.6118', 'eval_it-ir_mmarco_mrr@10': '0.5681', 'eval_it-ir_mmarco_recall@10': '0.775', 'eval_it-ir_score': '0.4417', 'eval_runtime': '6.062', 'eval_samples_per_second': '21.11', 'eval_steps_per_second': '2.639', 'epoch': '0.005988'}
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.86it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.86it/s]
+2026-08-15 12:53:39,901 INFO sentence_transformers.SentenceTransformer: Save model to outputs/smoke_phase1/final
+{'train_runtime': '37.7', 'train_samples_per_second': '8.489', 'train_steps_per_second': '0.531', 'train_loss': '19.42', 'epoch': '0.005988'}
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.95it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.95it/s]
+2026-08-15 12:53:40,267 INFO it_colbert.train_phase1: phase 1 model saved to outputs/smoke_phase1/final
+=== PHASE2 SMOKE 2026-08-15T12:53:41+02:00 ===
+2026-08-15 12:53:44,112 INFO it_colbert.train_phase2: starting phase 2 distillation training
+2026-08-15 12:53:44,112 INFO it_colbert.train_phase2: config: Phase2Config(model_name_or_path='outputs/smoke_phase1/final', output_dir='outputs/smoke_phase2', run_name='it-colbert-smoke-phase2', document_length=512, query_length=32, num_train_epochs=1.0, per_device_train_batch_size=2, learning_rate=2e-06, warmup_ratio=0.01, logging_steps=2, save_steps=10, save_total_limit=3, seed=42, bf16=True, fp16=False, compile_model=False, max_steps=10, max_train_samples=256, resume_from_checkpoint=None, auto_resume=True, include_mmarco_hn=False, mmarco_hn_max_samples=None, mmarco_hn_dataset='hotchpotch/mmarco-hard-negatives-reranker-filtered', mmarco_hn_config='italian-hard-negatives', mmarco_hn_score_temperature=1.0, mmarco_hn_score_clip=None, kd_n_ways=11, kd_split_sampling='proportional', kd_split_min_share=0.02, kd_split_quotas=None, kd_eval_samples=32, kd_eval_exclude_from_train=True, eval_steps=5, per_device_eval_batch_size=32, early_stopping_patience=4, load_best_model_at_end=True, metric_for_best_model='kd-holdout_kl_divergence', greater_is_better=None, ir_eval_enabled=True, ir_eval_name='it-ir', ir_eval_mldr_queries=20, ir_eval_mldr_docs=300, ir_eval_mmarco_queries=20, ir_eval_mmarco_docs=300, ir_eval_mmarco_pool_docs=20000, ir_eval_miracl_queries=20, ir_eval_miracl_docs=300, ir_eval_miracl_pool_docs=5000, ir_eval_weights=[0.35, 0.35, 0.3], contrastive_anchor_enabled=True, contrastive_anchor_samples=512, contrastive_anchor_mini_batch_size=16, contrastive_anchor_temperature=0.02)
+2026-08-15 12:53:44,112 INFO it_colbert.checkpoints: no checkpoint in outputs/smoke_phase2; starting fresh
+2026-08-15 12:53:44,112 INFO it_colbert.data: loading lightonai/embeddings-fine-tuning-filtered-it...
+2026-08-15 12:53:44,766 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:53:44,877 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/lightonai/embeddings-fine-tuning-filtered-it/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/README.md "HTTP/1.1 200 OK"
+2026-08-15 12:53:45,154 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/embeddings-fine-tuning-filtered-it.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:45,791 INFO httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/lightonai/embeddings-fine-tuning-filtered-it/lightonai/embeddings-fine-tuning-filtered-it.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:46,003 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/lightonai/embeddings-fine-tuning-filtered-it/revision/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e "HTTP/1.1 200 OK"
+2026-08-15 12:53:46,303 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:46,957 INFO httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=lightonai/embeddings-fine-tuning-filtered-it "HTTP/1.1 200 OK"
+2026-08-15 12:53:47,285 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/lightonai/embeddings-fine-tuning-filtered-it/tree/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/documents?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:53:47,570 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/lightonai/embeddings-fine-tuning-filtered-it/tree/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:53:47,938 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:48,233 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/lightonai/embeddings-fine-tuning-filtered-it/tree/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/scores?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:53:49,042 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:53:49,135 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/lightonai/embeddings-fine-tuning-filtered-it/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/README.md "HTTP/1.1 200 OK"
+2026-08-15 12:53:49,387 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/embeddings-fine-tuning-filtered-it.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:49,587 INFO httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/lightonai/embeddings-fine-tuning-filtered-it/lightonai/embeddings-fine-tuning-filtered-it.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:49,885 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:50,189 INFO httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=lightonai/embeddings-fine-tuning-filtered-it "HTTP/1.1 200 OK"
+2026-08-15 12:53:50,455 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:50,833 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/lightonai/embeddings-fine-tuning-filtered-it/tree/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/queries?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:53:51,279 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:53:51,382 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/lightonai/embeddings-fine-tuning-filtered-it/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/README.md "HTTP/1.1 200 OK"
+2026-08-15 12:53:51,654 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/embeddings-fine-tuning-filtered-it.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:51,855 INFO httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/lightonai/embeddings-fine-tuning-filtered-it/lightonai/embeddings-fine-tuning-filtered-it.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:52,118 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:52,378 INFO httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=lightonai/embeddings-fine-tuning-filtered-it "HTTP/1.1 200 OK"
+2026-08-15 12:53:52,641 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/lightonai/embeddings-fine-tuning-filtered-it/resolve/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-08-15 12:53:54,645 INFO it_colbert.data: kd split quotas: {'msmarco_it': 87, 'nq_it': 23, 'hotpotqa_it': 27, 'fever_it': 25, 'trivia_it': 86, 'squadv2_it': 25, 'fiqa_it': 7, 'mldr_it': 5}
+2026-08-15 12:54:24,646 INFO it_colbert.data: kd split msmarco_it: 87 examples
+2026-08-15 12:54:31,791 INFO it_colbert.data: kd split nq_it: 23 examples
+2026-08-15 12:54:38,313 INFO it_colbert.data: kd split hotpotqa_it: 27 examples
+2026-08-15 12:54:40,494 INFO it_colbert.data: kd split fever_it: 25 examples
+2026-08-15 12:55:01,735 INFO it_colbert.data: kd split trivia_it: 86 examples
+2026-08-15 12:55:02,746 INFO it_colbert.data: kd split squadv2_it: 25 examples
+2026-08-15 12:55:03,007 INFO it_colbert.data: kd split fiqa_it: 7 examples
+2026-08-15 12:55:03,070 INFO it_colbert.data: kd split mldr_it: 5 examples
+2026-08-15 12:55:03,075 INFO it_colbert.data: kd italian ready: 285 examples
+2026-08-15 12:55:03,102 INFO it_colbert.data: kd split: 253 train / 32 hold-out (never in train)
+2026-08-15 12:55:03,102 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
+2026-08-15 12:55:03,103 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-15 12:55:03,103 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/smoke_phase1/final
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 5344.79it/s]
+2026-08-15 12:55:03,632 INFO it_colbert.data: downloading unicamp-dl/mmarco italian tsv files...
+2026-08-15 12:55:04,289 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/triples.train.ids.small.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:55:04,576 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/collections/italian_collection.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:55:04,880 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/queries/train/italian_queries.train.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:55:04,880 INFO it_colbert.data: indexing italian collection and queries...
+2026-08-15 12:55:17,101 INFO it_colbert.data: mmarco-it ready: 512 examples
+2026-08-15 12:55:17,781 INFO it_colbert.data: phase1 dataset: 512 train / no eval split
+Saving the dataset (0/1 shards):   0%|          | 0/512 [00:00<?, ? examples/s]Saving the dataset (1/1 shards): 100%|██████████| 512/512 [00:00<00:00, 165254.61 examples/s]Saving the dataset (1/1 shards): 100%|██████████| 512/512 [00:00<00:00, 153831.21 examples/s]
+Saving the dataset (0/0 shards): 0 examples [00:00, ? examples/s]Saving the dataset (0/0 shards): 0 examples [00:00, ? examples/s]
+2026-08-15 12:55:17,787 INFO it_colbert.data: cached phase1 dataset at outputs/dataset_cache/phase1-04c77fe1dde956a6
+2026-08-15 12:55:17,787 INFO it_colbert.train_phase2: phase2 contrastive anchor on: 512 replay triplets alongside 253 kd rows
+2026-08-15 12:55:17,795 INFO it_colbert.train_phase2: phase2 kd val enabled: 32 examples every 5 steps (kl, exclude_from_train=True)
+2026-08-15 12:55:17,795 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-15 12:55:18,392 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/test.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-15 12:55:18,761 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/corpus.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-15 12:55:18,984 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/qrels/qrels.mldr-v1.0-it-test.tsv "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:55:19,011 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/Shitao/MLDR/d67138e705d963e346253a80e59676ddb418810a/qrels%2Fqrels.mldr-v1.0-it-test.tsv "HTTP/1.1 200 OK"
+2026-08-15 12:55:21,064 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-15 12:55:21,066 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
+2026-08-15 12:55:21,349 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/collections/italian_collection.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:55:21,627 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/queries/dev/italian_queries.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:55:21,987 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/qrels.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-15 12:55:29,867 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 20000 docs (qrel=7433), qrels=7437
+2026-08-15 12:55:29,870 INFO it_colbert.benchmark.datasets: loading yuri-no/miracl-ita-argos [dev]...
+2026-08-15 12:55:30,597 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/yuri-no/miracl-ita-argos/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:55:30,760 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yuri-no/miracl-ita-argos/b6862f9cbc64ef9e858118b8269743d83e9804cf/README.md "HTTP/1.1 200 OK"
+2026-08-15 12:55:31,098 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/yuri-no/miracl-ita-argos/resolve/b6862f9cbc64ef9e858118b8269743d83e9804cf/miracl-ita-argos.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:55:31,867 INFO httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yuri-no/miracl-ita-argos/yuri-no/miracl-ita-argos.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:55:32,167 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/yuri-no/miracl-ita-argos/revision/b6862f9cbc64ef9e858118b8269743d83e9804cf "HTTP/1.1 200 OK"
+2026-08-15 12:55:32,456 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/yuri-no/miracl-ita-argos/resolve/b6862f9cbc64ef9e858118b8269743d83e9804cf/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-08-15 12:55:33,151 INFO httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=yuri-no/miracl-ita-argos "HTTP/1.1 200 OK"
+2026-08-15 12:55:33,435 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/yuri-no/miracl-ita-argos/tree/b6862f9cbc64ef9e858118b8269743d83e9804cf/data?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:55:33,756 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/yuri-no/miracl-ita-argos/tree/b6862f9cbc64ef9e858118b8269743d83e9804cf?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:55:34,036 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/yuri-no/miracl-ita-argos/resolve/b6862f9cbc64ef9e858118b8269743d83e9804cf/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-08-15 12:55:34,088 INFO it_colbert.benchmark.datasets: adding distractors from yuri-no/miracl-corpus-ita-argos [mini]
+2026-08-15 12:55:34,383 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/yuri-no/miracl-corpus-ita-argos/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-15 12:55:34,501 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yuri-no/miracl-corpus-ita-argos/4c69301230a14ce3ce5995e90dacda588b0f5475/README.md "HTTP/1.1 200 OK"
+2026-08-15 12:55:34,782 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/yuri-no/miracl-corpus-ita-argos/resolve/4c69301230a14ce3ce5995e90dacda588b0f5475/miracl-corpus-ita-argos.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:55:34,996 INFO httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yuri-no/miracl-corpus-ita-argos/yuri-no/miracl-corpus-ita-argos.py "HTTP/1.1 404 Not Found"
+2026-08-15 12:55:35,352 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/yuri-no/miracl-corpus-ita-argos/revision/4c69301230a14ce3ce5995e90dacda588b0f5475 "HTTP/1.1 200 OK"
+2026-08-15 12:55:35,630 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/yuri-no/miracl-corpus-ita-argos/resolve/4c69301230a14ce3ce5995e90dacda588b0f5475/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-08-15 12:55:35,921 INFO httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=yuri-no/miracl-corpus-ita-argos "HTTP/1.1 200 OK"
+2026-08-15 12:55:36,228 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/yuri-no/miracl-corpus-ita-argos/tree/4c69301230a14ce3ce5995e90dacda588b0f5475/data?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:55:36,532 INFO httpx: HTTP Request: GET https://huggingface.co/api/datasets/yuri-no/miracl-corpus-ita-argos/tree/4c69301230a14ce3ce5995e90dacda588b0f5475?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-08-15 12:55:36,824 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/yuri-no/miracl-corpus-ita-argos/resolve/4c69301230a14ce3ce5995e90dacda588b0f5475/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-08-15 12:55:36,852 INFO it_colbert.benchmark.datasets: miracl-ita ready: 799 queries, 5000 docs, qrels=2326
+2026-08-15 12:55:36,853 INFO it_colbert.ir_eval: ir eval mldr: 20 queries / 300 docs
+2026-08-15 12:55:36,853 INFO it_colbert.ir_eval: ir eval mmarco: 20 queries / 300 docs
+2026-08-15 12:55:36,854 INFO it_colbert.ir_eval: ir eval miracl: 20 queries / 300 docs
+2026-08-15 12:55:36,854 INFO it_colbert.train_phase2: phase2 selecting checkpoints on it-ir_score (higher is better)
+2026-08-15 12:55:36,854 INFO it_colbert.train_phase2: early stopping on it-ir_score (patience=4, greater_is_better=True)
+2026-08-15 12:55:38,906 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the kd-holdout dataset in epoch 0.013054830287206266 after 5 steps:
+2026-08-15 12:55:57,612 INFO it_colbert.ir_eval: ir eval @ step 5: {'it-ir_mldr_ndcg@10': 0.31534236935619436, 'it-ir_mldr_mrr@10': 0.29000000000000004, 'it-ir_mldr_recall@10': 0.4, 'it-ir_mmarco_ndcg@10': 0.6436796038117019, 'it-ir_mmarco_mrr@10': 0.5972222222222222, 'it-ir_mmarco_recall@10': 0.8, 'it-ir_miracl_ndcg@10': 0.7505764255931002, 'it-ir_miracl_mrr@10': 0.7558333333333334, 'it-ir_miracl_recall@10': 0.8691666666666666, 'it-ir_score': 0.5445705347303759}
+2026-08-15 12:55:57,612 INFO it_colbert.callbacks: early-stop: improve eval_it-ir_score=0.544571 (prev_best=None) at step 5
+2026-08-15 12:55:57,612 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/smoke_phase2/checkpoint-5
+2026-08-15 12:55:57,612 INFO sentence_transformers.SentenceTransformer: Save model to outputs/smoke_phase2/checkpoint-5
+{'loss': '0.8958', 'grad_norm': '0', 'learning_rate': '2e-06', 'epoch': '0.005222'}
+{'loss': '0.4448', 'grad_norm': '6.931', 'learning_rate': '1.556e-06', 'epoch': '0.01044'}
+{'eval_kd-holdout_kl_divergence': '1.306', 'eval_it-ir_mldr_ndcg@10': '0.3153', 'eval_it-ir_mldr_mrr@10': '0.29', 'eval_it-ir_mldr_recall@10': '0.4', 'eval_it-ir_mmarco_ndcg@10': '0.6437', 'eval_it-ir_mmarco_mrr@10': '0.5972', 'eval_it-ir_mmarco_recall@10': '0.8', 'eval_it-ir_miracl_ndcg@10': '0.7506', 'eval_it-ir_miracl_mrr@10': '0.7558', 'eval_it-ir_miracl_recall@10': '0.8692', 'eval_it-ir_score': '0.5446', 'eval_runtime': '18.71', 'eval_samples_per_second': '0', 'eval_steps_per_second': '0', 'epoch': '0.01305'}
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.81it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.81it/s]
+2026-08-15 12:55:58,563 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/smoke_phase1/final "HTTP/1.1 404 Not Found"
+2026-08-15 12:56:00,824 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the kd-holdout dataset in epoch 0.02610966057441253 after 10 steps:
+2026-08-15 12:56:04,986 INFO it_colbert.ir_eval: ir eval @ step 10: {'it-ir_mldr_ndcg@10': 0.3193426403617271, 'it-ir_mldr_mrr@10': 0.31, 'it-ir_mldr_recall@10': 0.35, 'it-ir_mmarco_ndcg@10': 0.6747228199640626, 'it-ir_mmarco_mrr@10': 0.6488888888888888, 'it-ir_mmarco_recall@10': 0.8, 'it-ir_miracl_ndcg@10': 0.7534764698736425, 'it-ir_miracl_mrr@10': 0.7546428571428571, 'it-ir_miracl_recall@10': 0.8754166666666666, 'it-ir_score': 0.5649239761998083}
+2026-08-15 12:56:04,986 INFO it_colbert.callbacks: early-stop: improve eval_it-ir_score=0.564924 (prev_best=0.5445705347303759) at step 10
+2026-08-15 12:56:04,987 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/smoke_phase2/checkpoint-10
+2026-08-15 12:56:04,987 INFO sentence_transformers.SentenceTransformer: Save model to outputs/smoke_phase2/checkpoint-10
+{'loss': '0.002481', 'grad_norm': '0', 'learning_rate': '1.111e-06', 'epoch': '0.01567'}
+{'loss': '0.7725', 'grad_norm': '13.77', 'learning_rate': '6.667e-07', 'epoch': '0.02089'}
+{'loss': '0', 'grad_norm': '0', 'learning_rate': '2.222e-07', 'epoch': '0.02611'}
+{'eval_kd-holdout_kl_divergence': '1.307', 'eval_it-ir_mldr_ndcg@10': '0.3193', 'eval_it-ir_mldr_mrr@10': '0.31', 'eval_it-ir_mldr_recall@10': '0.35', 'eval_it-ir_mmarco_ndcg@10': '0.6747', 'eval_it-ir_mmarco_mrr@10': '0.6489', 'eval_it-ir_mmarco_recall@10': '0.8', 'eval_it-ir_miracl_ndcg@10': '0.7535', 'eval_it-ir_miracl_mrr@10': '0.7546', 'eval_it-ir_miracl_recall@10': '0.8754', 'eval_it-ir_score': '0.5649', 'eval_runtime': '4.163', 'eval_samples_per_second': '0', 'eval_steps_per_second': '0', 'epoch': '0.02611'}
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  4.44it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  4.44it/s]
+2026-08-15 12:56:06,038 INFO sentence_transformers.trainer: Loading best model from outputs/smoke_phase2/checkpoint-10 (score: 0.5649239761998083).
+2026-08-15 12:56:06,039 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-15 12:56:06,039 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/smoke_phase2/checkpoint-10
+{'train_runtime': '28.97', 'train_samples_per_second': '0.69', 'train_steps_per_second': '0.345', 'train_loss': '0.4231', 'epoch': '0.02611'}
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 5411.38it/s]
+2026-08-15 12:56:06,455 INFO sentence_transformers.SentenceTransformer: Save model to outputs/smoke_phase2/final
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.95it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.95it/s]
+2026-08-15 12:56:06,825 INFO it_colbert.train_phase2: phase 2 final is the best-val checkpoint (metric=it-ir_score, best=0.5649239761998083, step=10)
+2026-08-15 12:56:06,825 INFO it_colbert.train_phase2: phase 2 model saved to outputs/smoke_phase2/final
+=== SMOKE DONE 2026-08-15T12:56:08+02:00 ===
