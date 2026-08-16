@@ -23,7 +23,7 @@ import argparse
 import json
 from pathlib import Path
 
-from it_colbert.benchmark.stats import paired_bootstrap
+from it_colbert.benchmark.stats import QUERY_HALVES, paired_bootstrap, split_query_ids
 
 
 def _safe(name: str) -> str:
@@ -37,11 +37,19 @@ def _load(directory: Path, benchmark: str, model: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _align(a: dict, b: dict, metric: str) -> tuple[list[float], list[float]]:
-    """keep only queries both runs scored, in the same order."""
+def _align(
+    a: dict, b: dict, metric: str, half: str = "all"
+) -> tuple[list[float], list[float]]:
+    """keep only queries both runs scored, in the same order.
+
+    `half` restricts the comparison to one side of the selection/report split, so
+    a model whose checkpoint was chosen on the selection half can be compared on
+    queries that choice never saw (TODO.md §11.1).
+    """
     a_by_qid = dict(zip(a["query_ids"], a["metrics"][metric], strict=False))
     b_by_qid = dict(zip(b["query_ids"], b["metrics"][metric], strict=False))
     shared = [q for q in a["query_ids"] if q in b_by_qid and q in a_by_qid]
+    shared = split_query_ids(shared, half=half)
     return [a_by_qid[q] for q in shared], [b_by_qid[q] for q in shared]
 
 
@@ -65,7 +73,15 @@ def main() -> None:
     parser.add_argument("--all", action="store_true", help="every benchmark and model")
     parser.add_argument("--metrics", nargs="+", default=["ndcg@10", "mrr@10"])
     parser.add_argument("--n-boot", type=int, default=2000)
+    parser.add_argument(
+        "--query-half",
+        choices=QUERY_HALVES,
+        default="all",
+        help="restrict to one side of the selection/report split (TODO.md §11.1)",
+    )
     args = parser.parse_args()
+    if args.query_half != "all":
+        print(f"# restricted to the '{args.query_half}' query half\n")
 
     directory = Path(args.benchmark_dir)
     per_query_dir = directory / "per_query"
@@ -93,7 +109,7 @@ def main() -> None:
                 for metric in args.metrics:
                     if metric not in base["metrics"]:
                         continue
-                    a_vals, b_vals = _align(base, other, metric)
+                    a_vals, b_vals = _align(base, other, metric, args.query_half)
                     result = paired_bootstrap(a_vals, b_vals, n_boot=args.n_boot)
                     _report(benchmark, metric, args.baseline, model, result)
             print()
@@ -107,7 +123,7 @@ def main() -> None:
     for metric in args.metrics:
         if metric not in a["metrics"]:
             continue
-        a_vals, b_vals = _align(a, b, metric)
+        a_vals, b_vals = _align(a, b, metric, args.query_half)
         result = paired_bootstrap(a_vals, b_vals, n_boot=args.n_boot)
         _report(args.benchmark, metric, args.a, args.b, result)
 

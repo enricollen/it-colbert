@@ -407,12 +407,20 @@ addressed in §7.
 
 | benchmark | previous best | target | stretch | round 1 actual |
 |---|---|---|---|---|
-| MLDR-it nDCG@10 | 0.352 | > 0.40 | > 0.45 (beats bge-m3) | 0.4008, target met |
+| MLDR-it nDCG@10 | 0.352 | > 0.40 | > 0.45 (beats bge-m3) | 0.4008, target met but inside noise |
 | mMARCO-it pooled MRR@10 | 0.491 | > 0.60 | > 0.80 | 0.7196, target met |
 | vs SauerkrautLM-Multi-ModernColBERT | not run | win on ≥3 of 4 | win everywhere | 4 of 4, stretch met |
 
 Both mMARCO and MLDR come from one checkpoint. Winning one and losing the other
 means the mixture is still unbalanced, in which case go to §7.
+
+The MLDR row was selected on the MLDR test set (§11.1): phase 2 picked its
+checkpoint by that exact metric on those exact 200 queries. Checked 2026-08-16
+against the held-out half and against all 12 other models — no inflation is
+detectable, because round 1 drew from only 5 checkpoints and took the first. The
+number stands. What does not stand is reading .4008 vs a .40 target as a pass: the
+standard error there is ~.03, so that margin is noise either way, and the held-out
+half reads .3890.
 
 ### Where round 1 stands
 
@@ -433,7 +441,9 @@ are inflated relative to the baselines and need stating as such wherever they ar
 reported.
 
 MLDR-it is the only clean out-of-domain benchmark. It is also the weakest result,
-and it loses to BM25.
+and it loses to BM25 — though that specific comparison is length-asymmetric, since
+BM25 indexes the full document text while every neural model is truncated at 512
+tokens (§11.2). Re-run MLDR chunked before repeating the BM25 claim.
 
 ### Test every claim
 
@@ -450,6 +460,11 @@ gap lands around p≈0.9.
 ---
 
 ## 7. Fixing phase 2 — do this before round 2
+
+**Status: applied 2026-08-15 in `configs/phase2_distill.toml`, never run at
+scale.** All five items below are in the config, and §7.1 smoke passed. The round-2
+phase-2 run is the first real test of any of them. This is the part of round 2 most
+likely to move the numbers — see §8.2, where the phase-1 half is coming out flat.
 
 Round 1 (§5) confirmed the forgetting failure and also settled the older open
 question of whether phase 2 earns its place: it does, 3 of 4 benchmarks up. The
@@ -511,6 +526,13 @@ length 512 on the 3090, and the contrastive stream runs at that same batch size.
 
 ## 8. Round 2 — self-mined hard negatives
 
+**Status 2026-08-16: running, phase 1 at step ~1800 of 5222.** Mining finished
+2026-08-14, retrain started 2026-08-15 13:04, interrupted overnight, resumed
+2026-08-16 09:45 from `checkpoint-1750`. ~80 min per 250 steps, so ~18h of phase 1
+left, then `phase1_bench`, then phase 2. §8.1 records what mining produced, §8.2
+reads the curve so far, §8.3 is the decision gate. **Let it finish** — §8.2 explains
+why stopping early answers nothing.
+
 Do §7 before the retrain below. Mining and training are separate scripts:
 `mine_hard_negatives.py` does not chain into `run_train.sh`, so nothing starts on
 its own. But the retrain runs `STAGE=all`, which is phase 1 and phase 2, and with
@@ -548,6 +570,79 @@ decent model are frequently unlabelled positives, and training on those teaches 
 model to demote correct answers. If quality regresses after round 2, raise it to 10
 before concluding that mining does not help.
 
+### 8.1 What mining actually produced (2026-08-14)
+
+The command that ran differs from the one above: `--corpus-docs 200000`, not
+500000, after an OOM on 27 GB WSL during Voyager retrieval (fixes in WORKLOG §8).
+A 200k pool makes the mined negatives easier than specified.
+
+- 46,583 rows, avg 8.0 negatives per query, 94/94 chunks.
+- Phase 1 loads 4 per query: **186,332 triplets**, on top of round 1's 2,487,135.
+  Total 2,673,467 → 5222 steps at batch 512, against round 1's 4858.
+
+**The mined set is 100% mMARCO.** `mine_hard_negatives.py:83-106` builds both the
+query list and the mining corpus from `load_mmarco_italian`, so round 2's only new
+phase-1 data is harder negatives drawn from the distribution the model is already
+strongest on. §4 and §10.2 both warn about exactly this: the init is a mMARCO
+specialist, and more mMARCO reinforces the axis that is already fine. This was not
+noticed when §8 was written.
+
+### 8.2 Reading the phase-1 curve at 34% (2026-08-16)
+
+Per-step numbers are in WORKLOG.md under "Round 2 phase 1 IR eval". The shape:
+in-training mMARCO up at 7 of 7 evals, MLDR down at 6 of 7, composite flat. That is
+what §8.1 predicts — harder same-distribution negatives sharpen the in-domain axis
+and give the out-of-domain one nothing.
+
+**Do not act on this table.** Three reasons:
+
+1. The in-training MLDR slice is 150 queries over 2000 docs. Standard error is
+   ~0.03 to 0.04, so no single gap here is significant. Only the consistent sign
+   across six evals carries any weight, and that is weak evidence, not a result.
+2. It is not the benchmark. Round 1's phase-1 end read .4479 on this slice and
+   .3484 on the full 10k corpus. Absolute values from this evaluator mean nothing.
+3. Round 1's own MLDR curve peaked at .485 at step 1250 and fell to .448 by 4750.
+   The early curve is not monotone, and both runs are mid-warmup-decay here.
+
+Stopping now would trade a measurable answer for an unmeasurable one: it leaves the
+model at a high learning rate (§4), and it skips the phase-2 fixes (§7), which are
+the untested half of round 2 and the half with the larger expected effect.
+
+### 8.3 Decision gate — `phase1_bench`, not the in-training slice
+
+`run_train.sh` benchmarks `outputs/final_phase1` on all four suites before phase 2.
+That is the apples-to-apples comparison. Round 1 phase1-only:
+
+| benchmark | round-1 phase1-only | round-2 verdict |
+|---|---|---|
+| MLDR-it nDCG@10 | .3484 | the number that decides whether mining helped |
+| mMARCO-it MRR@10 | .7784 | expected up; in-domain, do not lead with it |
+| MIRACL-ita nDCG@10 | .6903 | |
+| SQuAD-ita nDCG@10 | .9041 | |
+
+Then test it rather than eyeballing it:
+
+```bash
+uv run python scripts/compare_models.py --benchmark-dir outputs/benchmark \
+  --a "ItColBERT (phase1-only)" --b "ItColBERT (round1)" --benchmark mldr-it
+```
+
+Keep `outputs/final_round1`. It is the current best model until round 2 benches,
+and the baseline every round-2 claim is measured against.
+
+**If MLDR lands at or below .348 while mMARCO rises**, mining did what §8.1
+predicts and the conclusion is not "mining does not work" but "mining more mMARCO
+does not work". Do not raise `--skip-top` to 10 and re-mine; that tunes negative
+difficulty when the problem is negative *distribution*. Go to §10.5 and §10.6
+instead, both cheap and both never checked, and if mining is repeated, mine over a
+corpus that includes the wiki-style and long-document sources.
+
+**If MLDR rises**, the mined negatives transferred, and §10.5 / §10.6 stay as
+listed rather than becoming the next round.
+
+Either way, phase 2 still runs: §7 is being tested for the first time and its
+result is independent of how the phase-1 half lands.
+
 ---
 
 ## 9. Release
@@ -571,7 +666,15 @@ before concluding that mining does not help.
 
 3. **Model card contents.** The harness, the exact dataset list, the pooled-corpus
    caveat, the confidence intervals, and the limitations, including that MIRACL-ita
-   and SQuAD-ita are community machine translations.
+   and SQuAD-ita are community machine translations. Also, from §11: how phase-2
+   checkpoint selection was done and on which queries (§11.1), whether MLDR numbers
+   are truncated or chunked (§11.2), pinned dataset revisions (§11.8), and index
+   size / query latency (§11.7).
+
+   **§11.2 is a release blocker.** A BM25 comparison where only one side reads the
+   whole document puts a claim in the model card that the harness does not support.
+   §11.1 is fixed in code and its round-1 numbers came back clean, so it is now a
+   disclosure item rather than a blocker — say which half the numbers are from.
 
 4. **What round 1 supports.** Not "first Italian ColBERT", and not best-on-Italian
    either: §6 shows 6th, 6th and 5th of 13 on mMARCO, MIRACL and MLDR. What the
@@ -617,7 +720,186 @@ before concluding that mining does not help.
 5. **Query length** is fixed at 32. Check MLDR-it query token lengths; if a real
    fraction truncate, raise to 48 or 64. MLDR-it is the weakest benchmark (§6), so
    this is worth checking before assuming the gap is purely a document-length
-   problem.
+   problem. **Promoted by §8.3:** this is a few minutes of tokenizer counting with
+   no training attached, so run it while round 2 finishes rather than after.
 6. **A dedicated long-document Italian training source.** MLDR-it is the only clean
    out-of-domain benchmark and the weakest result, and `mldr_it` is 0.15% of the KD
    mixture. Nothing in phase 1 or phase 2 currently targets long documents.
+   **Promoted by §8.3:** round 2 adds 186k more mMARCO triplets and nothing
+   long-document, so if its MLDR number does not move, this is the next round, not
+   another mining pass. Candidates to check before committing GPU time: the Italian
+   slice of `Shitao/MLDR` *train* (disjoint from the test split used in §3),
+   Italian Wikipedia full-article retrieval pairs, and `ReDiX/wikipediaQA-ita`
+   (item 4) once its schema is verified.
+7. **Mining is single-domain.** `mine_hard_negatives.py` draws queries and corpus
+   from `load_mmarco_italian` only (§8.1). Any future mining pass should take a
+   `--corpus` / `--queries` source list so negatives can be mined over the wiki and
+   long-document sources too, otherwise every round tightens the same axis.
+
+---
+
+## 11. Methodology audit — 2026-08-16
+
+Code audit while round 2 phase 1 was running. Items 1 and 2 both inflate the
+headline in the same direction and both affect claims already written down in §6
+and §9, so they are not deferrable. Nothing here requires stopping the run.
+
+Order: **11.1 and 11.2 before round-2 phase 2 starts** (~20h of phase 1 left as of
+this writing), 11.3 during phase 2, the rest after round 2 benches.
+
+### 11.1 Checkpoint selection runs on the test sets — fix before phase 2
+
+`ir_eval.py:101` builds its MLDR split from `load_mldr_italian(split="test")`: the
+same 200 queries `run_benchmark.py` reports. `configs/phase2_distill.toml:62` sets
+`ir_eval_mldr_queries = 200`, so it is all of them, not a sample. MIRACL is the
+same story — `ir_eval.py:116-131` uses `TEVATRON_STYLE_ITALIAN["miracl-ita"]`,
+which is the benchmark's dev split.
+
+Phase 2 drives `load_best_model_at_end` and early stopping off `it-ir_score`. So
+round 1 chose step 2000 from 5 candidates *by MLDR test nDCG@10*, and then §6
+reports MLDR test nDCG@10 = .4008 as the result. That is selection on the test set.
+
+**Measured 2026-08-16: round 1 shows no detectable inflation.** Splitting the
+existing per-query files by the new partition and comparing every benchmarked
+model:
+
+| mldr-it nDCG@10 | selection half | report half | delta |
+|---|---|---|---|
+| ItColBERT (selected) | .4136 | .3890 | +.0246 |
+| field mean, 13 models | — | — | +.0308 |
+| Italian-ModernBERT-mmarco-mnrl | .3534 | .2545 | +.0989 |
+| BM25 | .4638 | .5047 | −.0409 |
+
+The selection half is intrinsically easier for almost every model, selected or
+not, so the delta measures query difficulty. ItColBERT's +.0246 is *below* the
+13-model average, which is not what winner's curse looks like. MIRACL-ita agrees
+and is the cleaner control: it was not in round-1's `ir_eval` at all, so no bias is
+possible there, and none appears (ItColBERT −.0468 against a field mean of −.0199).
+
+Why the theory over-predicted: round 1 drew from 5 checkpoints and picked the
+first, so selection pressure was almost nil. **So round-1 numbers stand.** The
+earlier estimate of +.02 to +.04 in this section was an upper bound from theory,
+not a measurement, and the measurement does not support it.
+
+The exposure is prospective, and it is the reason to fix this now rather than
+after: `eval_steps` 2000 → 500 (§7 item 3) turns 5 candidates into dozens, and the
+bias grows with the number of draws. Round 2 is where this would start to bite.
+
+Phase 1 is clean. It runs the same evaluator but never selects on it
+(`load_best_model_at_end = false`, `early_stopping_patience = 0`, §4), so there it
+is diagnostic only.
+
+**Implemented 2026-08-16.** `split_query_ids()` in `benchmark/stats.py` assigns
+each query to a `selection` or `report` half by a keyed blake2b hash *of the query
+id*, not by slicing a shuffled list. That matters: training sees a sampled slice,
+the benchmark scores only queries with qrels, and a comparison keeps only the
+queries two models share, so a list-relative split would move the boundary with
+the input and hand a selection query back as a reporting query. Per-id hashing
+makes any subset split the same way the full set does. The halves come out near-
+equal rather than exact — MLDR 96/104, MIRACL 379/420, mMARCO 3451/3529,
+SQuAD 3895/3714.
+
+Wiring:
+
+- `ItIREvaluator(query_half=…)`, applied before subsampling, so raising
+  `ir_eval_*_queries` cannot leak a reporting query into the trainer's view;
+- `ir_eval_query_half` on both configs. **Phase 2 defaults to `"selection"`**
+  because it selects; **phase 1 defaults to `"all"`** because it does not — its
+  curve is read by a human deciding whether to train longer, and keeping the full
+  set leaves round-2 phase-1 numbers comparable with round 1. The evaluator logs a
+  warning whenever it runs on `"all"`;
+- `scripts/report_query_half.py --half report` for held-out means with intervals,
+  and `compare_models.py --query-half report` for held-out paired tests. Both read
+  the per-query files the benchmark already wrote, so no rerun is needed — all 52
+  existing files were checked and are correctly aligned;
+- `save_per_query` now stores the ids `per_query_metrics` actually scored, via
+  `scored_query_ids()`. It skips queries with no qrels, so the unfiltered list
+  would have misaligned scores against ids. No current suite triggers it; this is
+  a guard, not a repair.
+
+Still to do: state in the model card which half the reported numbers come from.
+
+### 11.2 The MLDR-vs-BM25 comparison is length-asymmetric
+
+`BM25Retriever.__init__` (`benchmark/retrievers.py:191-196`) tokenizes `d["text"]`
+whole — no truncation anywhere in that path. Every neural model is capped at 512
+tokens. `chunk_chars` defaults to `0` (`benchmark/run.py:225`), so
+`chunk_long_documents` / `maxpool_chunks_to_documents` exist and have **never run
+in any reported number**. The `effective_length: 512` recorded for BM25 in
+`results.json` is cosmetic; it truncates nothing.
+
+MLDR documents are long. BM25 reads all of each one, every neural model reads the
+first 512 tokens. bge-m3 is clipped to 512 too despite an 8192 window, so the
+benchmark as run cannot answer whether long context helps here.
+
+This does not erase the gap — multilingual-e5-large is also capped at 512 and still
+scores .431 against ItColBERT's .401 — but "loses to BM25 on the only clean
+out-of-domain benchmark" (§6) is partly a protocol artifact and is stated in the
+release plan as if it were a model property.
+
+Settle it with one benchmark run, no training, ~30 min:
+
+```bash
+uv run python scripts/run_benchmark.py --benchmarks mldr-it \
+  --chunk-chars 2000 --chunk-overlap-chars 200 \
+  --output-dir outputs/benchmark_chunked
+```
+
+Separate `--output-dir`: chunked and unchunked MLDR numbers are different
+protocols and must not land in the same `results.json`. Whichever becomes the
+headline, report both and say which is which.
+
+### 11.3 Round 2 bundles changes that cannot be separated
+
+Phase 1 gets mined HN; phase 2 gets five changes at once (§7 items 1-4 plus the
+config's lr/warmup pair). §7 item 5 says "not together with another change" and
+then items 1-4 shipped together.
+
+`phase1_bench` rescues the phase-1 half (§8.3). The phase-2 half will not be
+attributable: if it beats round 1, the cause is unknown. Phase 2 costs ~1.8h, so
+run it more than once — at minimum anchor-only, then anchor + the lr change. Record
+in WORKLOG which variant produced `outputs/final`.
+
+### 11.4 n=1 everywhere
+
+Bootstrap CIs measure query-sampling variance, not training variance. No seed
+repeats, so a .015 round-2-over-round-1 delta is unfalsifiable.
+
+Cheap partial estimate, no extra training: benchmark 2-3 checkpoints from the phase-1
+decay tail (4000 / 4500 / 4750) and treat the spread as a floor on run-internal
+noise. Round 1's tail evals sat in .4403-.4507 on the in-training slice, which
+already suggests the floor is not small.
+
+### 11.5 Every corrective lever pushes the same axis
+
+Mining is 100% mMARCO (§8.1). The phase-2 anchor stream is *also* 100% mMARCO:
+`train_phase2.py:87` calls `build_phase1_dataset(mmarco_samples=…,
+include_wiki_hn=False)`, so it replays mMARCO triples only.
+
+For the anchor that is coherent — its stated job is holding the short-passage
+distribution while KD pulls elsewhere. But taken together, round 2 has two levers
+and both strengthen the axis that is already strongest, with nothing aimed at the
+one benchmark that is out-of-domain. See §10.6.
+
+### 11.6 No hybrid BM25 + ColBERT
+
+It was item 5 of the pre-rewrite roadmap (WORKLOG §7) and did not survive into this
+runbook. BM25 leads MLDR outright and ItColBERT is 6th on mMARCO; rank fusion is
+nearly free, needs no training, and is what anyone deploying this would actually
+run. Add it as a benchmark row (`ItColBERT + BM25 (RRF)`) rather than a model.
+
+### 11.7 No efficiency numbers
+
+Index size on disk, query latency, peak memory — none are measured. That is
+late interaction's actual argument at base size, and §9.2's dim-64 variant has no
+measurement plan attached to it. Record per-model index bytes and mean query
+latency in `results.json` during the next benchmark run; both are cheap to capture
+where the index is already being built.
+
+### 11.8 Dataset versions unpinned
+
+The round-2 logs show `datasets` resolving every source from the local cache in
+offline mode ("couldn't be found on the Hugging Face Hub (offline mode is
+enabled)"). No `revision=` pins in the loaders. Reproducible on this machine,
+not on anyone else's. Pin revisions in `data.py` and record them in the model card
+before release.

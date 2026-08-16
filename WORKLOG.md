@@ -401,6 +401,101 @@ nohup bash scripts/run_train.sh > outputs/logs/round2_train.log 2>&1 &
 ```
 
 - Mined HN loaded: **186,332** triplets (4 per query from 46k mined rows).
-- Phase 1 running (~5.2k steps/epoch). @step 250: MLDR nDCG@10 **0.397**,
-  mMARCO MRR@10 **0.808**, `it-ir_score` **0.603**; loss ~40 → ~0.4 early.
+- Phase 1 dataset: **2,673,467** train / 2000 eval → **5222 steps** at batch 512
+  (round 1: 2,487,135 → 4858 steps). Composition: mmarco 1.5M, mmarco-hn 783,591,
+  squad-ita 99,955, wiki-hn 100,002, mined 186,332, miracl-ita 5,587.
+  Cached at `outputs/dataset_cache/phase1-64432ff02d8bdf14`.
 - Round-1 best kept at `outputs/final_round1` for comparison after round 2.
+
+**Round 2 phase 1 timeline**
+
+| when | what |
+|---|---|
+| 2026-08-15 13:04 | dataset cache + phase 1 start |
+| 2026-08-15 22:30 | `stop_at_2230` timer fired, SIGTERM, clean stop |
+| 2026-08-16 09:45 | resumed, auto-resume from `outputs/phase1/checkpoint-1750` |
+| 2026-08-16 10:14 | at step ~1800 of 5222 (epoch 0.347), loss ~0.19, lr 6.88e-6 |
+
+Throughput ~80 min per 250 steps including IR eval (same as round 1) → ~28h wall
+for the full epoch, ~18h left at the 10:14 mark.
+
+**Round 2 phase 1 IR eval, matched against round 1**
+
+In-training `ItIREvaluator` only (150 MLDR queries / 2k docs, 300 mMARCO queries /
+3k docs) — not the benchmark, and not comparable to full-corpus numbers.
+
+| step | MLDR r1 → r2 | mMARCO MRR r1 → r2 | `it-ir_score` r1 → r2 |
+|---|---|---|---|
+| 250 | .369 → .397 | .776 → .808 | .573 → .603 |
+| 500 | .453 → .425 | .848 → .868 | .650 → .647 |
+| 750 | .450 → .435 | .872 → .884 | .661 → .660 |
+| 1000 | .484 → .442 | .886 → .903 | .685 → .673 |
+| 1250 | .485 → .430 | .899 → .907 | .692 → .668 |
+| 1500 | .481 → .431 | .906 → .913 | .693 → .672 |
+| 1750 | .462 → .447 | .907 → .924 | .685 → .685 |
+
+mMARCO up at 7/7 evals, MLDR down at 6/7, composite flat. Interpretation and the
+decision gate are in TODO.md §8.2 / §8.3.
+
+**Correction to the §8 mining record:** the command actually run used
+`--corpus-docs 200000`, not the 500000 in the runbook (reduced after the WSL OOM).
+Also noted 2026-08-16: `mine_hard_negatives.py:83-106` sources both queries and
+mining corpus from `load_mmarco_italian`, so the mined set is entirely mMARCO.
+
+---
+
+## 15. Methodology audit + selection/report query split (2026-08-16)
+
+Code audit while round-2 phase 1 was running; eight findings written up as
+TODO.md §11. Two touched the numbers already published in §13, so they were
+checked rather than assumed.
+
+**Finding: training-time eval read the benchmark test queries.** `ir_eval.py`
+builds its MLDR split from `load_mldr_italian(split="test")` and its MIRACL split
+from the benchmark's dev split, and `configs/phase2_distill.toml` asked for all
+200 MLDR queries. Phase 2 selects on that metric (`load_best_model_at_end` +
+early stopping), so round 1 chose its checkpoint on the same queries §13 reports.
+Phase 1 never selects, so it was never exposed.
+
+**Checked before fixing — round 1 is clean.** Splitting the 52 existing per-query
+files by the new partition, `mldr-it` nDCG@10:
+
+| model | selection half | report half | delta |
+|---|---:|---:|---:|
+| ItColBERT (the selected one) | .4136 | .3890 | +.0246 |
+| field mean over 13 models | — | — | +.0308 |
+| Italian-ModernBERT-mmarco-mnrl | .3534 | .2545 | +.0989 |
+| BM25 | .4638 | .5047 | −.0409 |
+
+The selection half is easier for nearly every model, selected or not, so the delta
+is query difficulty. ItColBERT sits below the field average — no winner's curse.
+MIRACL-ita is the control: it was not in round-1's `ir_eval`, so no bias is
+possible, and none shows (ItColBERT −.0468 vs field mean −.0199). Round 1 drew
+from 5 checkpoints and took the first, so selection pressure was almost nil.
+**No published round-1 number changes.** The exposure is prospective: round 2 runs
+`eval_steps = 500`, which turns 5 candidates into dozens.
+
+**Implemented.**
+
+- `benchmark/stats.py`: `split_query_ids()` partitions by keyed blake2b hash *of
+  the query id*. First cut sliced a shuffled list and failed its own test — a
+  subset of a query set split differently from the whole set, which would have let
+  a selection query reappear as a reporting query in exactly the tools meant to
+  keep them apart. Per-id hashing fixes it; halves land at MLDR 96/104, MIRACL
+  379/420, mMARCO 3451/3529, SQuAD 3895/3714.
+- `ir_eval.py`: `ItIREvaluator(query_half=…)`, applied before subsampling.
+- `config.py` + `configs/phase2_distill.toml`: `ir_eval_query_half`, `"selection"`
+  for phase 2, `"all"` for phase 1 (it does not select, and keeping the full set
+  leaves round-2 phase-1 curves comparable with round 1). Evaluator warns on
+  `"all"`.
+- `scripts/report_query_half.py` (new): held-out means + bootstrap CI from the
+  per-query files, no rerun needed.
+- `compare_models.py --query-half`.
+- `save_per_query` now stores `scored_query_ids()` — `per_query_metrics` skips
+  queries with no qrels, so the unfiltered id list would misalign. All 52 existing
+  files verified aligned; this is a guard, not a repair.
+
+Verified on the dev box: syntax across all 8 edited files, and the partition's
+disjointness / coverage / order-preservation / subset-nesting properties against
+the real benchmark query ids. `report_query_half.py` end-to-end and the smoke
+runs need the GPU box — no torch/numpy env here.

@@ -87,6 +87,7 @@ def run_phase1(cfg: Phase1Config) -> Path:
             mmarco_pool_docs=cfg.ir_eval_mmarco_pool_docs,
             batch_size=cfg.per_device_eval_batch_size,
             seed=cfg.seed,
+            query_half=cfg.ir_eval_query_half,
         )
         evaluators.append(ir_evaluator)
         metric_for_best_model = ir_evaluator.primary_metric

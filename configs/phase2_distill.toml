@@ -67,6 +67,12 @@ ir_eval_miracl_queries = 200
 ir_eval_miracl_docs = 5000
 ir_eval_miracl_pool_docs = 30000
 ir_eval_weights = [0.35, 0.35, 0.30]
+
+# this stage selects checkpoints (load_best_model_at_end + early stopping), so it
+# must not evaluate on the queries the benchmark reports. "selection" is one half
+# of each suite, partitioned per query id; read the result back on the other half
+# with scripts/report_query_half.py --half report. see TODO.md §11.1.
+ir_eval_query_half = "selection"
 eval_steps = 500
 per_device_eval_batch_size = 32
 early_stopping_patience = 4

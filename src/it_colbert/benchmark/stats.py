@@ -14,6 +14,7 @@ definitions coincide, so the two implementations agree.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import math
@@ -22,6 +23,76 @@ from pathlib import Path
 import numpy as np
 
 logger = logging.getLogger(__name__)
+
+# fixed on purpose, and deliberately not the training seed: the halves have to
+# stay put when a config changes `seed`, otherwise a rerun moves the boundary and
+# a model selected under the old split gets reported on queries it was tuned on.
+QUERY_SPLIT_SEED = 20260816
+QUERY_HALVES = ("all", "selection", "report")
+
+
+def _query_bucket(query_id: str, seed: int = QUERY_SPLIT_SEED) -> int:
+    """stable 0/1 bucket for a single query id.
+
+    hashed per id rather than by slicing a shuffled list, because the callers do
+    not all see the same query set: training evaluates a sampled slice, the
+    benchmark scores only queries with qrels, and a comparison keeps only the
+    queries two models share. a list-relative split would move the boundary with
+    the input and quietly hand a selection query back as a reporting query, which
+    is the failure this whole mechanism exists to prevent.
+
+    python's built-in `hash()` is salted per process and would give a different
+    partition on every run, so it cannot be used here.
+    """
+    digest = hashlib.blake2b(
+        str(query_id).encode("utf-8"),
+        digest_size=8,
+        key=str(seed).encode("utf-8"),
+    ).digest()
+    return int.from_bytes(digest, "big") % 2
+
+
+def split_query_ids(
+    query_ids: list[str],
+    half: str = "all",
+    seed: int = QUERY_SPLIT_SEED,
+) -> list[str]:
+    """deterministic disjoint halves of a query set, in the caller's order.
+
+    training-time checkpoint selection and the reported number must not read the
+    same queries. phase 2 picks its checkpoint by nDCG@10 on MLDR-it and
+    MIRACL-ita, so reporting those metrics on those same queries publishes the
+    winner's curse as a result (TODO.md §11.1). "selection" is what the trainer
+    is allowed to see; "report" is what the headline is read from.
+
+    membership depends only on the query id, so any subset of a set splits the
+    same way the whole set does. the halves are therefore near-equal rather than
+    exactly equal in size — on 200 MLDR queries expect roughly 100 +/- 7, which
+    the bootstrap interval already accounts for.
+
+    order is preserved rather than sorted so the result stays aligned with score
+    lists that were built in the original query order.
+    """
+    if half == "all":
+        return list(query_ids)
+    if half not in QUERY_HALVES:
+        raise ValueError(f"unknown query half {half!r}; expected one of {QUERY_HALVES}")
+    want = 0 if half == "selection" else 1
+    return [q for q in query_ids if _query_bucket(q, seed) == want]
+
+
+def scored_query_ids(
+    qrels: dict[str, dict[str, int]],
+    queries: list[str],
+) -> list[str]:
+    """the subset of `queries` that `per_query_metrics` actually scores, in order.
+
+    queries with no qrels are skipped there, so the metric lists come back shorter
+    than the query list whenever a split has any. saving the unfiltered list
+    alongside them would misalign scores and query ids, which breaks any later
+    filtering by query id.
+    """
+    return [q for q in queries if qrels.get(q)]
 
 
 def _dcg(relevances: list[int], k: int) -> float:

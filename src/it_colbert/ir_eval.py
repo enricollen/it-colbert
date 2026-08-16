@@ -28,6 +28,7 @@ from it_colbert.benchmark.datasets import (
     load_tevatron_style_italian,
 )
 from it_colbert.benchmark.retrievers import maxsim_topk, scores_to_pylate
+from it_colbert.benchmark.stats import split_query_ids
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +38,16 @@ def _subsample(
     max_queries: int,
     max_docs: int,
     seed: int,
+    half: str = "all",
 ) -> RetrievalSplit:
-    """shrink a retrieval split, always keeping every relevant document."""
+    """shrink a retrieval split, always keeping every relevant document.
+
+    `half` restricts the split to one side of the selection/report partition
+    before any sampling, so raising `max_queries` can never leak a reporting
+    query into a set the trainer selects on.
+    """
     rng = random.Random(seed)
-    qids = sorted(split.queries.keys())
+    qids = split_query_ids(sorted(split.queries.keys()), half=half)
     if max_queries and len(qids) > max_queries:
         qids = rng.sample(qids, max_queries)
     qids_set = set(qids)
@@ -86,12 +93,14 @@ class ItIREvaluator(SentenceEvaluator):
         top_k: int = 100,
         seed: int = 42,
         weights: tuple[float, ...] = (0.5, 0.5),
+        query_half: str = "all",
     ):
         super().__init__()
         self.name = name
         self.batch_size = batch_size
         self.top_k = top_k
         self.weights = weights
+        self.query_half = query_half
         self.primary_metric = f"{name}_score"
         self.greater_is_better = True
 
@@ -102,6 +111,7 @@ class ItIREvaluator(SentenceEvaluator):
                 max_queries=mldr_queries,
                 max_docs=mldr_docs,
                 seed=seed,
+                half=query_half,
             )
             self.splits.append(("mldr", mldr, "ndcg@10"))
         if mmarco_queries and mmarco_docs:
@@ -110,6 +120,7 @@ class ItIREvaluator(SentenceEvaluator):
                 max_queries=mmarco_queries,
                 max_docs=mmarco_docs,
                 seed=seed,
+                half=query_half,
             )
             self.splits.append(("mmarco", mmarco, "mrr@10"))
         if miracl_queries and miracl_docs:
@@ -127,6 +138,7 @@ class ItIREvaluator(SentenceEvaluator):
                 max_queries=miracl_queries,
                 max_docs=miracl_docs,
                 seed=seed + 3,
+                half=query_half,
             )
             self.splits.append(("miracl", miracl, "ndcg@10"))
         if not self.splits:
@@ -134,10 +146,18 @@ class ItIREvaluator(SentenceEvaluator):
 
         for key, split, _ in self.splits:
             logger.info(
-                "ir eval %s: %s queries / %s docs",
+                "ir eval %s: %s queries / %s docs (query half: %s)",
                 key,
                 len(split.queries),
                 len(split.documents),
+                query_half,
+            )
+        if query_half == "all":
+            logger.warning(
+                "ir eval reads the full benchmark query set. safe while nothing "
+                "selects on it, but any run with load_best_model_at_end or early "
+                "stopping is selecting on test queries — set query_half to "
+                "'selection' there (TODO.md §11.1)"
             )
 
     def __call__(

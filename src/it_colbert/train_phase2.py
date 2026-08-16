@@ -147,6 +147,7 @@ def run_phase2(cfg: Phase2Config) -> Path:
             batch_size=cfg.per_device_eval_batch_size,
             seed=cfg.seed,
             weights=tuple(cfg.ir_eval_weights),
+            query_half=cfg.ir_eval_query_half,
         )
         evaluators.append(ir_evaluator)
         metric_for_best_model = ir_evaluator.primary_metric

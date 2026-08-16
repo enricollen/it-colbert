@@ -31,6 +31,7 @@ from it_colbert.benchmark.stats import (
     bootstrap_ci,
     per_query_metrics,
     save_per_query,
+    scored_query_ids,
 )
 
 logger = logging.getLogger(__name__)
@@ -436,7 +437,16 @@ def run_benchmark(cfg: BenchmarkConfig) -> dict[str, Any]:
                     confidence[metric] = bootstrap_ci(
                         values, n_boot=cfg.bootstrap_samples, seed=cfg.bootstrap_seed
                     )
-                save_per_query(cfg.output_dir, bench, spec.name, per_query, qids)
+                # per_query_metrics skips queries with no qrels, so save the ids
+                # it actually scored — the unfiltered list would misalign the
+                # scores and break filtering by query id downstream.
+                save_per_query(
+                    cfg.output_dir,
+                    bench,
+                    spec.name,
+                    per_query,
+                    scored_query_ids(split.qrels, qids),
+                )
                 err = None
             except Exception as exc:
                 logger.exception("failed on %s / %s", bench, spec.name)
