@@ -461,10 +461,13 @@ gap lands around p≈0.9.
 
 ## 7. Fixing phase 2 — do this before round 2
 
-**Status: applied 2026-08-15 in `configs/phase2_distill.toml`, never run at
-scale.** All five items below are in the config, and §7.1 smoke passed. The round-2
-phase-2 run is the first real test of any of them. This is the part of round 2 most
-likely to move the numbers — see §8.2, where the phase-1 half is coming out flat.
+**Status: applied 2026-08-15 in `configs/phase2_distill.toml`, run at scale
+2026-08-23.** All five items below are in the config, §7.1 smoke passed, and the
+run itself early-stopped at step 2000 (`it-ir_score` 0.7710) after patience 4 —
+compare that to round 1's collapse-after-step-2000 (§5), so items 1-4 did fix the
+degrade-after-the-first-eval failure mode. What they did not do is move the
+benchmark that matters: see §8.3/§8.4, the gain landed entirely on mMARCO, which
+was never the problem.
 
 Round 1 (§5) confirmed the forgetting failure and also settled the older open
 question of whether phase 2 earns its place: it does, 3 of 4 benchmarks up. The
@@ -526,12 +529,13 @@ length 512 on the 3090, and the contrastive stream runs at that same batch size.
 
 ## 8. Round 2 — self-mined hard negatives
 
-**Status 2026-08-16: running, phase 1 at step ~1800 of 5222.** Mining finished
-2026-08-14, retrain started 2026-08-15 13:04, interrupted overnight, resumed
-2026-08-16 09:45 from `checkpoint-1750`. ~80 min per 250 steps, so ~18h of phase 1
-left, then `phase1_bench`, then phase 2. §8.1 records what mining produced, §8.2
-reads the curve so far, §8.3 is the decision gate. **Let it finish** — §8.2 explains
-why stopping early answers nothing.
+**Status 2026-08-23: done, decision gate resolved negative.** Phase 1 finished at
+step 5222 (train loss 0.0312, 2.343e4 s). §8.1 records what mining produced, §8.2
+reads the early curve, §8.3 is the phase-1-only decision gate (resolved: mining did
+not help, and mildly hurt the axis it targeted), §8.4 is the full round-2-vs-round-1
+comparison after phase 2. Net verdict: **do not keep round 2 as the release
+candidate; `outputs/final_round1` stays best.** See §8.4 and §11.5 (predicted this
+outcome before round 2 finished phase 1).
 
 Do §7 before the retrain below. Mining and training are separate scripts:
 `mine_hard_negatives.py` does not chain into `run_train.sh`, so nothing starts on
@@ -608,27 +612,39 @@ Stopping now would trade a measurable answer for an unmeasurable one: it leaves 
 model at a high learning rate (§4), and it skips the phase-2 fixes (§7), which are
 the untested half of round 2 and the half with the larger expected effect.
 
-### 8.3 Decision gate — `phase1_bench`, not the in-training slice
+### 8.3 Decision gate — `phase1_bench`, not the in-training slice — resolved 2026-08-23
 
-`run_train.sh` benchmarks `outputs/final_phase1` on all four suites before phase 2.
-That is the apples-to-apples comparison. Round 1 phase1-only:
+`run_train.sh`'s `phase1_bench` stage did run but silently skipped every benchmark:
+`results.json` still held round-1's `ItColBERT (phase1-only)` entries, so the
+skip-completed check fired before the new `outputs/final_phase1` was ever scored.
+This is worth flagging for the next round — the stage "ran" (logged, exited 0) and
+produced nothing. Fixed manually: cleared the stale entries, re-ran
+`run_benchmark.py --only "ItColBERT (phase1-only)"` against the round-2 checkpoint.
 
-| benchmark | round-1 phase1-only | round-2 verdict |
-|---|---|---|
-| MLDR-it nDCG@10 | .3484 | the number that decides whether mining helped |
-| mMARCO-it MRR@10 | .7784 | expected up; in-domain, do not lead with it |
-| MIRACL-ita nDCG@10 | .6903 | |
-| SQuAD-ita nDCG@10 | .9041 | |
+| benchmark | round-1 phase1-only | round-2 phase1-only | Δ | round-2 95% CI | round-1 inside CI? |
+|---|---|---|---|---|---|
+| MLDR-it nDCG@10 | .3484 | **.3011** | **−.0473** | [.246, .359] | yes — not significant |
+| mMARCO-it MRR@10 | .7784 | **.7507** | **−.0277** | [.742, .760] | **no — significant** |
+| MIRACL-ita nDCG@10 | .6903 | .6867 | −.0036 | [.666, .707] | yes — noise |
+| SQuAD-ita nDCG@10 | .9041 | .9037 | −.0004 | [.898, .909] | yes — noise |
 
-Then test it rather than eyeballing it:
+**Worse than the anticipated failure mode.** The prediction below assumed mMARCO
+would rise while MLDR fell — a narrow-but-real gain traded for an out-of-domain
+loss. Instead **mMARCO, the exact axis mining targeted, moved significantly
+worse** (large n=6980, tight CI), while MLDR/MIRACL/SQuAD are flat within noise.
+Mining did not just fail to generalize; it slightly hurt the distribution it was
+drawn from, with no compensating win anywhere.
 
-```bash
-uv run python scripts/compare_models.py --benchmark-dir outputs/benchmark \
-  --a "ItColBERT (phase1-only)" --b "ItColBERT (round1)" --benchmark mldr-it
-```
+Per the logic below, this is still read as "mining more mMARCO does not work," not
+"mining does not work" — go to §10.5 and §10.6 rather than raising `--skip-top` and
+re-mining the same source. If mining is repeated, mine over a corpus that includes
+the wiki-style and long-document sources, not `load_mmarco_italian` alone (§8.1,
+§11.5).
 
-Keep `outputs/final_round1`. It is the current best model until round 2 benches,
-and the baseline every round-2 claim is measured against.
+Phase 2 ran anyway per the original plan (its result does not depend on how phase 1
+landed) — see §8.4 for the combined outcome.
+
+<details><summary>Original pre-registered prediction (2026-08-16)</summary>
 
 **If MLDR lands at or below .348 while mMARCO rises**, mining did what §8.1
 predicts and the conclusion is not "mining does not work" but "mining more mMARCO
@@ -640,8 +656,40 @@ corpus that includes the wiki-style and long-document sources.
 **If MLDR rises**, the mined negatives transferred, and §10.5 / §10.6 stay as
 listed rather than becoming the next round.
 
-Either way, phase 2 still runs: §7 is being tested for the first time and its
-result is independent of how the phase-1 half lands.
+</details>
+
+### 8.4 Full comparison after phase 2 — resolved 2026-08-23
+
+Phase 2 (§7 fixes) early-stopped at step 2000 (`it-ir_score` 0.7710, patience 4/4),
+vs. round 1's collapse at the same step. `outputs/final` benchmarked against the
+preserved `outputs/final_round1` (paired bootstrap, `compare_models.py`):
+
+| benchmark | round-1 final | round-2 final | Δ | p-value | verdict |
+|---|---|---|---|---|---|
+| MLDR-it nDCG@10 | .4008 | .3779 | −.0229 | .082 | not significant (n=200) |
+| mMARCO-it MRR@10 | .7196 | .7297 | **+.0100** | <.0001 | **significant — up** |
+| MIRACL-ita nDCG@10 | .7194 | .7091 | −.0103 | .026 | **significant — down** |
+| SQuAD-ita nDCG@10 | .9026 | .8987 | −.0039 | .011 | **significant — down** (tiny) |
+
+Phase 2's fixes recovered roughly half of phase 1's mMARCO loss and then some
+(phase-1-only was −.0277 vs round 1, the final model is *above* round 1 by +.0100)
+— consistent with the phase-2 contrastive anchor being 100% mMARCO too (§11.5) and
+masking the phase-1 regression on that one axis. But the target benchmark, MLDR-it,
+does not move outside noise, and it now **misses the §6 target of >0.40** that
+round 1 had just cleared. MIRACL and SQuAD both moved down with p<.05, small in
+absolute terms but real given the sample sizes.
+
+**Verdict: round 2 does not replace round 1.** `outputs/final_round1` remains the
+release candidate. This is exactly what §11.5 predicted before round 2 even
+finished phase 1: both round-2 levers (mined HN, phase-2 contrastive anchor) draw
+from mMARCO only, so the model got stronger on the axis that was already strongest
+and did not move on the one out-of-domain benchmark that mattered. The next round
+should not repeat either lever unchanged — see §10.5 / §10.6.
+
+Per-query data for both `ItColBERT (round1)` and `ItColBERT (phase1-only)` [round
+1] was backed up (`outputs/benchmark/per_query/*_round1.json`) before being
+overwritten by round 2's runs, so the comparisons above are paired, not just a diff
+of two point estimates.
 
 ---
 
@@ -725,12 +773,13 @@ result is independent of how the phase-1 half lands.
 6. **A dedicated long-document Italian training source.** MLDR-it is the only clean
    out-of-domain benchmark and the weakest result, and `mldr_it` is 0.15% of the KD
    mixture. Nothing in phase 1 or phase 2 currently targets long documents.
-   **Promoted by §8.3:** round 2 adds 186k more mMARCO triplets and nothing
-   long-document, so if its MLDR number does not move, this is the next round, not
-   another mining pass. Candidates to check before committing GPU time: the Italian
-   slice of `Shitao/MLDR` *train* (disjoint from the test split used in §3),
-   Italian Wikipedia full-article retrieval pairs, and `ReDiX/wikipediaQA-ita`
-   (item 4) once its schema is verified.
+   **Triggered by §8.4 (2026-08-23):** round 2 added 186k more mMARCO triplets and
+   a 100%-mMARCO phase-2 anchor stream, and MLDR-it did not move outside noise
+   (.4008 → .3779, p=.082) while mMARCO moved significantly. This is now the next
+   round, not another same-source mining pass. Candidates to check before
+   committing GPU time: the Italian slice of `Shitao/MLDR` *train* (disjoint from
+   the test split used in §3), Italian Wikipedia full-article retrieval pairs, and
+   `ReDiX/wikipediaQA-ita` (item 4) once its schema is verified.
 7. **Mining is single-domain.** `mine_hard_negatives.py` draws queries and corpus
    from `load_mmarco_italian` only (§8.1). Any future mining pass should take a
    `--corpus` / `--queries` source list so negatives can be mined over the wiki and

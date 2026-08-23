@@ -284,3 +284,88 @@
           "recall@10": 0.01,
           "recall@100": 0.125,
           "precision
+2026-08-23 16:19:31,194 INFO it_colbert.benchmark.run: resuming from outputs/benchmark/results.json
+2026-08-23 16:19:31,194 INFO it_colbert.benchmark.run: === benchmark mldr-it ===
+2026-08-23 16:19:31,194 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-23 16:19:32,011 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/test.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-23 16:19:32,328 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/corpus.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-23 16:19:32,722 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/qrels/qrels.mldr-v1.0-it-test.tsv "HTTP/1.1 307 Temporary Redirect"
+2026-08-23 16:19:33,033 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/Shitao/MLDR/d67138e705d963e346253a80e59676ddb418810a/qrels%2Fqrels.mldr-v1.0-it-test.tsv "HTTP/1.1 200 OK"
+2026-08-23 16:19:35,667 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-23 16:19:35,667 INFO it_colbert.benchmark.run: skip completed mldr-it / ItColBERT (phase1-only)
+2026-08-23 16:19:35,667 INFO it_colbert.benchmark.run: === benchmark mmarco-it ===
+2026-08-23 16:19:35,667 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
+2026-08-23 16:19:36,069 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/collections/italian_collection.tsv "HTTP/1.1 302 Found"
+2026-08-23 16:19:36,443 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/queries/dev/italian_queries.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-23 16:19:36,820 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/qrels.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-23 16:19:55,894 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 100000 docs (qrel=7433), qrels=7437
+2026-08-23 16:19:55,909 INFO it_colbert.benchmark.run: skip completed mmarco-it / ItColBERT (phase1-only)
+2026-08-23 16:19:55,925 INFO it_colbert.benchmark.run: wrote outputs/benchmark/results.json
+{
+  "mldr-it": {
+    "n_queries": 200,
+    "n_docs": 10000,
+    "models": {
+      "BM25": {
+        "kind": "bm25",
+        "model_id": null,
+        "notes": "lexical baseline",
+        "effective_length": 512,
+        "chunk_chars": 0,
+        "metrics": {
+          "mrr@10": 0.44152380952380954,
+          "ndcg@1": 0.37,
+          "ndcg@5": 0.4645942795005233,
+          "ndcg@10": 0.48504805320031535,
+          "ndcg@100": 0.5132858238250867,
+          "map@100": 0.4474936396462404,
+          "recall@1": 0.37,
+          "recall@5": 0.56,
+          "recall@10": 0.625,
+          "recall@100": 0.755,
+          "precision@10": 0.0625,
+          "hits@1": 0.37,
+          "hits@5": 0.56,
+          "hits@10": 0.625
+        },
+        "confidence": {
+          "ndcg@10": {
+            "mean": 0.4850480532003154,
+            "ci_low": 0.42296336674017054,
+            "ci_high": 0.5435824461868359,
+            "n_queries": 200
+          },
+          "mrr@10": {
+            "mean": 0.44152380952380954,
+            "ci_low": 0.3769993551587302,
+            "ci_high": 0.5030624503968254,
+            "n_queries": 200
+          },
+          "recall@100": {
+            "mean": 0.755,
+            "ci_low": 0.695,
+            "ci_high": 0.815,
+            "n_queries": 200
+          }
+        },
+        "seconds": 259.7,
+        "error": null
+      },
+      "Italian-ModernBERT-base (mean-pool)": {
+        "kind": "dense",
+        "model_id": "DeepMount00/Italian-ModernBERT-base",
+        "notes": "starting encoder; no ir fine-tune",
+        "effective_length": 512,
+        "chunk_chars": 0,
+        "metrics": {
+          "mrr@10": 0.0017142857142857142,
+          "ndcg@1": 0.0,
+          "ndcg@5": 0.001934264036172708,
+          "ndcg@10": 0.0036009307028393744,
+          "ndcg@100": 0.025811541294770483,
+          "map@100": 0.005355036669043531,
+          "recall@1": 0.0,
+          "recall@5": 0.005,
+          "recall@10": 0.01,
+          "recall@100": 0.125,
+          "precision

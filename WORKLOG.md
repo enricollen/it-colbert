@@ -499,3 +499,77 @@ Verified on the dev box: syntax across all 8 edited files, and the partition's
 disjointness / coverage / order-preservation / subset-nesting properties against
 the real benchmark query ids. `report_query_half.py` end-to-end and the smoke
 runs need the GPU box — no torch/numpy env here.
+
+---
+
+## 16. Round 2 completion — phase 1, phase 2, and both decision gates (2026-08-23)
+
+**Phase 1** finished at step 5222 (epoch 1.0), train loss 0.0312, 2.343e4 s
+(~6.5h from the last resume). Saved to `outputs/phase1/final` → `outputs/final_phase1`.
+
+**`phase1_bench` ran but produced nothing — caught and fixed manually.** The stage
+executed and exited 0, but `results.json` still held round-1's
+`ItColBERT (phase1-only)` entries from the earlier run, so the skip-completed check
+short-circuited every benchmark before the new checkpoint was ever scored. Not a
+crash, not a log warning — just a silent no-op. Fixed by clearing those four
+entries and re-running `run_benchmark.py --only "ItColBERT (phase1-only)"` by hand.
+Same trap would have hit `phase2_bench`/`bench` for `outputs/final` too, so it was
+also handled by hand rather than trusting `run_train.sh`'s automatic re-bench.
+Worth a real fix before round 3: the skip-completed check needs to key off which
+checkpoint's weights were scored, not just whether the model *name* has an entry.
+
+**§8.3 decision gate (phase-1-only, round 2 vs round 1), full 4-benchmark bench,
+GPU:**
+
+| benchmark | round-1 phase1-only | round-2 phase1-only | Δ | significant? |
+|---|---|---|---|---|
+| MLDR-it nDCG@10 | .3484 | .3011 | −.0473 | no (n=200, round-1 value inside round-2's 95% CI) |
+| mMARCO-it MRR@10 | .7784 | .7507 | −.0277 | **yes** (n=6980, round-1 value outside CI) |
+| MIRACL-ita nDCG@10 | .6903 | .6867 | −.0036 | no |
+| SQuAD-ita nDCG@10 | .9041 | .9037 | −.0004 | no |
+
+Worse than the pre-registered prediction in TODO.md §8.3 (mMARCO up / MLDR down).
+Instead mMARCO — the axis the mined negatives are 100% drawn from (§8.1) — moved
+significantly *worse*, and nothing else moved outside noise. Mining did not
+generalize and mildly hurt its own source distribution.
+
+**Phase 2** (§7 fixes: `contrastive_anchor_enabled=true`, lr 2e-6, `warmup_ratio`
+0.01, `eval_steps=500`, MIRACL added to `ir_eval`) ran to completion in one shot:
+early-stopped at step 4000, restored best checkpoint from step 2000
+(`it-ir_score`=0.7710, patience 4/4). Contrast with round 1's step-2000-was-the-
+first-and-best-eval collapse (§5) — the lr/warmup/eval_steps fixes did remove that
+specific failure mode; there's a real curve here, not an accidental first pick.
+
+**§8.4 (full round-2-vs-round-1 comparison, `outputs/final` vs `outputs/final_round1`,
+paired bootstrap via `compare_models.py`):**
+
+| benchmark | round-1 final | round-2 final | Δ | p | verdict |
+|---|---|---|---|---|---|
+| MLDR-it nDCG@10 | .4008 | .3779 | −.0229 | .082 | not significant |
+| mMARCO-it MRR@10 | .7196 | .7297 | +.0100 | <.0001 | **significant, up** |
+| MIRACL-ita nDCG@10 | .7194 | .7091 | −.0103 | .026 | **significant, down** |
+| SQuAD-ita nDCG@10 | .9026 | .8987 | −.0039 | .011 | **significant, down** |
+
+Phase 2's contrastive anchor (also 100% mMARCO, §11.5) pulled the final model's
+mMARCO score back above round 1's, overcorrecting past phase 1's own mMARCO loss —
+but MLDR, the actual target, still doesn't move outside noise, and now misses the
+§6 `>0.40` target that round 1 had just cleared. MIRACL and SQuAD both moved down
+with p<.05 (SQuAD's −.004 is real but tiny given n=7609).
+
+**Decision: round 2 does not replace round 1.** `outputs/final_round1` stays the
+release candidate. Confirms §11.5's prediction, made before round 2 finished phase
+1, that both round-2 levers (mined HN, phase-2 anchor) draw from mMARCO only and
+would move that axis without touching the out-of-domain one. Next round should not
+repeat either lever on the same source — see TODO.md §10.5 (cheap, do first) and
+§10.6 (a real long-document/wiki Italian source, promoted to next-in-line by this
+result).
+
+**Process note:** round-1's per-query files (`ItColBERT`, `ItColBERT (phase1-only)`)
+would have been silently overwritten by round 2's benchmark runs before this
+comparison could happen. Backed them up to `*_round1.json` in
+`outputs/benchmark/per_query/` first, then reconstructed a `ItColBERT (round1)`
+entry in `results.json` (mean + bootstrap CI recomputed straight from the raw
+per-query values) so the comparisons above are genuinely paired, not a diff of two
+independently-computed point estimates. Do this backup step *before* clearing any
+`results.json` entries in future rounds — there's no other copy of round 1's
+per-query data.

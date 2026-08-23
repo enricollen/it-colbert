@@ -1,314 +1,508 @@
-[2026-08-15T13:03:58+02:00] caching datasets
-mmarco-hn-to-kd-logit11:   0%|          | 0/64 [00:00<?, ? examples/s]mmarco-hn-to-kd-logit11: 100%|██████████| 64/64 [00:00<00:00, 1962.61 examples/s]
+[2026-08-23T09:47:24+02:00] caching datasets
+mmarco-hn-to-kd-logit11:   0%|          | 0/64 [00:00<?, ? examples/s]mmarco-hn-to-kd-logit11: 100%|██████████| 64/64 [00:00<00:00, 2189.70 examples/s]
 datasets cached
-[2026-08-15T13:05:05+02:00] phase 1 start (auto-resumes if a checkpoint exists)
-2026-08-15 13:05:08,010 INFO it_colbert.train_phase1: starting phase 1 contrastive training
-2026-08-15 13:05:08,010 INFO it_colbert.train_phase1: config: Phase1Config(model_name='nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl', output_dir='outputs/phase1', run_name='it-colbert-phase1', dim=128, document_length=512, query_length=32, mmarco_samples=1500000, mmarco_eval_samples=2000, include_wiki_hn=True, wiki_max_hard_negatives=2, include_mmarco_hn=True, mmarco_hn_samples=200000, mmarco_hn_negatives_per_query=4, include_italian_sources=True, italian_source_max_samples=50000, mined_negatives_path='outputs/mined_hn', mined_negatives_per_query=4, num_train_epochs=1.0, per_device_train_batch_size=512, per_device_eval_batch_size=32, mini_batch_size=32, learning_rate=1e-05, temperature=0.02, warmup_ratio=0.05, logging_steps=10, eval_steps=250, save_steps=250, save_total_limit=3, ir_eval_enabled=True, ir_eval_name='it-ir', ir_eval_mldr_queries=150, ir_eval_mldr_docs=2000, ir_eval_mmarco_queries=300, ir_eval_mmarco_docs=3000, ir_eval_mmarco_pool_docs=50000, early_stopping_patience=0, load_best_model_at_end=False, metric_for_best_model='it-ir_score', seed=42, bf16=True, fp16=False, compile_model=False, max_steps=None, resume_from_checkpoint=None, auto_resume=True, dataset_cache_dir='outputs/dataset_cache')
-2026-08-15 13:05:08,010 INFO it_colbert.data: downloading unicamp-dl/mmarco italian tsv files...
-2026-08-15 13:05:08,016 INFO it_colbert.data: indexing italian collection and queries...
-2026-08-15 13:05:38,568 INFO it_colbert.data: mmarco-it ready: 1500000 examples
-2026-08-15 13:05:39,529 INFO it_colbert.data: loading hotchpotch/mmarco-hard-negatives-reranker-filtered [italian-hard-negatives] as contrastive triplets...
-Using the latest cached version of the dataset since hotchpotch/mmarco-hard-negatives-reranker-filtered couldn't be found on the Hugging Face Hub (offline mode is enabled).
-2026-08-15 13:05:39,553 WARNING datasets.load: Using the latest cached version of the dataset since hotchpotch/mmarco-hard-negatives-reranker-filtered couldn't be found on the Hugging Face Hub (offline mode is enabled).
-Found the latest cached dataset configuration 'italian-hard-negatives' at /home/enricollen/.cache/huggingface/datasets/hotchpotch___mmarco-hard-negatives-reranker-filtered/italian-hard-negatives/0.0.0/6d1dd795ef4c668230b03c952f9d3b8e43fbba00 (last modified on Sat Aug 15 13:04:43 2026).
-2026-08-15 13:05:39,554 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'italian-hard-negatives' at /home/enricollen/.cache/huggingface/datasets/hotchpotch___mmarco-hard-negatives-reranker-filtered/italian-hard-negatives/0.0.0/6d1dd795ef4c668230b03c952f9d3b8e43fbba00 (last modified on Sat Aug 15 13:04:43 2026).
-2026-08-15 13:05:54,849 INFO it_colbert.data: mmarco-hn contrastive: dropped 2920 likely false negatives
-2026-08-15 13:05:56,444 INFO it_colbert.data: mmarco-hn contrastive ready: 783591 triplets
-2026-08-15 13:05:56,639 INFO it_colbert.data: loading yuri-no/miracl-ita-argos [train] as contrastive triplets...
+[2026-08-23T09:48:36+02:00] phase 1 start (auto-resumes if a checkpoint exists)
+2026-08-23 09:48:39,735 INFO it_colbert.train_phase1: starting phase 1 contrastive training
+2026-08-23 09:48:39,735 INFO it_colbert.train_phase1: config: Phase1Config(model_name='nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl', output_dir='outputs/phase1', run_name='it-colbert-phase1', dim=128, document_length=512, query_length=32, mmarco_samples=1500000, mmarco_eval_samples=2000, include_wiki_hn=True, wiki_max_hard_negatives=2, include_mmarco_hn=True, mmarco_hn_samples=200000, mmarco_hn_negatives_per_query=4, include_italian_sources=True, italian_source_max_samples=50000, mined_negatives_path='outputs/mined_hn', mined_negatives_per_query=4, num_train_epochs=1.0, per_device_train_batch_size=512, per_device_eval_batch_size=32, mini_batch_size=32, learning_rate=1e-05, temperature=0.02, warmup_ratio=0.05, logging_steps=10, eval_steps=250, save_steps=250, save_total_limit=3, ir_eval_enabled=True, ir_eval_name='it-ir', ir_eval_mldr_queries=150, ir_eval_mldr_docs=2000, ir_eval_mmarco_queries=300, ir_eval_mmarco_docs=3000, ir_eval_mmarco_pool_docs=50000, ir_eval_query_half='all', early_stopping_patience=0, load_best_model_at_end=False, metric_for_best_model='it-ir_score', seed=42, bf16=True, fp16=False, compile_model=False, max_steps=None, resume_from_checkpoint=None, auto_resume=True, dataset_cache_dir='outputs/dataset_cache')
+2026-08-23 09:48:39,736 INFO it_colbert.data: reusing cached phase1 dataset at outputs/dataset_cache/phase1-64432ff02d8bdf14
+2026-08-23 09:48:40,449 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
+2026-08-23 09:48:40,450 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-23 09:48:40,450 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl
+The `reference_compile` argument is deprecated and will be removed in `transformers v5.2.0`Use `torch.compile()` directly on the model instead.
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 1511.90it/s]
+2026-08-23 09:48:41,550 INFO pylate.models.colbert: The checkpoint does not contain a linear projection layer. Adding one with output dimensions (768, 128).
+2026-08-23 09:48:41,552 INFO pylate.models.colbert: Created a PyLate model from base encoder.
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+2026-08-23 09:48:41,893 WARNING sentence_transformers.evaluation.TripletEvaluator: The 'main_distance_function' parameter is deprecated. Please use 'main_similarity_function' instead. 'main_distance_function' will be removed in a future release.
+2026-08-23 09:48:41,893 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-23 09:48:44,062 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-23 09:48:44,065 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
+2026-08-23 09:48:52,603 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 50000 docs (qrel=7433), qrels=7437
+2026-08-23 09:48:52,615 INFO it_colbert.ir_eval: ir eval mldr: 150 queries / 2000 docs (query half: all)
+2026-08-23 09:48:52,615 INFO it_colbert.ir_eval: ir eval mmarco: 300 queries / 3000 docs (query half: all)
+2026-08-23 09:48:52,615 WARNING it_colbert.ir_eval: ir eval reads the full benchmark query set. safe while nothing selects on it, but any run with load_best_model_at_end or early stopping is selecting on test queries — set query_half to 'selection' there (TODO.md §11.1)
+2026-08-23 09:48:52,615 INFO it_colbert.train_phase1: phase1 ir eval on, every 250 steps
+2026-08-23 09:48:52,842 INFO it_colbert.checkpoints: auto-resuming from outputs/phase1/checkpoint-4000
+2026-08-23 09:48:52,843 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-23 09:48:52,843 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/phase1/checkpoint-4000
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 1493.10it/s]
+{'loss': '0.1259', 'grad_norm': '862.9', 'learning_rate': '2.446e-06', 'epoch': '0.7679'}
+{'loss': '0.1488', 'grad_norm': '1068', 'learning_rate': '2.425e-06', 'epoch': '0.7698'}
+{'loss': '0.1386', 'grad_norm': '1345', 'learning_rate': '2.405e-06', 'epoch': '0.7717'}
+{'loss': '0.143', 'grad_norm': '1318', 'learning_rate': '2.385e-06', 'epoch': '0.7736'}
+{'loss': '0.1283', 'grad_norm': '1040', 'learning_rate': '2.365e-06', 'epoch': '0.7756'}
+{'loss': '0.1467', 'grad_norm': '1288', 'learning_rate': '2.345e-06', 'epoch': '0.7775'}
+{'loss': '0.141', 'grad_norm': '1181', 'learning_rate': '2.325e-06', 'epoch': '0.7794'}
+{'loss': '0.1388', 'grad_norm': '1057', 'learning_rate': '2.304e-06', 'epoch': '0.7813'}
+{'loss': '0.124', 'grad_norm': '1154', 'learning_rate': '2.284e-06', 'epoch': '0.7832'}
+{'loss': '0.1351', 'grad_norm': '1007', 'learning_rate': '2.264e-06', 'epoch': '0.7851'}
+{'loss': '0.1309', 'grad_norm': '1375', 'learning_rate': '2.244e-06', 'epoch': '0.7871'}
+{'loss': '0.1245', 'grad_norm': '1074', 'learning_rate': '2.224e-06', 'epoch': '0.789'}
+{'loss': '0.1463', 'grad_norm': '992.6', 'learning_rate': '2.204e-06', 'epoch': '0.7909'}
+{'loss': '0.1369', 'grad_norm': '1155', 'learning_rate': '2.183e-06', 'epoch': '0.7928'}
+{'loss': '0.1406', 'grad_norm': '1342', 'learning_rate': '2.163e-06', 'epoch': '0.7947'}
+{'loss': '0.1482', 'grad_norm': '1059', 'learning_rate': '2.143e-06', 'epoch': '0.7966'}
+{'loss': '0.1405', 'grad_norm': '986.2', 'learning_rate': '2.123e-06', 'epoch': '0.7985'}
+{'loss': '0.1292', 'grad_norm': '941.9', 'learning_rate': '2.103e-06', 'epoch': '0.8005'}
+{'loss': '0.1395', 'grad_norm': '1014', 'learning_rate': '2.083e-06', 'epoch': '0.8024'}
+{'loss': '0.1384', 'grad_norm': '1174', 'learning_rate': '2.063e-06', 'epoch': '0.8043'}
+{'loss': '0.1302', 'grad_norm': '1164', 'learning_rate': '2.042e-06', 'epoch': '0.8062'}
+{'loss': '0.1403', 'grad_norm': '1070', 'learning_rate': '2.022e-06', 'epoch': '0.8081'}
+{'loss': '0.1329', 'grad_norm': '1114', 'learning_rate': '2.002e-06', 'epoch': '0.81'}
+{'loss': '0.1366', 'grad_norm': '1296', 'learning_rate': '1.982e-06', 'epoch': '0.8119'}
+{'loss': '0.1388', 'grad_norm': '1217', 'learning_rate': '1.962e-06', 'epoch': '0.8139'}
+2026-08-23 11:08:32,424 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.8138644197625431 after 4250 steps:
+2026-08-23 11:08:41,616 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.98
+2026-08-23 11:09:15,037 INFO it_colbert.ir_eval: ir eval @ step 4250: {'it-ir_mldr_ndcg@10': 0.43268847011409456, 'it-ir_mldr_mrr@10': 0.38826719576719576, 'it-ir_mldr_recall@10': 0.5733333333333334, 'it-ir_mmarco_ndcg@10': 0.9358947730241746, 'it-ir_mmarco_mrr@10': 0.9254576719576721, 'it-ir_mmarco_recall@10': 0.975, 'it-ir_score': 0.6790730710358833}
+{'eval_loss': '0.0623', 'eval_accuracy': '0.9765', 'eval_it-ir_mldr_ndcg@10': '0.4327', 'eval_it-ir_mldr_mrr@10': '0.3883', 'eval_it-ir_mldr_recall@10': '0.5733', 'eval_it-ir_mmarco_ndcg@10': '0.9359', 'eval_it-ir_mmarco_mrr@10': '0.9255', 'eval_it-ir_mmarco_recall@10': '0.975', 'eval_it-ir_score': '0.6791', 'eval_runtime': '62.17', 'eval_samples_per_second': '32.17', 'eval_steps_per_second': '1.013', 'epoch': '0.8139'}
+2026-08-23 11:09:15,038 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-4250
+2026-08-23 11:09:15,038 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-4250
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.38it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.38it/s]
+{'loss': '0.1419', 'grad_norm': '1165', 'learning_rate': '1.942e-06', 'epoch': '0.8158'}
+{'loss': '0.1255', 'grad_norm': '1078', 'learning_rate': '1.921e-06', 'epoch': '0.8177'}
+{'loss': '0.1296', 'grad_norm': '1953', 'learning_rate': '1.901e-06', 'epoch': '0.8196'}
+{'loss': '0.1293', 'grad_norm': '2150', 'learning_rate': '1.881e-06', 'epoch': '0.8215'}
+{'loss': '0.1279', 'grad_norm': '1049', 'learning_rate': '1.861e-06', 'epoch': '0.8234'}
+{'loss': '0.1377', 'grad_norm': '878.8', 'learning_rate': '1.841e-06', 'epoch': '0.8254'}
+{'loss': '0.1192', 'grad_norm': '1037', 'learning_rate': '1.821e-06', 'epoch': '0.8273'}
+{'loss': '0.1338', 'grad_norm': '1079', 'learning_rate': '1.8e-06', 'epoch': '0.8292'}
+{'loss': '0.1365', 'grad_norm': '1128', 'learning_rate': '1.78e-06', 'epoch': '0.8311'}
+{'loss': '0.1391', 'grad_norm': '1001', 'learning_rate': '1.76e-06', 'epoch': '0.833'}
+{'loss': '0.1221', 'grad_norm': '1059', 'learning_rate': '1.74e-06', 'epoch': '0.8349'}
+{'loss': '0.1459', 'grad_norm': '1076', 'learning_rate': '1.72e-06', 'epoch': '0.8368'}
+{'loss': '0.1272', 'grad_norm': '1027', 'learning_rate': '1.7e-06', 'epoch': '0.8388'}
+{'loss': '0.124', 'grad_norm': '1027', 'learning_rate': '1.679e-06', 'epoch': '0.8407'}
+{'loss': '0.1373', 'grad_norm': '1135', 'learning_rate': '1.659e-06', 'epoch': '0.8426'}
+{'loss': '0.1257', 'grad_norm': '1067', 'learning_rate': '1.639e-06', 'epoch': '0.8445'}
+{'loss': '0.136', 'grad_norm': '954.3', 'learning_rate': '1.619e-06', 'epoch': '0.8464'}
+{'loss': '0.1402', 'grad_norm': '919.3', 'learning_rate': '1.599e-06', 'epoch': '0.8483'}
+{'loss': '0.1181', 'grad_norm': '1142', 'learning_rate': '1.579e-06', 'epoch': '0.8502'}
+{'loss': '0.1318', 'grad_norm': '1275', 'learning_rate': '1.558e-06', 'epoch': '0.8522'}
+{'loss': '0.1301', 'grad_norm': '1043', 'learning_rate': '1.538e-06', 'epoch': '0.8541'}
+{'loss': '0.1236', 'grad_norm': '1113', 'learning_rate': '1.518e-06', 'epoch': '0.856'}
+{'loss': '0.1437', 'grad_norm': '958.1', 'learning_rate': '1.498e-06', 'epoch': '0.8579'}
+{'loss': '0.14', 'grad_norm': '1064', 'learning_rate': '1.478e-06', 'epoch': '0.8598'}
+{'loss': '0.1332', 'grad_norm': '1110', 'learning_rate': '1.458e-06', 'epoch': '0.8617'}
+2026-08-23 12:28:38,303 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.8617387973956339 after 4500 steps:
+2026-08-23 12:28:47,907 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.98
+2026-08-23 12:29:19,502 INFO it_colbert.ir_eval: ir eval @ step 4500: {'it-ir_mldr_ndcg@10': 0.43009310230929676, 'it-ir_mldr_mrr@10': 0.3867354497354497, 'it-ir_mldr_recall@10': 0.5666666666666667, 'it-ir_mmarco_ndcg@10': 0.9350449846246742, 'it-ir_mmarco_mrr@10': 0.9232539682539683, 'it-ir_mmarco_recall@10': 0.9783333333333334, 'it-ir_score': 0.6766735352816325}
+{'eval_loss': '0.06158', 'eval_accuracy': '0.976', 'eval_it-ir_mldr_ndcg@10': '0.4301', 'eval_it-ir_mldr_mrr@10': '0.3867', 'eval_it-ir_mldr_recall@10': '0.5667', 'eval_it-ir_mmarco_ndcg@10': '0.935', 'eval_it-ir_mmarco_mrr@10': '0.9233', 'eval_it-ir_mmarco_recall@10': '0.9783', 'eval_it-ir_score': '0.6767', 'eval_runtime': '61.5', 'eval_samples_per_second': '32.52', 'eval_steps_per_second': '1.024', 'epoch': '0.8617'}
+2026-08-23 12:29:19,505 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-4500
+2026-08-23 12:29:19,505 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-4500
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.79it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.79it/s]
+{'loss': '0.1492', 'grad_norm': '1374', 'learning_rate': '1.438e-06', 'epoch': '0.8637'}
+{'loss': '0.1295', 'grad_norm': '1194', 'learning_rate': '1.417e-06', 'epoch': '0.8656'}
+{'loss': '0.137', 'grad_norm': '1536', 'learning_rate': '1.397e-06', 'epoch': '0.8675'}
+{'loss': '0.1415', 'grad_norm': '1157', 'learning_rate': '1.377e-06', 'epoch': '0.8694'}
+{'loss': '0.1326', 'grad_norm': '1114', 'learning_rate': '1.357e-06', 'epoch': '0.8713'}
+{'loss': '0.1352', 'grad_norm': '1191', 'learning_rate': '1.337e-06', 'epoch': '0.8732'}
+{'loss': '0.1273', 'grad_norm': '985.9', 'learning_rate': '1.317e-06', 'epoch': '0.8751'}
+{'loss': '0.1252', 'grad_norm': '1206', 'learning_rate': '1.296e-06', 'epoch': '0.8771'}
+{'loss': '0.1371', 'grad_norm': '956.8', 'learning_rate': '1.276e-06', 'epoch': '0.879'}
+{'loss': '0.1388', 'grad_norm': '1302', 'learning_rate': '1.256e-06', 'epoch': '0.8809'}
+{'loss': '0.1366', 'grad_norm': '1194', 'learning_rate': '1.236e-06', 'epoch': '0.8828'}
+{'loss': '0.1256', 'grad_norm': '1143', 'learning_rate': '1.216e-06', 'epoch': '0.8847'}
+{'loss': '0.137', 'grad_norm': '1124', 'learning_rate': '1.196e-06', 'epoch': '0.8866'}
+{'loss': '0.1293', 'grad_norm': '1190', 'learning_rate': '1.175e-06', 'epoch': '0.8885'}
+{'loss': '0.1239', 'grad_norm': '905.9', 'learning_rate': '1.155e-06', 'epoch': '0.8905'}
+{'loss': '0.1377', 'grad_norm': '986.4', 'learning_rate': '1.135e-06', 'epoch': '0.8924'}
+{'loss': '0.1281', 'grad_norm': '1198', 'learning_rate': '1.115e-06', 'epoch': '0.8943'}
+{'loss': '0.14', 'grad_norm': '1348', 'learning_rate': '1.095e-06', 'epoch': '0.8962'}
+{'loss': '0.1288', 'grad_norm': '853.5', 'learning_rate': '1.075e-06', 'epoch': '0.8981'}
+{'loss': '0.1282', 'grad_norm': '853.1', 'learning_rate': '1.054e-06', 'epoch': '0.9'}
+{'loss': '0.1453', 'grad_norm': '1284', 'learning_rate': '1.034e-06', 'epoch': '0.902'}
+{'loss': '0.1407', 'grad_norm': '1347', 'learning_rate': '1.014e-06', 'epoch': '0.9039'}
+{'loss': '0.1311', 'grad_norm': '1191', 'learning_rate': '9.94e-07', 'epoch': '0.9058'}
+{'loss': '0.1339', 'grad_norm': '1080', 'learning_rate': '9.738e-07', 'epoch': '0.9077'}
+{'loss': '0.1345', 'grad_norm': '957.6', 'learning_rate': '9.536e-07', 'epoch': '0.9096'}
+2026-08-23 13:48:55,644 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.9096131750287246 after 4750 steps:
+2026-08-23 13:49:04,745 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.98
+2026-08-23 13:49:35,770 INFO it_colbert.ir_eval: ir eval @ step 4750: {'it-ir_mldr_ndcg@10': 0.4351468341956802, 'it-ir_mldr_mrr@10': 0.3897830687830688, 'it-ir_mldr_recall@10': 0.58, 'it-ir_mmarco_ndcg@10': 0.9362627091029768, 'it-ir_mmarco_mrr@10': 0.9248187830687831, 'it-ir_mmarco_recall@10': 0.9783333333333334, 'it-ir_score': 0.6799828086322316}
+{'eval_loss': '0.06052', 'eval_accuracy': '0.9755', 'eval_it-ir_mldr_ndcg@10': '0.4351', 'eval_it-ir_mldr_mrr@10': '0.3898', 'eval_it-ir_mldr_recall@10': '0.58', 'eval_it-ir_mmarco_ndcg@10': '0.9363', 'eval_it-ir_mmarco_mrr@10': '0.9248', 'eval_it-ir_mmarco_recall@10': '0.9783', 'eval_it-ir_score': '0.68', 'eval_runtime': '60.42', 'eval_samples_per_second': '33.1', 'eval_steps_per_second': '1.043', 'epoch': '0.9096'}
+2026-08-23 13:49:35,773 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-4750
+2026-08-23 13:49:35,773 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-4750
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.76it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.75it/s]
+{'loss': '0.1387', 'grad_norm': '1196', 'learning_rate': '9.335e-07', 'epoch': '0.9115'}
+{'loss': '0.134', 'grad_norm': '1076', 'learning_rate': '9.133e-07', 'epoch': '0.9134'}
+{'loss': '0.135', 'grad_norm': '1020', 'learning_rate': '8.931e-07', 'epoch': '0.9154'}
+{'loss': '0.1218', 'grad_norm': '1015', 'learning_rate': '8.73e-07', 'epoch': '0.9173'}
+{'loss': '0.1289', 'grad_norm': '1109', 'learning_rate': '8.528e-07', 'epoch': '0.9192'}
+{'loss': '0.1285', 'grad_norm': '1005', 'learning_rate': '8.327e-07', 'epoch': '0.9211'}
+{'loss': '0.1368', 'grad_norm': '1290', 'learning_rate': '8.125e-07', 'epoch': '0.923'}
+{'loss': '0.1336', 'grad_norm': '1305', 'learning_rate': '7.923e-07', 'epoch': '0.9249'}
+{'loss': '0.1464', 'grad_norm': '919', 'learning_rate': '7.722e-07', 'epoch': '0.9268'}
+{'loss': '0.1408', 'grad_norm': '1245', 'learning_rate': '7.52e-07', 'epoch': '0.9288'}
+{'loss': '0.1279', 'grad_norm': '1018', 'learning_rate': '7.319e-07', 'epoch': '0.9307'}
+{'loss': '0.129', 'grad_norm': '1179', 'learning_rate': '7.117e-07', 'epoch': '0.9326'}
+{'loss': '0.1342', 'grad_norm': '1205', 'learning_rate': '6.915e-07', 'epoch': '0.9345'}
+{'loss': '0.1351', 'grad_norm': '1210', 'learning_rate': '6.714e-07', 'epoch': '0.9364'}
+{'loss': '0.1474', 'grad_norm': '1163', 'learning_rate': '6.512e-07', 'epoch': '0.9383'}
+{'loss': '0.1284', 'grad_norm': '1065', 'learning_rate': '6.31e-07', 'epoch': '0.9403'}
+{'loss': '0.1296', 'grad_norm': '1176', 'learning_rate': '6.109e-07', 'epoch': '0.9422'}
+{'loss': '0.1199', 'grad_norm': '909.5', 'learning_rate': '5.907e-07', 'epoch': '0.9441'}
+{'loss': '0.152', 'grad_norm': '1507', 'learning_rate': '5.706e-07', 'epoch': '0.946'}
+{'loss': '0.1391', 'grad_norm': '1177', 'learning_rate': '5.504e-07', 'epoch': '0.9479'}
+{'loss': '0.1368', 'grad_norm': '1260', 'learning_rate': '5.302e-07', 'epoch': '0.9498'}
+{'loss': '0.1243', 'grad_norm': '1474', 'learning_rate': '5.101e-07', 'epoch': '0.9517'}
+{'loss': '0.1276', 'grad_norm': '957.6', 'learning_rate': '4.899e-07', 'epoch': '0.9537'}
+{'loss': '0.1274', 'grad_norm': '1276', 'learning_rate': '4.698e-07', 'epoch': '0.9556'}
+{'loss': '0.1375', 'grad_norm': '1296', 'learning_rate': '4.496e-07', 'epoch': '0.9575'}
+2026-08-23 15:08:46,072 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.9574875526618154 after 5000 steps:
+2026-08-23 15:08:55,144 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.98
+2026-08-23 15:09:25,617 INFO it_colbert.ir_eval: ir eval @ step 5000: {'it-ir_mldr_ndcg@10': 0.4346965655575534, 'it-ir_mldr_mrr@10': 0.3911349206349206, 'it-ir_mldr_recall@10': 0.5733333333333334, 'it-ir_mmarco_ndcg@10': 0.9359305209027536, 'it-ir_mmarco_mrr@10': 0.9244761904761906, 'it-ir_mmarco_recall@10': 0.9783333333333334, 'it-ir_score': 0.679586378016872}
+{'eval_loss': '0.06098', 'eval_accuracy': '0.9755', 'eval_it-ir_mldr_ndcg@10': '0.4347', 'eval_it-ir_mldr_mrr@10': '0.3911', 'eval_it-ir_mldr_recall@10': '0.5733', 'eval_it-ir_mmarco_ndcg@10': '0.9359', 'eval_it-ir_mmarco_mrr@10': '0.9245', 'eval_it-ir_mmarco_recall@10': '0.9783', 'eval_it-ir_score': '0.6796', 'eval_runtime': '59.01', 'eval_samples_per_second': '33.89', 'eval_steps_per_second': '1.068', 'epoch': '0.9575'}
+2026-08-23 15:09:25,619 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-5000
+2026-08-23 15:09:25,619 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-5000
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.83it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.82it/s]
+{'loss': '0.1357', 'grad_norm': '1294', 'learning_rate': '4.294e-07', 'epoch': '0.9594'}
+{'loss': '0.1182', 'grad_norm': '1095', 'learning_rate': '4.093e-07', 'epoch': '0.9613'}
+{'loss': '0.1178', 'grad_norm': '842.5', 'learning_rate': '3.891e-07', 'epoch': '0.9632'}
+{'loss': '0.1272', 'grad_norm': '939', 'learning_rate': '3.69e-07', 'epoch': '0.9651'}
+{'loss': '0.1574', 'grad_norm': '1475', 'learning_rate': '3.488e-07', 'epoch': '0.9671'}
+{'loss': '0.1291', 'grad_norm': '995', 'learning_rate': '3.286e-07', 'epoch': '0.969'}
+{'loss': '0.1333', 'grad_norm': '1063', 'learning_rate': '3.085e-07', 'epoch': '0.9709'}
+{'loss': '0.1223', 'grad_norm': '1083', 'learning_rate': '2.883e-07', 'epoch': '0.9728'}
+{'loss': '0.1303', 'grad_norm': '1165', 'learning_rate': '2.681e-07', 'epoch': '0.9747'}
+{'loss': '0.1316', 'grad_norm': '1016', 'learning_rate': '2.48e-07', 'epoch': '0.9766'}
+{'loss': '0.1215', 'grad_norm': '979.3', 'learning_rate': '2.278e-07', 'epoch': '0.9786'}
+{'loss': '0.1376', 'grad_norm': '1064', 'learning_rate': '2.077e-07', 'epoch': '0.9805'}
+{'loss': '0.1281', 'grad_norm': '1061', 'learning_rate': '1.875e-07', 'epoch': '0.9824'}
+{'loss': '0.1524', 'grad_norm': '1013', 'learning_rate': '1.673e-07', 'epoch': '0.9843'}
+{'loss': '0.124', 'grad_norm': '1151', 'learning_rate': '1.472e-07', 'epoch': '0.9862'}
+{'loss': '0.1378', 'grad_norm': '1160', 'learning_rate': '1.27e-07', 'epoch': '0.9881'}
+{'loss': '0.1184', 'grad_norm': '911.4', 'learning_rate': '1.069e-07', 'epoch': '0.99'}
+{'loss': '0.131', 'grad_norm': '940.4', 'learning_rate': '8.669e-08', 'epoch': '0.992'}
+{'loss': '0.1147', 'grad_norm': '962.7', 'learning_rate': '6.653e-08', 'epoch': '0.9939'}
+{'loss': '0.119', 'grad_norm': '948.3', 'learning_rate': '4.637e-08', 'epoch': '0.9958'}
+{'loss': '0.1416', 'grad_norm': '1140', 'learning_rate': '2.621e-08', 'epoch': '0.9977'}
+{'loss': '0.1243', 'grad_norm': '1122', 'learning_rate': '6.048e-09', 'epoch': '0.9996'}
+2026-08-23 16:19:20,048 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-5222
+2026-08-23 16:19:20,048 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-5222
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.54it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.54it/s]
+{'train_runtime': '2.343e+04', 'train_samples_per_second': '114.1', 'train_steps_per_second': '0.223', 'train_loss': '0.0312', 'epoch': '1'}
+2026-08-23 16:19:21,928 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/final
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:01<00:00,  1.57s/it]Writing model shards: 100%|██████████| 1/1 [00:01<00:00,  1.57s/it]
+2026-08-23 16:19:23,526 INFO it_colbert.train_phase1: phase 1 model saved to outputs/phase1/final
+[2026-08-23T16:19:25+02:00] phase 1 done
+[2026-08-23T16:19:25+02:00] publish + benchmark phase1-only ablation
+2026-08-23 16:19:31,194 INFO it_colbert.benchmark.run: resuming from outputs/benchmark/results.json
+2026-08-23 16:19:31,194 INFO it_colbert.benchmark.run: === benchmark mldr-it ===
+2026-08-23 16:19:31,194 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-23 16:19:32,011 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/test.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-23 16:19:32,328 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/corpus.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-23 16:19:32,722 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/qrels/qrels.mldr-v1.0-it-test.tsv "HTTP/1.1 307 Temporary Redirect"
+2026-08-23 16:19:33,033 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/Shitao/MLDR/d67138e705d963e346253a80e59676ddb418810a/qrels%2Fqrels.mldr-v1.0-it-test.tsv "HTTP/1.1 200 OK"
+2026-08-23 16:19:35,667 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-23 16:19:35,667 INFO it_colbert.benchmark.run: skip completed mldr-it / ItColBERT (phase1-only)
+2026-08-23 16:19:35,667 INFO it_colbert.benchmark.run: === benchmark mmarco-it ===
+2026-08-23 16:19:35,667 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
+2026-08-23 16:19:36,069 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/collections/italian_collection.tsv "HTTP/1.1 302 Found"
+2026-08-23 16:19:36,443 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/queries/dev/italian_queries.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-23 16:19:36,820 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/qrels.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-23 16:19:55,894 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 100000 docs (qrel=7433), qrels=7437
+2026-08-23 16:19:55,909 INFO it_colbert.benchmark.run: skip completed mmarco-it / ItColBERT (phase1-only)
+2026-08-23 16:19:55,925 INFO it_colbert.benchmark.run: wrote outputs/benchmark/results.json
+{
+  "mldr-it": {
+    "n_queries": 200,
+    "n_docs": 10000,
+    "models": {
+      "BM25": {
+        "kind": "bm25",
+        "model_id": null,
+        "notes": "lexical baseline",
+        "effective_length": 512,
+        "chunk_chars": 0,
+        "metrics": {
+          "mrr@10": 0.44152380952380954,
+          "ndcg@1": 0.37,
+          "ndcg@5": 0.4645942795005233,
+          "ndcg@10": 0.48504805320031535,
+          "ndcg@100": 0.5132858238250867,
+          "map@100": 0.4474936396462404,
+          "recall@1": 0.37,
+          "recall@5": 0.56,
+          "recall@10": 0.625,
+          "recall@100": 0.755,
+          "precision@10": 0.0625,
+          "hits@1": 0.37,
+          "hits@5": 0.56,
+          "hits@10": 0.625
+        },
+        "confidence": {
+          "ndcg@10": {
+            "mean": 0.4850480532003154,
+            "ci_low": 0.42296336674017054,
+            "ci_high": 0.5435824461868359,
+            "n_queries": 200
+          },
+          "mrr@10": {
+            "mean": 0.44152380952380954,
+            "ci_low": 0.3769993551587302,
+            "ci_high": 0.5030624503968254,
+            "n_queries": 200
+          },
+          "recall@100": {
+            "mean": 0.755,
+            "ci_low": 0.695,
+            "ci_high": 0.815,
+            "n_queries": 200
+          }
+        },
+        "seconds": 259.7,
+        "error": null
+      },
+      "Italian-ModernBERT-base (mean-pool)": {
+        "kind": "dense",
+        "model_id": "DeepMount00/Italian-ModernBERT-base",
+        "notes": "starting encoder; no ir fine-tune",
+        "effective_length": 512,
+        "chunk_chars": 0,
+        "metrics": {
+          "mrr@10": 0.0017142857142857142,
+          "ndcg@1": 0.0,
+          "ndcg@5": 0.001934264036172708,
+          "ndcg@10": 0.0036009307028393744,
+          "ndcg@100": 0.025811541294770483,
+          "map@100": 0.005355036669043531,
+          "recall@1": 0.0,
+          "recall@5": 0.005,
+          "recall@10": 0.01,
+          "recall@100": 0.125,
+          "precision
+[2026-08-23T16:19:55+02:00] phase 2 start (auto-resumes if a checkpoint exists)
+2026-08-23 16:19:58,928 INFO it_colbert.train_phase2: starting phase 2 distillation training
+2026-08-23 16:19:58,928 INFO it_colbert.train_phase2: config: Phase2Config(model_name_or_path='outputs/phase1/final', output_dir='outputs/phase2', run_name='it-colbert-phase2', document_length=512, query_length=32, num_train_epochs=1.0, per_device_train_batch_size=4, learning_rate=2e-06, warmup_ratio=0.01, logging_steps=50, save_steps=500, save_total_limit=3, seed=42, bf16=True, fp16=False, compile_model=False, max_steps=None, max_train_samples=900000, resume_from_checkpoint=None, auto_resume=True, include_mmarco_hn=False, mmarco_hn_max_samples=None, mmarco_hn_dataset='hotchpotch/mmarco-hard-negatives-reranker-filtered', mmarco_hn_config='italian-hard-negatives', mmarco_hn_score_temperature=1.0, mmarco_hn_score_clip=None, kd_n_ways=11, kd_split_sampling='proportional', kd_split_min_share=0.02, kd_split_quotas=None, kd_eval_samples=512, kd_eval_exclude_from_train=True, eval_steps=500, per_device_eval_batch_size=32, early_stopping_patience=4, load_best_model_at_end=True, metric_for_best_model='kd-holdout_kl_divergence', greater_is_better=None, ir_eval_enabled=True, ir_eval_name='it-ir', ir_eval_mldr_queries=200, ir_eval_mldr_docs=3000, ir_eval_mmarco_queries=500, ir_eval_mmarco_docs=5000, ir_eval_mmarco_pool_docs=50000, ir_eval_miracl_queries=200, ir_eval_miracl_docs=5000, ir_eval_miracl_pool_docs=30000, ir_eval_query_half='selection', ir_eval_weights=[0.35, 0.35, 0.3], contrastive_anchor_enabled=True, contrastive_anchor_samples=100000, contrastive_anchor_mini_batch_size=16, contrastive_anchor_temperature=0.02)
+2026-08-23 16:19:58,928 INFO it_colbert.checkpoints: no checkpoint in outputs/phase2; starting fresh
+2026-08-23 16:19:58,928 INFO it_colbert.data: loading lightonai/embeddings-fine-tuning-filtered-it...
+Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+2026-08-23 16:19:58,931 WARNING datasets.load: Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'scores' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/scores/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Thu Aug 13 16:41:24 2026).
+2026-08-23 16:19:58,932 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'scores' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/scores/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Thu Aug 13 16:41:24 2026).
+Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+2026-08-23 16:19:59,154 WARNING datasets.load: Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'queries' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/queries/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Wed Aug  5 23:53:59 2026).
+2026-08-23 16:19:59,154 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'queries' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/queries/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Wed Aug  5 23:53:59 2026).
+Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+2026-08-23 16:19:59,244 WARNING datasets.load: Using the latest cached version of the dataset since lightonai/embeddings-fine-tuning-filtered-it couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'documents' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/documents/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Wed Aug  5 23:57:42 2026).
+2026-08-23 16:19:59,245 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'documents' at /home/enricollen/.cache/huggingface/datasets/lightonai___embeddings-fine-tuning-filtered-it/documents/0.0.0/72e58b2af7da0eb7cc1ce2347c8b2b5a1778bf1e (last modified on Wed Aug  5 23:57:42 2026).
+2026-08-23 16:19:59,642 INFO it_colbert.data: kd split quotas: {'msmarco_it': 289655, 'nq_it': 70087, 'hotpotqa_it': 85551, 'fever_it': 77043, 'trivia_it': 285440, 'squadv2_it': 78340, 'fiqa_it': 13008, 'mldr_it': 1386}
+2026-08-23 16:20:29,520 INFO it_colbert.data: kd split msmarco_it: 289655 examples
+2026-08-23 16:20:36,707 INFO it_colbert.data: kd split nq_it: 70087 examples
+2026-08-23 16:20:43,257 INFO it_colbert.data: kd split hotpotqa_it: 85551 examples
+2026-08-23 16:20:45,468 INFO it_colbert.data: kd split fever_it: 77043 examples
+2026-08-23 16:21:05,923 INFO it_colbert.data: kd split trivia_it: 285440 examples
+2026-08-23 16:21:06,957 INFO it_colbert.data: kd split squadv2_it: 78340 examples
+2026-08-23 16:21:07,224 INFO it_colbert.data: kd split fiqa_it: 13008 examples
+2026-08-23 16:21:07,287 INFO it_colbert.data: kd split mldr_it: 1386 examples
+2026-08-23 16:21:07,409 INFO it_colbert.data: kd italian ready: 900510 examples
+2026-08-23 16:21:07,564 INFO it_colbert.data: kd split: 899998 train / 512 hold-out (never in train)
+2026-08-23 16:21:07,564 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
+2026-08-23 16:21:07,566 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-23 16:21:07,566 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/phase1/final
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 5026.89it/s]
+2026-08-23 16:21:08,129 INFO it_colbert.data: downloading unicamp-dl/mmarco italian tsv files...
+2026-08-23 16:21:08,139 INFO it_colbert.data: indexing italian collection and queries...
+2026-08-23 16:21:23,826 INFO it_colbert.data: mmarco-it ready: 100000 examples
+2026-08-23 16:21:24,293 INFO it_colbert.data: phase1 dataset: 100000 train / no eval split
+Saving the dataset (0/1 shards):   0%|          | 0/100000 [00:00<?, ? examples/s]Saving the dataset (0/1 shards):  43%|████▎     | 43000/100000 [00:00<00:00, 423876.17 examples/s]Saving the dataset (0/1 shards):  88%|████████▊ | 88000/100000 [00:00<00:00, 431417.01 examples/s]Saving the dataset (1/1 shards): 100%|██████████| 100000/100000 [00:00<00:00, 431417.01 examples/s]Saving the dataset (1/1 shards): 100%|██████████| 100000/100000 [00:00<00:00, 432095.11 examples/s]
+Saving the dataset (0/0 shards): 0 examples [00:00, ? examples/s]Saving the dataset (0/0 shards): 0 examples [00:00, ? examples/s]
+2026-08-23 16:21:24,527 INFO it_colbert.data: cached phase1 dataset at outputs/dataset_cache/phase1-c357021e97c32a44
+2026-08-23 16:21:24,528 INFO it_colbert.train_phase2: phase2 contrastive anchor on: 100000 replay triplets alongside 899998 kd rows
+2026-08-23 16:21:24,668 INFO it_colbert.train_phase2: phase2 kd val enabled: 512 examples every 500 steps (kl, exclude_from_train=True)
+2026-08-23 16:21:24,668 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-23 16:21:26,788 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-23 16:21:26,790 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
+2026-08-23 16:21:34,651 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 50000 docs (qrel=7433), qrels=7437
+2026-08-23 16:21:34,665 INFO it_colbert.benchmark.datasets: loading yuri-no/miracl-ita-argos [dev]...
 Using the latest cached version of the dataset since yuri-no/miracl-ita-argos couldn't be found on the Hugging Face Hub (offline mode is enabled).
-2026-08-15 13:05:56,660 WARNING datasets.load: Using the latest cached version of the dataset since yuri-no/miracl-ita-argos couldn't be found on the Hugging Face Hub (offline mode is enabled).
+2026-08-23 16:21:34,679 WARNING datasets.load: Using the latest cached version of the dataset since yuri-no/miracl-ita-argos couldn't be found on the Hugging Face Hub (offline mode is enabled).
 Found the latest cached dataset configuration 'default' at /home/enricollen/.cache/huggingface/datasets/yuri-no___miracl-ita-argos/default/0.0.0/b6862f9cbc64ef9e858118b8269743d83e9804cf (last modified on Tue Aug 11 09:52:55 2026).
-2026-08-15 13:05:56,661 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'default' at /home/enricollen/.cache/huggingface/datasets/yuri-no___miracl-ita-argos/default/0.0.0/b6862f9cbc64ef9e858118b8269743d83e9804cf (last modified on Tue Aug 11 09:52:55 2026).
-2026-08-15 13:05:56,931 INFO it_colbert.data: yuri-no/miracl-ita-argos ready: 5587 triplets
-2026-08-15 13:05:56,934 INFO it_colbert.data: loading yuri-no/squad-ita [train] as contrastive triplets...
-Using the latest cached version of the dataset since yuri-no/squad-ita couldn't be found on the Hugging Face Hub (offline mode is enabled).
-2026-08-15 13:05:56,936 WARNING datasets.load: Using the latest cached version of the dataset since yuri-no/squad-ita couldn't be found on the Hugging Face Hub (offline mode is enabled).
-Found the latest cached dataset configuration 'default' at /home/enricollen/.cache/huggingface/datasets/yuri-no___squad-ita/default/0.0.0/44c063da6d9c8ce6e1b132854cd6d2661734a8f6 (last modified on Tue Aug 11 09:52:58 2026).
-2026-08-15 13:05:56,936 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'default' at /home/enricollen/.cache/huggingface/datasets/yuri-no___squad-ita/default/0.0.0/44c063da6d9c8ce6e1b132854cd6d2661734a8f6 (last modified on Tue Aug 11 09:52:58 2026).
-2026-08-15 13:06:02,672 INFO it_colbert.data: yuri-no/squad-ita ready: 99955 triplets
-2026-08-15 13:06:02,712 INFO it_colbert.data: loading mined hard negatives from outputs/mined_hn...
-2026-08-15 13:06:03,827 INFO it_colbert.data: mined hard negatives ready: 186332 triplets
-2026-08-15 13:06:03,852 INFO it_colbert.data: loading nickprock/it-wiki-retrieval-synthetic-hn...
-Using the latest cached version of the dataset since nickprock/it-wiki-retrieval-synthetic-hn couldn't be found on the Hugging Face Hub (offline mode is enabled).
-2026-08-15 13:06:03,856 WARNING datasets.load: Using the latest cached version of the dataset since nickprock/it-wiki-retrieval-synthetic-hn couldn't be found on the Hugging Face Hub (offline mode is enabled).
-Found the latest cached dataset configuration 'default' at /home/enricollen/.cache/huggingface/datasets/nickprock___it-wiki-retrieval-synthetic-hn/default/0.0.0/d6472bf5b9059cd2f6ffa0d117edca63a2529e98 (last modified on Thu Aug  6 00:04:07 2026).
-2026-08-15 13:06:03,856 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'default' at /home/enricollen/.cache/huggingface/datasets/nickprock___it-wiki-retrieval-synthetic-hn/default/0.0.0/d6472bf5b9059cd2f6ffa0d117edca63a2529e98 (last modified on Thu Aug  6 00:04:07 2026).
-2026-08-15 13:06:04,678 INFO it_colbert.data: wiki-hn ready: 100002 triplet examples
-2026-08-15 13:06:05,230 INFO it_colbert.data: phase1 dataset: 2673467 train / 2000 eval
-Saving the dataset (0/5 shards):   0%|          | 0/2673467 [00:00<?, ? examples/s]Saving the dataset (0/5 shards):   1%|          | 21000/2673467 [00:00<00:13, 196772.27 examples/s]Saving the dataset (0/5 shards):   2%|▏         | 44000/2673467 [00:00<00:12, 213104.75 examples/s]Saving the dataset (0/5 shards):   3%|▎         | 69000/2673467 [00:00<00:11, 226602.10 examples/s]Saving the dataset (0/5 shards):   4%|▎         | 96000/2673467 [00:00<00:10, 239102.22 examples/s]Saving the dataset (0/5 shards):   5%|▍         | 124000/2673467 [00:00<00:10, 247921.11 examples/s]Saving the dataset (0/5 shards):   6%|▌         | 152000/2673467 [00:00<00:09, 254933.26 examples/s]Saving the dataset (0/5 shards):   7%|▋         | 181000/2673467 [00:00<00:09, 262048.12 examples/s]Saving the dataset (0/5 shards):   8%|▊         | 209000/2673467 [00:00<00:09, 265755.14 examples/s]Saving the dataset (0/5 shards):   9%|▉         | 237000/2673467 [00:00<00:09, 269016.30 examples/s]Saving the dataset (0/5 shards):  10%|█         | 268000/2673467 [00:01<00:08, 279866.53 examples/s]Saving the dataset (0/5 shards):  11%|█▏        | 301000/2673467 [00:01<00:08, 293199.79 examples/s]Saving the dataset (0/5 shards):  13%|█▎        | 336000/2673467 [00:01<00:07, 306922.23 examples/s]Saving the dataset (0/5 shards):  14%|█▍        | 371000/2673467 [00:01<00:07, 318087.04 examples/s]Saving the dataset (0/5 shards):  15%|█▌        | 406000/2673467 [00:01<00:07, 323334.70 examples/s]Saving the dataset (0/5 shards):  16%|█▋        | 439000/2673467 [00:01<00:06, 324115.29 examples/s]Saving the dataset (0/5 shards):  18%|█▊        | 473000/2673467 [00:01<00:06, 325522.50 examples/s]Saving the dataset (0/5 shards):  19%|█▉        | 507000/2673467 [00:01<00:06, 326839.79 examples/s]Saving the dataset (1/5 shards):  20%|██        | 534694/2673467 [00:01<00:06, 326839.79 examples/s]Saving the dataset (1/5 shards):  21%|██        | 550694/2673467 [00:01<00:06, 321485.06 examples/s]Saving the dataset (1/5 shards):  22%|██▏       | 586694/2673467 [00:01<00:06, 330287.40 examples/s]Saving the dataset (1/5 shards):  23%|██▎       | 623694/2673467 [00:02<00:06, 338852.74 examples/s]Saving the dataset (1/5 shards):  25%|██▍       | 660694/2673467 [00:02<00:05, 344349.54 examples/s]Saving the dataset (1/5 shards):  26%|██▌       | 696694/2673467 [00:02<00:05, 343822.45 examples/s]Saving the dataset (1/5 shards):  27%|██▋       | 733694/2673467 [00:02<00:05, 349074.85 examples/s]Saving the dataset (1/5 shards):  29%|██▉       | 770694/2673467 [00:02<00:05, 351510.96 examples/s]Saving the dataset (1/5 shards):  31%|███       | 820694/2673467 [00:02<00:05, 340582.05 examples/s]Saving the dataset (1/5 shards):  33%|███▎      | 871694/2673467 [00:02<00:05, 334794.51 examples/s]Saving the dataset (1/5 shards):  34%|███▍      | 920694/2673467 [00:02<00:05, 330856.87 examples/s]Saving the dataset (1/5 shards):  36%|███▌      | 954694/2673467 [00:03<00:05, 329639.47 examples/s]Saving the dataset (1/5 shards):  38%|███▊      | 1003694/2673467 [00:03<00:05, 327340.67 examples/s]Saving the dataset (1/5 shards):  39%|███▉      | 1036694/2673467 [00:03<00:05, 325107.47 examples/s]Saving the dataset (1/5 shards):  40%|████      | 1069388/2673467 [00:03<00:04, 324159.76 examples/s]Saving the dataset (2/5 shards):  40%|████      | 1069388/2673467 [00:03<00:04, 324159.76 examples/s]Saving the dataset (2/5 shards):  41%|████▏     | 1103388/2673467 [00:03<00:04, 323258.14 examples/s]Saving the dataset (2/5 shards):  43%|████▎     | 1138388/2673467 [00:03<00:04, 328837.55 examples/s]Saving the dataset (2/5 shards):  44%|████▍     | 1172388/2673467 [00:03<00:04, 330687.68 examples/s]Saving the dataset (2/5 shards):  46%|████▌     | 1222388/2673467 [00:03<00:04, 329597.09 examples/s]Saving the dataset (2/5 shards):  47%|████▋     | 1261388/2673467 [00:04<00:05, 248240.03 examples/s]Saving the dataset (2/5 shards):  49%|████▊     | 1297388/2673467 [00:04<00:05, 269030.74 examples/s]Saving the dataset (2/5 shards):  50%|████▉     | 1332388/2673467 [00:04<00:04, 285470.17 examples/s]Saving the dataset (2/5 shards):  51%|█████     | 1367388/2673467 [00:04<00:04, 298444.12 examples/s]Saving the dataset (2/5 shards):  52%|█████▏    | 1402388/2673467 [00:04<00:04, 307562.13 examples/s]Saving the dataset (2/5 shards):  54%|█████▍    | 1437388/2673467 [00:04<00:03, 315931.73 examples/s]Saving the dataset (2/5 shards):  55%|█████▌    | 1471388/2673467 [00:04<00:03, 318661.84 examples/s]Saving the dataset (2/5 shards):  56%|█████▋    | 1506388/2673467 [00:04<00:03, 324877.57 examples/s]Saving the dataset (2/5 shards):  58%|█████▊    | 1541388/2673467 [00:04<00:03, 328121.82 examples/s]Saving the dataset (2/5 shards):  60%|█████▉    | 1591388/2673467 [00:05<00:03, 328270.49 examples/s]Saving the dataset (3/5 shards):  60%|██████    | 1604081/2673467 [00:05<00:03, 328270.49 examples/s]Saving the dataset (3/5 shards):  61%|██████▏   | 1638081/2673467 [00:05<00:03, 328928.85 examples/s]Saving the dataset (3/5 shards):  63%|██████▎   | 1673081/2673467 [00:05<00:03, 331003.23 examples/s]Saving the dataset (3/5 shards):  64%|██████▍   | 1708081/2673467 [00:05<00:02, 333278.63 examples/s]Saving the dataset (3/5 shards):  65%|██████▌   | 1742081/2673467 [00:05<00:02, 333780.90 examples/s]Saving the dataset (3/5 shards):  66%|██████▋   | 1777081/2673467 [00:05<00:02, 335540.62 examples/s]Saving the dataset (3/5 shards):  68%|██████▊   | 1811081/2673467 [00:05<00:02, 334631.76 examples/s]Saving the dataset (3/5 shards):  69%|██████▉   | 1847081/2673467 [00:05<00:02, 337536.48 examples/s]Saving the dataset (3/5 shards):  70%|███████   | 1882081/2673467 [00:06<00:02, 337436.29 examples/s]Saving the dataset (3/5 shards):  72%|███████▏  | 1916081/2673467 [00:06<00:02, 334790.99 examples/s]Saving the dataset (3/5 shards):  73%|███████▎  | 1950081/2673467 [00:06<00:02, 333284.99 examples/s]Saving the dataset (3/5 shards):  74%|███████▍  | 1984081/2673467 [00:06<00:02, 331563.90 examples/s]Saving the dataset (3/5 shards):  75%|███████▌  | 2018081/2673467 [00:06<00:01, 331041.78 examples/s]Saving the dataset (3/5 shards):  77%|███████▋  | 2052081/2673467 [00:06<00:01, 333316.29 examples/s]Saving the dataset (3/5 shards):  78%|███████▊  | 2087081/2673467 [00:06<00:01, 335448.04 examples/s]Saving the dataset (3/5 shards):  79%|███████▉  | 2124081/2673467 [00:06<00:01, 344081.89 examples/s]Saving the dataset (4/5 shards):  80%|████████  | 2138774/2673467 [00:06<00:01, 344081.89 examples/s]Saving the dataset (4/5 shards):  81%|████████▏ | 2174774/2673467 [00:06<00:01, 346430.64 examples/s]Saving the dataset (4/5 shards):  83%|████████▎ | 2210774/2673467 [00:06<00:01, 347149.27 examples/s]Saving the dataset (4/5 shards):  84%|████████▍ | 2246774/2673467 [00:07<00:01, 348544.50 examples/s]Saving the dataset (4/5 shards):  86%|████████▌ | 2299774/2673467 [00:07<00:01, 346326.20 examples/s]Saving the dataset (4/5 shards):  87%|████████▋ | 2336774/2673467 [00:07<00:00, 351579.87 examples/s]Saving the dataset (4/5 shards):  89%|████████▉ | 2374774/2673467 [00:07<00:00, 356425.46 examples/s]Saving the dataset (4/5 shards):  90%|█████████ | 2411774/2673467 [00:07<00:00, 358269.49 examples/s]Saving the dataset (4/5 shards):  92%|█████████▏| 2449774/2673467 [00:07<00:00, 360021.66 examples/s]Saving the dataset (4/5 shards):  93%|█████████▎| 2486774/2673467 [00:07<00:00, 360037.98 examples/s]Saving the dataset (4/5 shards):  94%|█████████▍| 2524774/2673467 [00:07<00:00, 362449.94 examples/s]Saving the dataset (4/5 shards):  96%|█████████▌| 2562774/2673467 [00:07<00:00, 363814.19 examples/s]Saving the dataset (4/5 shards):  97%|█████████▋| 2600774/2673467 [00:08<00:00, 365482.54 examples/s]Saving the dataset (4/5 shards):  99%|█████████▉| 2654774/2673467 [00:08<00:00, 360433.27 examples/s]Saving the dataset (5/5 shards): 100%|██████████| 2673467/2673467 [00:08<00:00, 360433.27 examples/s]Saving the dataset (5/5 shards): 100%|██████████| 2673467/2673467 [00:08<00:00, 324027.50 examples/s]
-Saving the dataset (0/1 shards):   0%|          | 0/2000 [00:00<?, ? examples/s]Saving the dataset (1/1 shards): 100%|██████████| 2000/2000 [00:00<00:00, 289842.03 examples/s]Saving the dataset (1/1 shards): 100%|██████████| 2000/2000 [00:00<00:00, 280733.84 examples/s]
-2026-08-15 13:06:13,491 INFO it_colbert.data: cached phase1 dataset at outputs/dataset_cache/phase1-64432ff02d8bdf14
-2026-08-15 13:06:13,497 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
-2026-08-15 13:06:13,499 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
-2026-08-15 13:06:13,499 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl
-The `reference_compile` argument is deprecated and will be removed in `transformers v5.2.0`Use `torch.compile()` directly on the model instead.
-Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 2442.74it/s]
-2026-08-15 13:06:14,256 INFO pylate.models.colbert: The checkpoint does not contain a linear projection layer. Adding one with output dimensions (768, 128).
-2026-08-15 13:06:14,257 INFO pylate.models.colbert: Created a PyLate model from base encoder.
-The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
-2026-08-15 13:06:14,406 WARNING sentence_transformers.evaluation.TripletEvaluator: The 'main_distance_function' parameter is deprecated. Please use 'main_similarity_function' instead. 'main_distance_function' will be removed in a future release.
-2026-08-15 13:06:14,406 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
-2026-08-15 13:06:16,425 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
-2026-08-15 13:06:16,427 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
-2026-08-15 13:06:25,064 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 50000 docs (qrel=7433), qrels=7437
-2026-08-15 13:06:25,074 INFO it_colbert.ir_eval: ir eval mldr: 150 queries / 2000 docs
-2026-08-15 13:06:25,075 INFO it_colbert.ir_eval: ir eval mmarco: 300 queries / 3000 docs
-2026-08-15 13:06:25,075 INFO it_colbert.train_phase1: phase1 ir eval on, every 250 steps
-2026-08-15 13:06:25,379 INFO it_colbert.checkpoints: no checkpoint in outputs/phase1; starting fresh
-{'loss': '90.6', 'grad_norm': '1.924e+06', 'learning_rate': '3.435e-07', 'epoch': '0.001915'}
-{'loss': '71.26', 'grad_norm': '9.97e+05', 'learning_rate': '7.252e-07', 'epoch': '0.00383'}
-{'loss': '54.65', 'grad_norm': '6.554e+05', 'learning_rate': '1.107e-06', 'epoch': '0.005745'}
-{'loss': '45.14', 'grad_norm': '3.946e+05', 'learning_rate': '1.489e-06', 'epoch': '0.00766'}
-{'loss': '39.84', 'grad_norm': '5.252e+05', 'learning_rate': '1.87e-06', 'epoch': '0.009575'}
-{'loss': '33.01', 'grad_norm': '2.8e+05', 'learning_rate': '2.252e-06', 'epoch': '0.01149'}
-{'loss': '24.95', 'grad_norm': '2.001e+05', 'learning_rate': '2.634e-06', 'epoch': '0.0134'}
-{'loss': '18.41', 'grad_norm': '4.362e+05', 'learning_rate': '3.015e-06', 'epoch': '0.01532'}
-{'loss': '7.926', 'grad_norm': '8.758e+04', 'learning_rate': '3.397e-06', 'epoch': '0.01723'}
-{'loss': '6.092', 'grad_norm': '5.616e+04', 'learning_rate': '3.779e-06', 'epoch': '0.01915'}
-{'loss': '4.552', 'grad_norm': '4.64e+04', 'learning_rate': '4.16e-06', 'epoch': '0.02106'}
-{'loss': '3.428', 'grad_norm': '3.075e+04', 'learning_rate': '4.542e-06', 'epoch': '0.02298'}
-{'loss': '2.875', 'grad_norm': '2.079e+05', 'learning_rate': '4.924e-06', 'epoch': '0.02489'}
-{'loss': '2.395', 'grad_norm': '1.99e+04', 'learning_rate': '5.305e-06', 'epoch': '0.02681'}
-{'loss': '1.869', 'grad_norm': '3.576e+04', 'learning_rate': '5.687e-06', 'epoch': '0.02872'}
-{'loss': '1.578', 'grad_norm': '1.031e+04', 'learning_rate': '6.069e-06', 'epoch': '0.03064'}
-{'loss': '1.303', 'grad_norm': '1.208e+04', 'learning_rate': '6.45e-06', 'epoch': '0.03255'}
-{'loss': '1.091', 'grad_norm': '6714', 'learning_rate': '6.832e-06', 'epoch': '0.03447'}
-{'loss': '1.04', 'grad_norm': '1.355e+04', 'learning_rate': '7.214e-06', 'epoch': '0.03638'}
-{'loss': '0.8679', 'grad_norm': '4167', 'learning_rate': '7.595e-06', 'epoch': '0.0383'}
-{'loss': '0.8264', 'grad_norm': '3689', 'learning_rate': '7.977e-06', 'epoch': '0.04021'}
-{'loss': '0.7459', 'grad_norm': '5185', 'learning_rate': '8.359e-06', 'epoch': '0.04213'}
-{'loss': '0.7429', 'grad_norm': '2505', 'learning_rate': '8.74e-06', 'epoch': '0.04404'}
-{'loss': '0.7059', 'grad_norm': '2423', 'learning_rate': '9.122e-06', 'epoch': '0.04596'}
-{'loss': '0.6237', 'grad_norm': '2457', 'learning_rate': '9.504e-06', 'epoch': '0.04787'}
-2026-08-15 14:25:30,486 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.04787437763309077 after 250 steps:
-2026-08-15 14:25:39,699 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.94
-2026-08-15 14:26:14,632 INFO it_colbert.ir_eval: ir eval @ step 250: {'it-ir_mldr_ndcg@10': 0.39677384507022706, 'it-ir_mldr_mrr@10': 0.3600714285714286, 'it-ir_mldr_recall@10': 0.5133333333333333, 'it-ir_mmarco_ndcg@10': 0.8260562409815401, 'it-ir_mmarco_mrr@10': 0.8082949735449735, 'it-ir_mmarco_recall@10': 0.8866666666666667, 'it-ir_score': 0.6025344093076003}
-{'eval_loss': '0.2748', 'eval_accuracy': '0.935', 'eval_it-ir_mldr_ndcg@10': '0.3968', 'eval_it-ir_mldr_mrr@10': '0.3601', 'eval_it-ir_mldr_recall@10': '0.5133', 'eval_it-ir_mmarco_ndcg@10': '0.8261', 'eval_it-ir_mmarco_mrr@10': '0.8083', 'eval_it-ir_mmarco_recall@10': '0.8867', 'eval_it-ir_score': '0.6025', 'eval_runtime': '63.46', 'eval_samples_per_second': '31.52', 'eval_steps_per_second': '0.993', 'epoch': '0.04787'}
-2026-08-15 14:26:14,632 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-250
-2026-08-15 14:26:14,632 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-250
-Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.06it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.06it/s]
-{'loss': '0.6466', 'grad_norm': '2646', 'learning_rate': '9.885e-06', 'epoch': '0.04979'}
-{'loss': '0.6049', 'grad_norm': '3593', 'learning_rate': '9.986e-06', 'epoch': '0.0517'}
-{'loss': '0.5974', 'grad_norm': '5186', 'learning_rate': '9.966e-06', 'epoch': '0.05362'}
-{'loss': '0.5766', 'grad_norm': '5098', 'learning_rate': '9.946e-06', 'epoch': '0.05553'}
-{'loss': '0.554', 'grad_norm': '4050', 'learning_rate': '9.925e-06', 'epoch': '0.05745'}
-{'loss': '0.5506', 'grad_norm': '3621', 'learning_rate': '9.905e-06', 'epoch': '0.05936'}
-{'loss': '0.516', 'grad_norm': '1917', 'learning_rate': '9.885e-06', 'epoch': '0.06128'}
-{'loss': '0.4972', 'grad_norm': '2153', 'learning_rate': '9.865e-06', 'epoch': '0.06319'}
-{'loss': '0.5126', 'grad_norm': '1874', 'learning_rate': '9.845e-06', 'epoch': '0.06511'}
-{'loss': '0.5003', 'grad_norm': '2860', 'learning_rate': '9.825e-06', 'epoch': '0.06702'}
-{'loss': '0.4815', 'grad_norm': '1931', 'learning_rate': '9.804e-06', 'epoch': '0.06894'}
-{'loss': '0.4329', 'grad_norm': '1865', 'learning_rate': '9.784e-06', 'epoch': '0.07085'}
-{'loss': '0.4978', 'grad_norm': '5529', 'learning_rate': '9.764e-06', 'epoch': '0.07277'}
-{'loss': '0.4264', 'grad_norm': '3241', 'learning_rate': '9.744e-06', 'epoch': '0.07468'}
-{'loss': '0.4256', 'grad_norm': '3715', 'learning_rate': '9.724e-06', 'epoch': '0.0766'}
-{'loss': '0.446', 'grad_norm': '3388', 'learning_rate': '9.704e-06', 'epoch': '0.07851'}
-{'loss': '0.4341', 'grad_norm': '8453', 'learning_rate': '9.683e-06', 'epoch': '0.08043'}
-{'loss': '0.4247', 'grad_norm': '2023', 'learning_rate': '9.663e-06', 'epoch': '0.08234'}
-{'loss': '0.4339', 'grad_norm': '2298', 'learning_rate': '9.643e-06', 'epoch': '0.08426'}
-{'loss': '0.3831', 'grad_norm': '1685', 'learning_rate': '9.623e-06', 'epoch': '0.08617'}
-{'loss': '0.42', 'grad_norm': '1715', 'learning_rate': '9.603e-06', 'epoch': '0.08809'}
-{'loss': '0.3924', 'grad_norm': '1648', 'learning_rate': '9.583e-06', 'epoch': '0.09'}
-{'loss': '0.3973', 'grad_norm': '3106', 'learning_rate': '9.563e-06', 'epoch': '0.09192'}
-{'loss': '0.3767', 'grad_norm': '1524', 'learning_rate': '9.542e-06', 'epoch': '0.09383'}
-{'loss': '0.392', 'grad_norm': '1660', 'learning_rate': '9.522e-06', 'epoch': '0.09575'}
-2026-08-15 15:45:26,363 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.09574875526618154 after 500 steps:
-2026-08-15 15:45:35,478 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.96
-2026-08-15 15:46:08,710 INFO it_colbert.ir_eval: ir eval @ step 500: {'it-ir_mldr_ndcg@10': 0.42541466522722804, 'it-ir_mldr_mrr@10': 0.38736772486772486, 'it-ir_mldr_recall@10': 0.5466666666666666, 'it-ir_mmarco_ndcg@10': 0.8873782973093985, 'it-ir_mmarco_mrr@10': 0.8684563492063493, 'it-ir_mmarco_recall@10': 0.9516666666666667, 'it-ir_score': 0.6469355072167886}
-{'eval_loss': '0.1541', 'eval_accuracy': '0.958', 'eval_it-ir_mldr_ndcg@10': '0.4254', 'eval_it-ir_mldr_mrr@10': '0.3874', 'eval_it-ir_mldr_recall@10': '0.5467', 'eval_it-ir_mmarco_ndcg@10': '0.8874', 'eval_it-ir_mmarco_mrr@10': '0.8685', 'eval_it-ir_mmarco_recall@10': '0.9517', 'eval_it-ir_score': '0.6469', 'eval_runtime': '61.63', 'eval_samples_per_second': '32.45', 'eval_steps_per_second': '1.022', 'epoch': '0.09575'}
-2026-08-15 15:46:08,713 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-500
-2026-08-15 15:46:08,713 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-500
-Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:03<00:00,  3.16s/it]Writing model shards: 100%|██████████| 1/1 [00:03<00:00,  3.16s/it]
-{'loss': '0.3782', 'grad_norm': '1453', 'learning_rate': '9.502e-06', 'epoch': '0.09766'}
-{'loss': '0.3756', 'grad_norm': '2110', 'learning_rate': '9.482e-06', 'epoch': '0.09958'}
-{'loss': '0.3659', 'grad_norm': '4456', 'learning_rate': '9.462e-06', 'epoch': '0.1015'}
-{'loss': '0.3759', 'grad_norm': '2263', 'learning_rate': '9.442e-06', 'epoch': '0.1034'}
-{'loss': '0.3491', 'grad_norm': '1649', 'learning_rate': '9.421e-06', 'epoch': '0.1053'}
-{'loss': '0.3576', 'grad_norm': '3.201e+04', 'learning_rate': '9.401e-06', 'epoch': '0.1072'}
-{'loss': '0.3807', 'grad_norm': '1869', 'learning_rate': '9.381e-06', 'epoch': '0.1092'}
-{'loss': '0.3496', 'grad_norm': '3807', 'learning_rate': '9.361e-06', 'epoch': '0.1111'}
-{'loss': '0.3437', 'grad_norm': '1386', 'learning_rate': '9.341e-06', 'epoch': '0.113'}
-{'loss': '0.3408', 'grad_norm': '4131', 'learning_rate': '9.321e-06', 'epoch': '0.1149'}
-{'loss': '0.3619', 'grad_norm': '1551', 'learning_rate': '9.3e-06', 'epoch': '0.1168'}
-{'loss': '0.337', 'grad_norm': '1.148e+04', 'learning_rate': '9.28e-06', 'epoch': '0.1187'}
-{'loss': '0.3446', 'grad_norm': '1903', 'learning_rate': '9.26e-06', 'epoch': '0.1206'}
-{'loss': '0.3475', 'grad_norm': '1477', 'learning_rate': '9.24e-06', 'epoch': '0.1226'}
-{'loss': '0.3511', 'grad_norm': '1399', 'learning_rate': '9.22e-06', 'epoch': '0.1245'}
-{'loss': '0.3034', 'grad_norm': '1.54e+04', 'learning_rate': '9.2e-06', 'epoch': '0.1264'}
-{'loss': '0.3383', 'grad_norm': '3707', 'learning_rate': '9.179e-06', 'epoch': '0.1283'}
-{'loss': '0.3365', 'grad_norm': '1779', 'learning_rate': '9.159e-06', 'epoch': '0.1302'}
-{'loss': '0.3314', 'grad_norm': '1690', 'learning_rate': '9.139e-06', 'epoch': '0.1321'}
-{'loss': '0.327', 'grad_norm': '1303', 'learning_rate': '9.119e-06', 'epoch': '0.134'}
-{'loss': '0.3006', 'grad_norm': '1627', 'learning_rate': '9.099e-06', 'epoch': '0.136'}
-{'loss': '0.328', 'grad_norm': '1431', 'learning_rate': '9.079e-06', 'epoch': '0.1379'}
-{'loss': '0.3195', 'grad_norm': '1692', 'learning_rate': '9.058e-06', 'epoch': '0.1398'}
-{'loss': '0.3087', 'grad_norm': '1717', 'learning_rate': '9.038e-06', 'epoch': '0.1417'}
-{'loss': '0.2933', 'grad_norm': '1811', 'learning_rate': '9.018e-06', 'epoch': '0.1436'}
-2026-08-15 17:05:48,546 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.1436231328992723 after 750 steps:
-2026-08-15 17:05:57,968 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.96
-2026-08-15 17:06:28,041 INFO it_colbert.ir_eval: ir eval @ step 750: {'it-ir_mldr_ndcg@10': 0.43537463713476154, 'it-ir_mldr_mrr@10': 0.393015873015873, 'it-ir_mldr_recall@10': 0.5666666666666667, 'it-ir_mmarco_ndcg@10': 0.9002537580934343, 'it-ir_mmarco_mrr@10': 0.88380291005291, 'it-ir_mmarco_recall@10': 0.9583333333333334, 'it-ir_score': 0.6595887735938357}
-{'eval_loss': '0.1208', 'eval_accuracy': '0.961', 'eval_it-ir_mldr_ndcg@10': '0.4354', 'eval_it-ir_mldr_mrr@10': '0.393', 'eval_it-ir_mldr_recall@10': '0.5667', 'eval_it-ir_mmarco_ndcg@10': '0.9003', 'eval_it-ir_mmarco_mrr@10': '0.8838', 'eval_it-ir_mmarco_recall@10': '0.9583', 'eval_it-ir_score': '0.6596', 'eval_runtime': '59.33', 'eval_samples_per_second': '33.71', 'eval_steps_per_second': '1.062', 'epoch': '0.1436'}
-2026-08-15 17:06:28,044 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-750
-2026-08-15 17:06:28,044 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-750
-Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:01<00:00,  1.84s/it]Writing model shards: 100%|██████████| 1/1 [00:01<00:00,  1.84s/it]
-{'loss': '0.3309', 'grad_norm': '1368', 'learning_rate': '8.998e-06', 'epoch': '0.1455'}
-{'loss': '0.3069', 'grad_norm': '1310', 'learning_rate': '8.978e-06', 'epoch': '0.1475'}
-{'loss': '0.2955', 'grad_norm': '1804', 'learning_rate': '8.958e-06', 'epoch': '0.1494'}
-{'loss': '0.2869', 'grad_norm': '1293', 'learning_rate': '8.938e-06', 'epoch': '0.1513'}
-{'loss': '0.3047', 'grad_norm': '1371', 'learning_rate': '8.917e-06', 'epoch': '0.1532'}
-{'loss': '0.2937', 'grad_norm': '1524', 'learning_rate': '8.897e-06', 'epoch': '0.1551'}
-{'loss': '0.2716', 'grad_norm': '1312', 'learning_rate': '8.877e-06', 'epoch': '0.157'}
-{'loss': '0.3054', 'grad_norm': '1421', 'learning_rate': '8.857e-06', 'epoch': '0.1589'}
-{'loss': '0.289', 'grad_norm': '1347', 'learning_rate': '8.837e-06', 'epoch': '0.1609'}
-{'loss': '0.2925', 'grad_norm': '3237', 'learning_rate': '8.817e-06', 'epoch': '0.1628'}
-{'loss': '0.2806', 'grad_norm': '1283', 'learning_rate': '8.796e-06', 'epoch': '0.1647'}
-{'loss': '0.2898', 'grad_norm': '1294', 'learning_rate': '8.776e-06', 'epoch': '0.1666'}
-{'loss': '0.2572', 'grad_norm': '1051', 'learning_rate': '8.756e-06', 'epoch': '0.1685'}
-{'loss': '0.2571', 'grad_norm': '1279', 'learning_rate': '8.736e-06', 'epoch': '0.1704'}
-{'loss': '0.2688', 'grad_norm': '1104', 'learning_rate': '8.716e-06', 'epoch': '0.1723'}
-{'loss': '0.2609', 'grad_norm': '4623', 'learning_rate': '8.696e-06', 'epoch': '0.1743'}
-{'loss': '0.2672', 'grad_norm': '1483', 'learning_rate': '8.675e-06', 'epoch': '0.1762'}
-{'loss': '0.2857', 'grad_norm': '1451', 'learning_rate': '8.655e-06', 'epoch': '0.1781'}
-{'loss': '0.2465', 'grad_norm': '1355', 'learning_rate': '8.635e-06', 'epoch': '0.18'}
-{'loss': '0.2917', 'grad_norm': '2486', 'learning_rate': '8.615e-06', 'epoch': '0.1819'}
-{'loss': '0.2888', 'grad_norm': '1291', 'learning_rate': '8.595e-06', 'epoch': '0.1838'}
-{'loss': '0.2577', 'grad_norm': '1639', 'learning_rate': '8.575e-06', 'epoch': '0.1858'}
-{'loss': '0.2694', 'grad_norm': '1.732e+04', 'learning_rate': '8.554e-06', 'epoch': '0.1877'}
-{'loss': '0.2616', 'grad_norm': '1683', 'learning_rate': '8.534e-06', 'epoch': '0.1896'}
-{'loss': '0.2619', 'grad_norm': '1558', 'learning_rate': '8.514e-06', 'epoch': '0.1915'}
-2026-08-15 18:26:23,065 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.19149751053236308 after 1000 steps:
-2026-08-15 18:26:32,237 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.96
-2026-08-15 18:27:02,217 INFO it_colbert.ir_eval: ir eval @ step 1000: {'it-ir_mldr_ndcg@10': 0.44165599532754907, 'it-ir_mldr_mrr@10': 0.40591534391534395, 'it-ir_mldr_recall@10': 0.5533333333333333, 'it-ir_mmarco_ndcg@10': 0.9158080835614214, 'it-ir_mmarco_mrr@10': 0.9034206349206347, 'it-ir_mmarco_recall@10': 0.9583333333333334, 'it-ir_score': 0.6725383151240919}
-{'eval_loss': '0.1069', 'eval_accuracy': '0.9645', 'eval_it-ir_mldr_ndcg@10': '0.4417', 'eval_it-ir_mldr_mrr@10': '0.4059', 'eval_it-ir_mldr_recall@10': '0.5533', 'eval_it-ir_mmarco_ndcg@10': '0.9158', 'eval_it-ir_mmarco_mrr@10': '0.9034', 'eval_it-ir_mmarco_recall@10': '0.9583', 'eval_it-ir_score': '0.6725', 'eval_runtime': '58.96', 'eval_samples_per_second': '33.92', 'eval_steps_per_second': '1.069', 'epoch': '0.1915'}
-2026-08-15 18:27:02,220 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-1000
-2026-08-15 18:27:02,220 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-1000
-Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:02<00:00,  2.31s/it]Writing model shards: 100%|██████████| 1/1 [00:02<00:00,  2.31s/it]
-{'loss': '0.2725', 'grad_norm': '1688', 'learning_rate': '8.494e-06', 'epoch': '0.1934'}
-{'loss': '0.2769', 'grad_norm': '1327', 'learning_rate': '8.474e-06', 'epoch': '0.1953'}
-{'loss': '0.2344', 'grad_norm': '1228', 'learning_rate': '8.454e-06', 'epoch': '0.1972'}
-{'loss': '0.2488', 'grad_norm': '1518', 'learning_rate': '8.433e-06', 'epoch': '0.1992'}
-{'loss': '0.2479', 'grad_norm': '1457', 'learning_rate': '8.413e-06', 'epoch': '0.2011'}
-{'loss': '0.2403', 'grad_norm': '1410', 'learning_rate': '8.393e-06', 'epoch': '0.203'}
-{'loss': '0.2445', 'grad_norm': '1257', 'learning_rate': '8.373e-06', 'epoch': '0.2049'}
-{'loss': '0.2797', 'grad_norm': '1329', 'learning_rate': '8.353e-06', 'epoch': '0.2068'}
-{'loss': '0.2486', 'grad_norm': '1514', 'learning_rate': '8.333e-06', 'epoch': '0.2087'}
-{'loss': '0.2478', 'grad_norm': '1324', 'learning_rate': '8.313e-06', 'epoch': '0.2106'}
-{'loss': '0.2476', 'grad_norm': '1275', 'learning_rate': '8.292e-06', 'epoch': '0.2126'}
-{'loss': '0.2312', 'grad_norm': '1316', 'learning_rate': '8.272e-06', 'epoch': '0.2145'}
-{'loss': '0.2318', 'grad_norm': '1537', 'learning_rate': '8.252e-06', 'epoch': '0.2164'}
-{'loss': '0.2437', 'grad_norm': '1073', 'learning_rate': '8.232e-06', 'epoch': '0.2183'}
-{'loss': '0.2496', 'grad_norm': '2869', 'learning_rate': '8.212e-06', 'epoch': '0.2202'}
-{'loss': '0.2323', 'grad_norm': '1393', 'learning_rate': '8.192e-06', 'epoch': '0.2221'}
-{'loss': '0.2427', 'grad_norm': '1399', 'learning_rate': '8.171e-06', 'epoch': '0.2241'}
-{'loss': '0.2453', 'grad_norm': '1400', 'learning_rate': '8.151e-06', 'epoch': '0.226'}
-{'loss': '0.2172', 'grad_norm': '1478', 'learning_rate': '8.131e-06', 'epoch': '0.2279'}
-{'loss': '0.2397', 'grad_norm': '1056', 'learning_rate': '8.111e-06', 'epoch': '0.2298'}
-{'loss': '0.2196', 'grad_norm': '1371', 'learning_rate': '8.091e-06', 'epoch': '0.2317'}
-{'loss': '0.2337', 'grad_norm': '1289', 'learning_rate': '8.071e-06', 'epoch': '0.2336'}
-{'loss': '0.262', 'grad_norm': '1349', 'learning_rate': '8.05e-06', 'epoch': '0.2355'}
-{'loss': '0.2514', 'grad_norm': '1247', 'learning_rate': '8.03e-06', 'epoch': '0.2375'}
-{'loss': '0.1954', 'grad_norm': '1066', 'learning_rate': '8.01e-06', 'epoch': '0.2394'}
-2026-08-15 19:47:10,345 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.23937188816545385 after 1250 steps:
-2026-08-15 19:47:19,497 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.97
-2026-08-15 19:47:52,218 INFO it_colbert.ir_eval: ir eval @ step 1250: {'it-ir_mldr_ndcg@10': 0.4302829703422024, 'it-ir_mldr_mrr@10': 0.3887380952380952, 'it-ir_mldr_recall@10': 0.56, 'it-ir_mmarco_ndcg@10': 0.9189772559296292, 'it-ir_mmarco_mrr@10': 0.90660582010582, 'it-ir_mmarco_recall@10': 0.9616666666666667, 'it-ir_score': 0.6684443952240112}
-{'eval_loss': '0.09593', 'eval_accuracy': '0.9685', 'eval_it-ir_mldr_ndcg@10': '0.4303', 'eval_it-ir_mldr_mrr@10': '0.3887', 'eval_it-ir_mldr_recall@10': '0.56', 'eval_it-ir_mmarco_ndcg@10': '0.919', 'eval_it-ir_mmarco_mrr@10': '0.9066', 'eval_it-ir_mmarco_recall@10': '0.9617', 'eval_it-ir_score': '0.6684', 'eval_runtime': '62.25', 'eval_samples_per_second': '32.13', 'eval_steps_per_second': '1.012', 'epoch': '0.2394'}
-2026-08-15 19:47:52,221 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-1250
-2026-08-15 19:47:52,221 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-1250
-Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.23it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.23it/s]
-{'loss': '0.2196', 'grad_norm': '1271', 'learning_rate': '7.99e-06', 'epoch': '0.2413'}
-{'loss': '0.2208', 'grad_norm': '1283', 'learning_rate': '7.97e-06', 'epoch': '0.2432'}
-{'loss': '0.2381', 'grad_norm': '1342', 'learning_rate': '7.95e-06', 'epoch': '0.2451'}
-{'loss': '0.2285', 'grad_norm': '1326', 'learning_rate': '7.929e-06', 'epoch': '0.247'}
-{'loss': '0.2382', 'grad_norm': '1713', 'learning_rate': '7.909e-06', 'epoch': '0.2489'}
-{'loss': '0.2249', 'grad_norm': '1207', 'learning_rate': '7.889e-06', 'epoch': '0.2509'}
-{'loss': '0.2339', 'grad_norm': '1075', 'learning_rate': '7.869e-06', 'epoch': '0.2528'}
-{'loss': '0.2348', 'grad_norm': '1416', 'learning_rate': '7.849e-06', 'epoch': '0.2547'}
-{'loss': '0.2183', 'grad_norm': '1572', 'learning_rate': '7.829e-06', 'epoch': '0.2566'}
-{'loss': '0.1949', 'grad_norm': '1127', 'learning_rate': '7.808e-06', 'epoch': '0.2585'}
-{'loss': '0.2195', 'grad_norm': '1270', 'learning_rate': '7.788e-06', 'epoch': '0.2604'}
-{'loss': '0.2118', 'grad_norm': '1441', 'learning_rate': '7.768e-06', 'epoch': '0.2624'}
-{'loss': '0.238', 'grad_norm': '1223', 'learning_rate': '7.748e-06', 'epoch': '0.2643'}
-{'loss': '0.2397', 'grad_norm': '1339', 'learning_rate': '7.728e-06', 'epoch': '0.2662'}
-{'loss': '0.2218', 'grad_norm': '1149', 'learning_rate': '7.708e-06', 'epoch': '0.2681'}
-{'loss': '0.2173', 'grad_norm': '1196', 'learning_rate': '7.688e-06', 'epoch': '0.27'}
-{'loss': '0.1962', 'grad_norm': '1495', 'learning_rate': '7.667e-06', 'epoch': '0.2719'}
-{'loss': '0.2036', 'grad_norm': '1219', 'learning_rate': '7.647e-06', 'epoch': '0.2738'}
-{'loss': '0.2269', 'grad_norm': '1320', 'learning_rate': '7.627e-06', 'epoch': '0.2758'}
-{'loss': '0.2006', 'grad_norm': '2318', 'learning_rate': '7.607e-06', 'epoch': '0.2777'}
-{'loss': '0.2058', 'grad_norm': '1317', 'learning_rate': '7.587e-06', 'epoch': '0.2796'}
-{'loss': '0.2156', 'grad_norm': '1184', 'learning_rate': '7.567e-06', 'epoch': '0.2815'}
-{'loss': '0.2049', 'grad_norm': '1141', 'learning_rate': '7.546e-06', 'epoch': '0.2834'}
-{'loss': '0.2206', 'grad_norm': '1143', 'learning_rate': '7.526e-06', 'epoch': '0.2853'}
-{'loss': '0.2167', 'grad_norm': '1339', 'learning_rate': '7.506e-06', 'epoch': '0.2872'}
-2026-08-15 21:06:57,289 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.2872462657985446 after 1500 steps:
-2026-08-15 21:07:06,438 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.97
-2026-08-15 21:07:35,824 INFO it_colbert.ir_eval: ir eval @ step 1500: {'it-ir_mldr_ndcg@10': 0.43065243176035617, 'it-ir_mldr_mrr@10': 0.3901613756613757, 'it-ir_mldr_recall@10': 0.56, 'it-ir_mmarco_ndcg@10': 0.9251553828292504, 'it-ir_mmarco_mrr@10': 0.9128042328042327, 'it-ir_mmarco_recall@10': 0.9683333333333334, 'it-ir_score': 0.6717283322822944}
-{'eval_loss': '0.0865', 'eval_accuracy': '0.972', 'eval_it-ir_mldr_ndcg@10': '0.4307', 'eval_it-ir_mldr_mrr@10': '0.3902', 'eval_it-ir_mldr_recall@10': '0.56', 'eval_it-ir_mmarco_ndcg@10': '0.9252', 'eval_it-ir_mmarco_mrr@10': '0.9128', 'eval_it-ir_mmarco_recall@10': '0.9683', 'eval_it-ir_score': '0.6717', 'eval_runtime': '58.89', 'eval_samples_per_second': '33.96', 'eval_steps_per_second': '1.07', 'epoch': '0.2872'}
-2026-08-15 21:07:35,827 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-1500
-2026-08-15 21:07:35,827 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-1500
-Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:01<00:00,  1.59s/it]Writing model shards: 100%|██████████| 1/1 [00:01<00:00,  1.59s/it]
-{'loss': '0.2045', 'grad_norm': '1413', 'learning_rate': '7.486e-06', 'epoch': '0.2892'}
-{'loss': '0.1863', 'grad_norm': '1152', 'learning_rate': '7.466e-06', 'epoch': '0.2911'}
-{'loss': '0.2111', 'grad_norm': '1149', 'learning_rate': '7.446e-06', 'epoch': '0.293'}
-{'loss': '0.221', 'grad_norm': '2.483e+04', 'learning_rate': '7.425e-06', 'epoch': '0.2949'}
-{'loss': '0.2137', 'grad_norm': '1252', 'learning_rate': '7.405e-06', 'epoch': '0.2968'}
-{'loss': '0.205', 'grad_norm': '1011', 'learning_rate': '7.385e-06', 'epoch': '0.2987'}
-{'loss': '0.1973', 'grad_norm': '1812', 'learning_rate': '7.365e-06', 'epoch': '0.3007'}
-{'loss': '0.2107', 'grad_norm': '1262', 'learning_rate': '7.345e-06', 'epoch': '0.3026'}
-{'loss': '0.2071', 'grad_norm': '1483', 'learning_rate': '7.325e-06', 'epoch': '0.3045'}
-{'loss': '0.2053', 'grad_norm': '1275', 'learning_rate': '7.304e-06', 'epoch': '0.3064'}
-{'loss': '0.207', 'grad_norm': '1190', 'learning_rate': '7.284e-06', 'epoch': '0.3083'}
-{'loss': '0.2242', 'grad_norm': '1459', 'learning_rate': '7.264e-06', 'epoch': '0.3102'}
-{'loss': '0.2088', 'grad_norm': '1283', 'learning_rate': '7.244e-06', 'epoch': '0.3121'}
-{'loss': '0.2073', 'grad_norm': '1145', 'learning_rate': '7.224e-06', 'epoch': '0.3141'}
-{'loss': '0.208', 'grad_norm': '1535', 'learning_rate': '7.204e-06', 'epoch': '0.316'}
-{'loss': '0.2024', 'grad_norm': '1278', 'learning_rate': '7.183e-06', 'epoch': '0.3179'}
-{'loss': '0.2094', 'grad_norm': '1120', 'learning_rate': '7.163e-06', 'epoch': '0.3198'}
-{'loss': '0.21', 'grad_norm': '1309', 'learning_rate': '7.143e-06', 'epoch': '0.3217'}
-{'loss': '0.2232', 'grad_norm': '1438', 'learning_rate': '7.123e-06', 'epoch': '0.3236'}
-{'loss': '0.2252', 'grad_norm': '1433', 'learning_rate': '7.103e-06', 'epoch': '0.3255'}
-{'loss': '0.1901', 'grad_norm': '1062', 'learning_rate': '7.083e-06', 'epoch': '0.3275'}
-{'loss': '0.1896', 'grad_norm': '1289', 'learning_rate': '7.063e-06', 'epoch': '0.3294'}
-{'loss': '0.2023', 'grad_norm': '1300', 'learning_rate': '7.042e-06', 'epoch': '0.3313'}
-{'loss': '0.2103', 'grad_norm': '1360', 'learning_rate': '7.022e-06', 'epoch': '0.3332'}
-{'loss': '0.1883', 'grad_norm': '1176', 'learning_rate': '7.002e-06', 'epoch': '0.3351'}
-2026-08-15 22:26:29,843 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.3351206434316354 after 1750 steps:
-2026-08-15 22:26:39,118 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.97
-2026-08-15 22:27:08,943 INFO it_colbert.ir_eval: ir eval @ step 1750: {'it-ir_mldr_ndcg@10': 0.4468769418337585, 'it-ir_mldr_mrr@10': 0.40070899470899474, 'it-ir_mldr_recall@10': 0.5933333333333334, 'it-ir_mmarco_ndcg@10': 0.9326172231051015, 'it-ir_mmarco_mrr@10': 0.9239854497354497, 'it-ir_mmarco_recall@10': 0.965, 'it-ir_score': 0.6854311957846041}
-{'eval_loss': '0.08405', 'eval_accuracy': '0.973', 'eval_it-ir_mldr_ndcg@10': '0.4469', 'eval_it-ir_mldr_mrr@10': '0.4007', 'eval_it-ir_mldr_recall@10': '0.5933', 'eval_it-ir_mmarco_ndcg@10': '0.9326', 'eval_it-ir_mmarco_mrr@10': '0.924', 'eval_it-ir_mmarco_recall@10': '0.965', 'eval_it-ir_score': '0.6854', 'eval_runtime': '58.88', 'eval_samples_per_second': '33.97', 'eval_steps_per_second': '1.07', 'epoch': '0.3351'}
-2026-08-15 22:27:08,946 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1/checkpoint-1750
-2026-08-15 22:27:08,946 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1/checkpoint-1750
-Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.03it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  1.03it/s]
-[2026-08-16T09:43:51+02:00] caching datasets
-mmarco-hn-to-kd-logit11:   0%|          | 0/64 [00:00<?, ? examples/s]mmarco-hn-to-kd-logit11: 100%|██████████| 64/64 [00:00<00:00, 2945.37 examples/s]
-datasets cached
-[2026-08-16T09:44:56+02:00] phase 1 start (auto-resumes if a checkpoint exists)
-2026-08-16 09:44:59,497 INFO it_colbert.train_phase1: starting phase 1 contrastive training
-2026-08-16 09:44:59,497 INFO it_colbert.train_phase1: config: Phase1Config(model_name='nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl', output_dir='outputs/phase1', run_name='it-colbert-phase1', dim=128, document_length=512, query_length=32, mmarco_samples=1500000, mmarco_eval_samples=2000, include_wiki_hn=True, wiki_max_hard_negatives=2, include_mmarco_hn=True, mmarco_hn_samples=200000, mmarco_hn_negatives_per_query=4, include_italian_sources=True, italian_source_max_samples=50000, mined_negatives_path='outputs/mined_hn', mined_negatives_per_query=4, num_train_epochs=1.0, per_device_train_batch_size=512, per_device_eval_batch_size=32, mini_batch_size=32, learning_rate=1e-05, temperature=0.02, warmup_ratio=0.05, logging_steps=10, eval_steps=250, save_steps=250, save_total_limit=3, ir_eval_enabled=True, ir_eval_name='it-ir', ir_eval_mldr_queries=150, ir_eval_mldr_docs=2000, ir_eval_mmarco_queries=300, ir_eval_mmarco_docs=3000, ir_eval_mmarco_pool_docs=50000, early_stopping_patience=0, load_best_model_at_end=False, metric_for_best_model='it-ir_score', seed=42, bf16=True, fp16=False, compile_model=False, max_steps=None, resume_from_checkpoint=None, auto_resume=True, dataset_cache_dir='outputs/dataset_cache')
-2026-08-16 09:44:59,498 INFO it_colbert.data: reusing cached phase1 dataset at outputs/dataset_cache/phase1-64432ff02d8bdf14
-2026-08-16 09:44:59,927 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
-2026-08-16 09:44:59,928 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
-2026-08-16 09:44:59,928 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl
-The `reference_compile` argument is deprecated and will be removed in `transformers v5.2.0`Use `torch.compile()` directly on the model instead.
-Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 2585.77it/s]
-2026-08-16 09:45:00,714 INFO pylate.models.colbert: The checkpoint does not contain a linear projection layer. Adding one with output dimensions (768, 128).
-2026-08-16 09:45:00,715 INFO pylate.models.colbert: Created a PyLate model from base encoder.
-The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
-2026-08-16 09:45:00,969 WARNING sentence_transformers.evaluation.TripletEvaluator: The 'main_distance_function' parameter is deprecated. Please use 'main_similarity_function' instead. 'main_distance_function' will be removed in a future release.
-2026-08-16 09:45:00,969 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
-2026-08-16 09:45:03,055 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
-2026-08-16 09:45:03,057 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
-2026-08-16 09:45:11,109 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 50000 docs (qrel=7433), qrels=7437
-2026-08-16 09:45:11,118 INFO it_colbert.ir_eval: ir eval mldr: 150 queries / 2000 docs
-2026-08-16 09:45:11,118 INFO it_colbert.ir_eval: ir eval mmarco: 300 queries / 3000 docs
-2026-08-16 09:45:11,119 INFO it_colbert.train_phase1: phase1 ir eval on, every 250 steps
-2026-08-16 09:45:11,309 INFO it_colbert.checkpoints: auto-resuming from outputs/phase1/checkpoint-1750
-2026-08-16 09:45:11,310 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
-2026-08-16 09:45:11,311 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/phase1/checkpoint-1750
-Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 2582.89it/s]
-{'loss': '0.2078', 'grad_norm': '1378', 'learning_rate': '6.982e-06', 'epoch': '0.337'}
-{'loss': '0.1944', 'grad_norm': '1142', 'learning_rate': '6.962e-06', 'epoch': '0.339'}
-{'loss': '0.1878', 'grad_norm': '1033', 'learning_rate': '6.942e-06', 'epoch': '0.3409'}
-{'loss': '0.2024', 'grad_norm': '1059', 'learning_rate': '6.921e-06', 'epoch': '0.3428'}
-{'loss': '0.1918', 'grad_norm': '1368', 'learning_rate': '6.901e-06', 'epoch': '0.3447'}
-{'loss': '0.1867', 'grad_norm': '972.3', 'learning_rate': '6.881e-06', 'epoch': '0.3466'}
+2026-08-23 16:21:34,680 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'default' at /home/enricollen/.cache/huggingface/datasets/yuri-no___miracl-ita-argos/default/0.0.0/b6862f9cbc64ef9e858118b8269743d83e9804cf (last modified on Tue Aug 11 09:52:55 2026).
+2026-08-23 16:21:34,739 INFO it_colbert.benchmark.datasets: adding distractors from yuri-no/miracl-corpus-ita-argos [mini]
+Using the latest cached version of the dataset since yuri-no/miracl-corpus-ita-argos couldn't be found on the Hugging Face Hub (offline mode is enabled).
+2026-08-23 16:21:34,740 WARNING datasets.load: Using the latest cached version of the dataset since yuri-no/miracl-corpus-ita-argos couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'default' at /home/enricollen/.cache/huggingface/datasets/yuri-no___miracl-corpus-ita-argos/default/0.0.0/4c69301230a14ce3ce5995e90dacda588b0f5475 (last modified on Mon Aug 10 21:54:23 2026).
+2026-08-23 16:21:34,741 WARNING datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration 'default' at /home/enricollen/.cache/huggingface/datasets/yuri-no___miracl-corpus-ita-argos/default/0.0.0/4c69301230a14ce3ce5995e90dacda588b0f5475 (last modified on Mon Aug 10 21:54:23 2026).
+2026-08-23 16:21:35,307 INFO it_colbert.benchmark.datasets: miracl-ita ready: 799 queries, 24829 docs, qrels=2326
+2026-08-23 16:21:35,312 INFO it_colbert.ir_eval: ir eval mldr: 96 queries / 3000 docs (query half: selection)
+2026-08-23 16:21:35,313 INFO it_colbert.ir_eval: ir eval mmarco: 500 queries / 5000 docs (query half: selection)
+2026-08-23 16:21:35,313 INFO it_colbert.ir_eval: ir eval miracl: 200 queries / 5000 docs (query half: selection)
+2026-08-23 16:21:35,313 INFO it_colbert.train_phase2: phase2 selecting checkpoints on it-ir_score (higher is better)
+2026-08-23 16:21:35,313 INFO it_colbert.train_phase2: early stopping on it-ir_score (patience=4, greater_is_better=True)
+{'loss': '1.038', 'grad_norm': '194.5', 'learning_rate': '3.92e-08', 'epoch': '0.0002'}
+{'loss': '0.9728', 'grad_norm': '2.952', 'learning_rate': '7.92e-08', 'epoch': '0.0004'}
+{'loss': '0.9731', 'grad_norm': '7.592', 'learning_rate': '1.192e-07', 'epoch': '0.0006'}
+{'loss': '1.012', 'grad_norm': '4.118', 'learning_rate': '1.592e-07', 'epoch': '0.0008'}
+{'loss': '1.029', 'grad_norm': '4.88', 'learning_rate': '1.992e-07', 'epoch': '0.001'}
+{'loss': '1.062', 'grad_norm': '3.798', 'learning_rate': '2.392e-07', 'epoch': '0.0012'}
+{'loss': '1.013', 'grad_norm': '3.094', 'learning_rate': '2.792e-07', 'epoch': '0.0014'}
+{'loss': '0.926', 'grad_norm': '5.38', 'learning_rate': '3.192e-07', 'epoch': '0.0016'}
+{'loss': '0.9249', 'grad_norm': '5.137', 'learning_rate': '3.592e-07', 'epoch': '0.0018'}
+{'loss': '1.102', 'grad_norm': '3.424', 'learning_rate': '3.992e-07', 'epoch': '0.002'}
+2026-08-23 16:26:22,332 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the kd-holdout dataset in epoch 0.002 after 500 steps:
+2026-08-23 16:28:04,727 INFO it_colbert.ir_eval: ir eval @ step 500: {'it-ir_mldr_ndcg@10': 0.45249951718181897, 'it-ir_mldr_mrr@10': 0.41711309523809526, 'it-ir_mldr_recall@10': 0.5625, 'it-ir_mmarco_ndcg@10': 0.9387565299883158, 'it-ir_mmarco_mrr@10': 0.9305166666666667, 'it-ir_mmarco_recall@10': 0.9686666666666668, 'it-ir_miracl_ndcg@10': 0.888447607275708, 'it-ir_miracl_mrr@10': 0.8803333333333333, 'it-ir_miracl_recall@10': 0.9765871212121212, 'it-ir_score': 0.7505899465296824}
+{'eval_kd-holdout_kl_divergence': '1.143', 'eval_it-ir_mldr_ndcg@10': '0.4525', 'eval_it-ir_mldr_mrr@10': '0.4171', 'eval_it-ir_mldr_recall@10': '0.5625', 'eval_it-ir_mmarco_ndcg@10': '0.9388', 'eval_it-ir_mmarco_mrr@10': '0.9305', 'eval_it-ir_mmarco_recall@10': '0.9687', 'eval_it-ir_miracl_ndcg@10': '0.8884', 'eval_it-ir_miracl_mrr@10': '0.8803', 'eval_it-ir_miracl_recall@10': '0.9766', 'eval_it-ir_score': '0.7506', 'eval_runtime': '102.4', 'eval_samples_per_second': '0', 'eval_steps_per_second': '0', 'epoch': '0.002'}
+2026-08-23 16:28:04,728 INFO it_colbert.callbacks: early-stop: improve eval_it-ir_score=0.750590 (prev_best=None) at step 500
+2026-08-23 16:28:04,730 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase2/checkpoint-500
+2026-08-23 16:28:04,730 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase2/checkpoint-500
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.67it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.67it/s]
+{'loss': '1.042', 'grad_norm': '3.97', 'learning_rate': '4.392e-07', 'epoch': '0.0022'}
+{'loss': '1.015', 'grad_norm': '3.267', 'learning_rate': '4.792e-07', 'epoch': '0.0024'}
+{'loss': '1.024', 'grad_norm': '4.396', 'learning_rate': '5.192e-07', 'epoch': '0.0026'}
+{'loss': '0.9882', 'grad_norm': '2.87', 'learning_rate': '5.592e-07', 'epoch': '0.0028'}
+{'loss': '1.02', 'grad_norm': '5.386', 'learning_rate': '5.992e-07', 'epoch': '0.003'}
+{'loss': '0.9853', 'grad_norm': '0.146', 'learning_rate': '6.392e-07', 'epoch': '0.0032'}
+{'loss': '0.9507', 'grad_norm': '3.972', 'learning_rate': '6.792e-07', 'epoch': '0.0034'}
+{'loss': '0.9434', 'grad_norm': '1.649', 'learning_rate': '7.192e-07', 'epoch': '0.0036'}
+{'loss': '1.135', 'grad_norm': '3.11', 'learning_rate': '7.592e-07', 'epoch': '0.0038'}
+{'loss': '0.9695', 'grad_norm': '4.749', 'learning_rate': '7.992e-07', 'epoch': '0.004'}
+2026-08-23 16:32:52,706 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the kd-holdout dataset in epoch 0.004 after 1000 steps:
+2026-08-23 16:35:07,712 INFO it_colbert.ir_eval: ir eval @ step 1000: {'it-ir_mldr_ndcg@10': 0.47448297052049987, 'it-ir_mldr_mrr@10': 0.43984375000000003, 'it-ir_mldr_recall@10': 0.5833333333333334, 'it-ir_mmarco_ndcg@10': 0.9363980384622492, 'it-ir_mmarco_mrr@10': 0.9283523809523809, 'it-ir_mmarco_recall@10': 0.9646666666666668, 'it-ir_miracl_ndcg@10': 0.8957957008100208, 'it-ir_miracl_mrr@10': 0.8859305555555553, 'it-ir_miracl_recall@10': 0.981128787878788, 'it-ir_score': 0.7597310832585145}
+{'eval_kd-holdout_kl_divergence': '1.133', 'eval_it-ir_mldr_ndcg@10': '0.4745', 'eval_it-ir_mldr_mrr@10': '0.4398', 'eval_it-ir_mldr_recall@10': '0.5833', 'eval_it-ir_mmarco_ndcg@10': '0.9364', 'eval_it-ir_mmarco_mrr@10': '0.9284', 'eval_it-ir_mmarco_recall@10': '0.9647', 'eval_it-ir_miracl_ndcg@10': '0.8958', 'eval_it-ir_miracl_mrr@10': '0.8859', 'eval_it-ir_miracl_recall@10': '0.9811', 'eval_it-ir_score': '0.7597', 'eval_runtime': '135', 'eval_samples_per_second': '0', 'eval_steps_per_second': '0', 'epoch': '0.004'}
+2026-08-23 16:35:07,725 INFO it_colbert.callbacks: early-stop: improve eval_it-ir_score=0.759731 (prev_best=0.7505899465296824) at step 1000
+2026-08-23 16:35:07,727 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase2/checkpoint-1000
+2026-08-23 16:35:07,727 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase2/checkpoint-1000
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.92it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.92it/s]
+{'loss': '1.085', 'grad_norm': '3.881', 'learning_rate': '8.392e-07', 'epoch': '0.0042'}
+{'loss': '1.031', 'grad_norm': '4.102', 'learning_rate': '8.792e-07', 'epoch': '0.0044'}
+{'loss': '1.061', 'grad_norm': '3.267', 'learning_rate': '9.192e-07', 'epoch': '0.0046'}
+{'loss': '1.141', 'grad_norm': '4.074', 'learning_rate': '9.592e-07', 'epoch': '0.0048'}
+{'loss': '1.03', 'grad_norm': '2.957', 'learning_rate': '9.992e-07', 'epoch': '0.005'}
+{'loss': '1.071', 'grad_norm': '4.098', 'learning_rate': '1.039e-06', 'epoch': '0.0052'}
+{'loss': '1.028', 'grad_norm': '2.564', 'learning_rate': '1.079e-06', 'epoch': '0.0054'}
+{'loss': '1.022', 'grad_norm': '3.956', 'learning_rate': '1.119e-06', 'epoch': '0.0056'}
+{'loss': '0.933', 'grad_norm': '2.697', 'learning_rate': '1.159e-06', 'epoch': '0.0058'}
+{'loss': '1.013', 'grad_norm': '5.371', 'learning_rate': '1.199e-06', 'epoch': '0.006'}
+2026-08-23 16:40:09,020 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the kd-holdout dataset in epoch 0.006 after 1500 steps:
+2026-08-23 16:42:21,821 INFO it_colbert.ir_eval: ir eval @ step 1500: {'it-ir_mldr_ndcg@10': 0.496414919749679, 'it-ir_mldr_mrr@10': 0.4592427248677248, 'it-ir_mldr_recall@10': 0.6145833333333334, 'it-ir_mmarco_ndcg@10': 0.9365900428250248, 'it-ir_mmarco_mrr@10': 0.9298880952380952, 'it-ir_mmarco_recall@10': 0.9646666666666668, 'it-ir_miracl_ndcg@10': 0.8963005850168887, 'it-ir_miracl_mrr@10': 0.8888452380952381, 'it-ir_miracl_recall@10': 0.979878787878788, 'it-ir_score': 0.7680962307507875}
+{'eval_kd-holdout_kl_divergence': '1.126', 'eval_it-ir_mldr_ndcg@10': '0.4964', 'eval_it-ir_mldr_mrr@10': '0.4592', 'eval_it-ir_mldr_recall@10': '0.6146', 'eval_it-ir_mmarco_ndcg@10': '0.9366', 'eval_it-ir_mmarco_mrr@10': '0.9299', 'eval_it-ir_mmarco_recall@10': '0.9647', 'eval_it-ir_miracl_ndcg@10': '0.8963', 'eval_it-ir_miracl_mrr@10': '0.8888', 'eval_it-ir_miracl_recall@10': '0.9799', 'eval_it-ir_score': '0.7681', 'eval_runtime': '132.8', 'eval_samples_per_second': '0', 'eval_steps_per_second': '0', 'epoch': '0.006'}
+2026-08-23 16:42:21,829 INFO it_colbert.callbacks: early-stop: improve eval_it-ir_score=0.768096 (prev_best=0.7597310832585145) at step 1500
+2026-08-23 16:42:21,831 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase2/checkpoint-1500
+2026-08-23 16:42:21,831 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase2/checkpoint-1500
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.62it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.62it/s]
+{'loss': '1.083', 'grad_norm': '4.754', 'learning_rate': '1.239e-06', 'epoch': '0.0062'}
+{'loss': '1.007', 'grad_norm': '4.463', 'learning_rate': '1.279e-06', 'epoch': '0.0064'}
+{'loss': '1.049', 'grad_norm': '2.521', 'learning_rate': '1.319e-06', 'epoch': '0.0066'}
+{'loss': '0.9712', 'grad_norm': '4.953', 'learning_rate': '1.359e-06', 'epoch': '0.0068'}
+{'loss': '0.9995', 'grad_norm': '4.292', 'learning_rate': '1.399e-06', 'epoch': '0.007'}
+{'loss': '1.109', 'grad_norm': '3.041', 'learning_rate': '1.439e-06', 'epoch': '0.0072'}
+{'loss': '1.057', 'grad_norm': '2.697', 'learning_rate': '1.479e-06', 'epoch': '0.0074'}
+{'loss': '0.8824', 'grad_norm': '2.422', 'learning_rate': '1.519e-06', 'epoch': '0.0076'}
+{'loss': '0.9436', 'grad_norm': '3.076', 'learning_rate': '1.559e-06', 'epoch': '0.0078'}
+{'loss': '1.042', 'grad_norm': '3.302', 'learning_rate': '1.599e-06', 'epoch': '0.008'}
+2026-08-23 16:47:18,677 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the kd-holdout dataset in epoch 0.008 after 2000 steps:
+2026-08-23 16:49:34,546 INFO it_colbert.ir_eval: ir eval @ step 2000: {'it-ir_mldr_ndcg@10': 0.5052113787881579, 'it-ir_mldr_mrr@10': 0.4673032407407407, 'it-ir_mldr_recall@10': 0.625, 'it-ir_mmarco_ndcg@10': 0.9369523251907447, 'it-ir_mmarco_mrr@10': 0.9298222222222222, 'it-ir_mmarco_recall@10': 0.9656666666666668, 'it-ir_miracl_ndcg@10': 0.8959668816375844, 'it-ir_miracl_mrr@10': 0.8912142857142856, 'it-ir_miracl_recall@10': 0.9787537878787879, 'it-ir_score': 0.7710518248449083}
+{'eval_kd-holdout_kl_divergence': '1.121', 'eval_it-ir_mldr_ndcg@10': '0.5052', 'eval_it-ir_mldr_mrr@10': '0.4673', 'eval_it-ir_mldr_recall@10': '0.625', 'eval_it-ir_mmarco_ndcg@10': '0.937', 'eval_it-ir_mmarco_mrr@10': '0.9298', 'eval_it-ir_mmarco_recall@10': '0.9657', 'eval_it-ir_miracl_ndcg@10': '0.896', 'eval_it-ir_miracl_mrr@10': '0.8912', 'eval_it-ir_miracl_recall@10': '0.9788', 'eval_it-ir_score': '0.7711', 'eval_runtime': '135.9', 'eval_samples_per_second': '0', 'eval_steps_per_second': '0', 'epoch': '0.008'}
+2026-08-23 16:49:34,554 INFO it_colbert.callbacks: early-stop: improve eval_it-ir_score=0.771052 (prev_best=0.7680962307507875) at step 2000
+2026-08-23 16:49:34,555 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase2/checkpoint-2000
+2026-08-23 16:49:34,556 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase2/checkpoint-2000
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.02it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.01it/s]
+{'loss': '0.8972', 'grad_norm': '4.031', 'learning_rate': '1.639e-06', 'epoch': '0.0082'}
+{'loss': '1.048', 'grad_norm': '4.249', 'learning_rate': '1.679e-06', 'epoch': '0.0084'}
+{'loss': '0.9877', 'grad_norm': '2.565', 'learning_rate': '1.719e-06', 'epoch': '0.0086'}
+{'loss': '1.023', 'grad_norm': '4.729', 'learning_rate': '1.759e-06', 'epoch': '0.0088'}
+{'loss': '1.015', 'grad_norm': '3.451', 'learning_rate': '1.799e-06', 'epoch': '0.009'}
+{'loss': '1.011', 'grad_norm': '6.247', 'learning_rate': '1.839e-06', 'epoch': '0.0092'}
+{'loss': '1.03', 'grad_norm': '2.372', 'learning_rate': '1.879e-06', 'epoch': '0.0094'}
+{'loss': '1.011', 'grad_norm': '3.126', 'learning_rate': '1.919e-06', 'epoch': '0.0096'}
+{'loss': '1.075', 'grad_norm': '2.053', 'learning_rate': '1.959e-06', 'epoch': '0.0098'}
+{'loss': '0.9936', 'grad_norm': '3.536', 'learning_rate': '1.999e-06', 'epoch': '0.01'}
+2026-08-23 16:54:36,040 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the kd-holdout dataset in epoch 0.01 after 2500 steps:
+2026-08-23 16:56:55,147 INFO it_colbert.ir_eval: ir eval @ step 2500: {'it-ir_mldr_ndcg@10': 0.5006359077932504, 'it-ir_mldr_mrr@10': 0.4639756944444444, 'it-ir_mldr_recall@10': 0.6145833333333334, 'it-ir_mmarco_ndcg@10': 0.9291928533016875, 'it-ir_mmarco_mrr@10': 0.9208611111111111, 'it-ir_mmarco_recall@10': 0.9636666666666668, 'it-ir_miracl_ndcg@10': 0.8981512811445762, 'it-ir_miracl_mrr@10': 0.891047619047619, 'it-ir_miracl_recall@10': 0.9804204545454546, 'it-ir_score': 0.7669693409598993}
+{'eval_kd-holdout_kl_divergence': '1.117', 'eval_it-ir_mldr_ndcg@10': '0.5006', 'eval_it-ir_mldr_mrr@10': '0.464', 'eval_it-ir_mldr_recall@10': '0.6146', 'eval_it-ir_mmarco_ndcg@10': '0.9292', 'eval_it-ir_mmarco_mrr@10': '0.9209', 'eval_it-ir_mmarco_recall@10': '0.9637', 'eval_it-ir_miracl_ndcg@10': '0.8982', 'eval_it-ir_miracl_mrr@10': '0.891', 'eval_it-ir_miracl_recall@10': '0.9804', 'eval_it-ir_score': '0.767', 'eval_runtime': '139.1', 'eval_samples_per_second': '0', 'eval_steps_per_second': '0', 'epoch': '0.01'}
+2026-08-23 16:56:55,153 INFO it_colbert.callbacks: early-stop: no improve (eval_it-ir_score=0.766969, best=0.771052, patience 1/4)
+2026-08-23 16:56:55,155 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase2/checkpoint-2500
+2026-08-23 16:56:55,155 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase2/checkpoint-2500
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.15it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.15it/s]
+{'loss': '0.9698', 'grad_norm': '4.339', 'learning_rate': '2e-06', 'epoch': '0.0102'}
+{'loss': '1.107', 'grad_norm': '3.955', 'learning_rate': '1.999e-06', 'epoch': '0.0104'}
+{'loss': '0.9949', 'grad_norm': '2.983', 'learning_rate': '1.999e-06', 'epoch': '0.0106'}
+{'loss': '1.061', 'grad_norm': '3.182', 'learning_rate': '1.998e-06', 'epoch': '0.0108'}
+{'loss': '1.028', 'grad_norm': '4.547', 'learning_rate': '1.998e-06', 'epoch': '0.011'}
+{'loss': '0.994', 'grad_norm': '2.772', 'learning_rate': '1.998e-06', 'epoch': '0.0112'}
+{'loss': '1.009', 'grad_norm': '2.443', 'learning_rate': '1.997e-06', 'epoch': '0.0114'}
+{'loss': '1.038', 'grad_norm': '1.5', 'learning_rate': '1.997e-06', 'epoch': '0.0116'}
+{'loss': '0.9058', 'grad_norm': '3.241', 'learning_rate': '1.996e-06', 'epoch': '0.0118'}
+{'loss': '1.071', 'grad_norm': '2.606', 'learning_rate': '1.996e-06', 'epoch': '0.012'}
+2026-08-23 17:02:06,195 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the kd-holdout dataset in epoch 0.012 after 3000 steps:
+2026-08-23 17:04:28,071 INFO it_colbert.ir_eval: ir eval @ step 3000: {'it-ir_mldr_ndcg@10': 0.48473354574416305, 'it-ir_mldr_mrr@10': 0.44691633597883595, 'it-ir_mldr_recall@10': 0.6041666666666666, 'it-ir_mmarco_ndcg@10': 0.9242650105133787, 'it-ir_mmarco_mrr@10': 0.9152611111111111, 'it-ir_mmarco_recall@10': 0.9616666666666668, 'it-ir_miracl_ndcg@10': 0.8971432785440695, 'it-ir_miracl_mrr@10': 0.8968035714285715, 'it-ir_miracl_recall@10': 0.9771704545454546, 'it-ir_score': 0.7591411134625667}
+{'eval_kd-holdout_kl_divergence': '1.115', 'eval_it-ir_mldr_ndcg@10': '0.4847', 'eval_it-ir_mldr_mrr@10': '0.4469', 'eval_it-ir_mldr_recall@10': '0.6042', 'eval_it-ir_mmarco_ndcg@10': '0.9243', 'eval_it-ir_mmarco_mrr@10': '0.9153', 'eval_it-ir_mmarco_recall@10': '0.9617', 'eval_it-ir_miracl_ndcg@10': '0.8971', 'eval_it-ir_miracl_mrr@10': '0.8968', 'eval_it-ir_miracl_recall@10': '0.9772', 'eval_it-ir_score': '0.7591', 'eval_runtime': '141.9', 'eval_samples_per_second': '0', 'eval_steps_per_second': '0', 'epoch': '0.012'}
+2026-08-23 17:04:28,081 INFO it_colbert.callbacks: early-stop: no improve (eval_it-ir_score=0.759141, best=0.771052, patience 2/4)
+2026-08-23 17:04:28,083 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase2/checkpoint-3000
+2026-08-23 17:04:28,083 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase2/checkpoint-3000
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.03it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.03it/s]
+{'loss': '0.9957', 'grad_norm': '0.01007', 'learning_rate': '1.996e-06', 'epoch': '0.0122'}
+{'loss': '0.9399', 'grad_norm': '3.659', 'learning_rate': '1.995e-06', 'epoch': '0.0124'}
+{'loss': '0.9483', 'grad_norm': '2.691', 'learning_rate': '1.995e-06', 'epoch': '0.0126'}
+{'loss': '0.9923', 'grad_norm': '1.981', 'learning_rate': '1.994e-06', 'epoch': '0.0128'}
+{'loss': '0.9051', 'grad_norm': '3.322', 'learning_rate': '1.994e-06', 'epoch': '0.013'}
+{'loss': '0.9962', 'grad_norm': '3.672', 'learning_rate': '1.994e-06', 'epoch': '0.0132'}
+{'loss': '0.9659', 'grad_norm': '2.057', 'learning_rate': '1.993e-06', 'epoch': '0.0134'}
+{'loss': '0.8749', 'grad_norm': '1.632', 'learning_rate': '1.993e-06', 'epoch': '0.0136'}
+{'loss': '0.9912', 'grad_norm': '5.02', 'learning_rate': '1.992e-06', 'epoch': '0.0138'}
+{'loss': '0.9669', 'grad_norm': '2.034', 'learning_rate': '1.992e-06', 'epoch': '0.014'}
+2026-08-23 17:09:39,912 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the kd-holdout dataset in epoch 0.014 after 3500 steps:
+2026-08-23 17:12:02,362 INFO it_colbert.ir_eval: ir eval @ step 3500: {'it-ir_mldr_ndcg@10': 0.4844901444889998, 'it-ir_mldr_mrr@10': 0.4451636904761905, 'it-ir_mldr_recall@10': 0.6041666666666666, 'it-ir_mmarco_ndcg@10': 0.9219736593910047, 'it-ir_mmarco_mrr@10': 0.9123103174603175, 'it-ir_mmarco_recall@10': 0.961, 'it-ir_miracl_ndcg@10': 0.8898636185819148, 'it-ir_miracl_mrr@10': 0.8835892857142857, 'it-ir_miracl_recall@10': 0.9758093434343433, 'it-ir_score': 0.7558392472568355}
+{'eval_kd-holdout_kl_divergence': '1.112', 'eval_it-ir_mldr_ndcg@10': '0.4845', 'eval_it-ir_mldr_mrr@10': '0.4452', 'eval_it-ir_mldr_recall@10': '0.6042', 'eval_it-ir_mmarco_ndcg@10': '0.922', 'eval_it-ir_mmarco_mrr@10': '0.9123', 'eval_it-ir_mmarco_recall@10': '0.961', 'eval_it-ir_miracl_ndcg@10': '0.8899', 'eval_it-ir_miracl_mrr@10': '0.8836', 'eval_it-ir_miracl_recall@10': '0.9758', 'eval_it-ir_score': '0.7558', 'eval_runtime': '142.5', 'eval_samples_per_second': '0', 'eval_steps_per_second': '0', 'epoch': '0.014'}
+2026-08-23 17:12:02,367 INFO it_colbert.callbacks: early-stop: no improve (eval_it-ir_score=0.755839, best=0.771052, patience 3/4)
+2026-08-23 17:12:02,368 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase2/checkpoint-3500
+2026-08-23 17:12:02,369 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase2/checkpoint-3500
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.22it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.21it/s]
+{'loss': '0.9475', 'grad_norm': '4.249', 'learning_rate': '1.992e-06', 'epoch': '0.0142'}
+{'loss': '1.002', 'grad_norm': '5.344', 'learning_rate': '1.991e-06', 'epoch': '0.0144'}
+{'loss': '1.053', 'grad_norm': '102.8', 'learning_rate': '1.991e-06', 'epoch': '0.0146'}
+{'loss': '0.9702', 'grad_norm': '4.432', 'learning_rate': '1.99e-06', 'epoch': '0.0148'}
+{'loss': '1.026', 'grad_norm': '11', 'learning_rate': '1.99e-06', 'epoch': '0.015'}
+{'loss': '0.9371', 'grad_norm': '3.514', 'learning_rate': '1.99e-06', 'epoch': '0.0152'}
+{'loss': '1.084', 'grad_norm': '1.797', 'learning_rate': '1.989e-06', 'epoch': '0.0154'}
+{'loss': '1.043', 'grad_norm': '5.254', 'learning_rate': '1.989e-06', 'epoch': '0.0156'}
+{'loss': '1.05', 'grad_norm': '2.881', 'learning_rate': '1.988e-06', 'epoch': '0.0158'}
+{'loss': '0.9542', 'grad_norm': '3.959', 'learning_rate': '1.988e-06', 'epoch': '0.016'}
+2026-08-23 17:17:10,124 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the kd-holdout dataset in epoch 0.016 after 4000 steps:
+2026-08-23 17:18:49,771 INFO it_colbert.ir_eval: ir eval @ step 4000: {'it-ir_mldr_ndcg@10': 0.5013674057235286, 'it-ir_mldr_mrr@10': 0.4682291666666667, 'it-ir_mldr_recall@10': 0.6041666666666666, 'it-ir_mmarco_ndcg@10': 0.9110000151900111, 'it-ir_mmarco_mrr@10': 0.899652380952381, 'it-ir_mmarco_recall@10': 0.955, 'it-ir_miracl_ndcg@10': 0.8879422270428499, 'it-ir_miracl_mrr@10': 0.8853333333333333, 'it-ir_miracl_recall@10': 0.9742537878787878, 'it-ir_score': 0.7567395934494232}
+{'eval_kd-holdout_kl_divergence': '1.11', 'eval_it-ir_mldr_ndcg@10': '0.5014', 'eval_it-ir_mldr_mrr@10': '0.4682', 'eval_it-ir_mldr_recall@10': '0.6042', 'eval_it-ir_mmarco_ndcg@10': '0.911', 'eval_it-ir_mmarco_mrr@10': '0.8997', 'eval_it-ir_mmarco_recall@10': '0.955', 'eval_it-ir_miracl_ndcg@10': '0.8879', 'eval_it-ir_miracl_mrr@10': '0.8853', 'eval_it-ir_miracl_recall@10': '0.9743', 'eval_it-ir_score': '0.7567', 'eval_runtime': '99.65', 'eval_samples_per_second': '0', 'eval_steps_per_second': '0', 'epoch': '0.016'}
+2026-08-23 17:18:49,776 INFO it_colbert.callbacks: early-stop: no improve (eval_it-ir_score=0.756740, best=0.771052, patience 4/4)
+2026-08-23 17:18:49,776 INFO it_colbert.callbacks: early-stop: stopping training
+2026-08-23 17:18:49,777 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase2/checkpoint-4000
+2026-08-23 17:18:49,777 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase2/checkpoint-4000
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  4.03it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  4.03it/s]
+{'train_runtime': '3435', 'train_samples_per_second': '291.1', 'train_steps_per_second': '72.77', 'train_loss': '1.007', 'epoch': '0.016'}
+2026-08-23 17:18:51,187 INFO sentence_transformers.trainer: Loading best model from outputs/phase2/checkpoint-2000 (score: 0.7710518248449083).
+2026-08-23 17:18:51,196 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-23 17:18:51,196 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/phase2/checkpoint-2000
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 4068.90it/s]
+2026-08-23 17:18:52,314 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase2/final
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:01<00:00,  1.80s/it]Writing model shards: 100%|██████████| 1/1 [00:01<00:00,  1.80s/it]
+2026-08-23 17:18:54,149 INFO it_colbert.train_phase2: phase 2 final is the best-val checkpoint (metric=it-ir_score, best=0.7710518248449083, step=2000)
+2026-08-23 17:18:54,149 INFO it_colbert.train_phase2: phase 2 model saved to outputs/phase2/final
+[2026-08-23T17:18:55+02:00] phase 2 done
+[2026-08-23T17:18:55+02:00] publish outputs/final
+[2026-08-23T17:18:56+02:00] benchmark (all four suites, length-matched at 512)
+2026-08-23 17:19:00,169 INFO it_colbert.benchmark.run: resuming from outputs/benchmark/results.json
+2026-08-23 17:19:00,169 INFO it_colbert.benchmark.run: === benchmark mldr-it ===
+2026-08-23 17:19:00,169 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-23 17:19:01,497 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/test.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-23 17:19:01,907 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/corpus.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-23 17:19:02,226 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/qrels/qrels.mldr-v1.0-it-test.tsv "HTTP/1.1 307 Temporary Redirect"
+2026-08-23 17:19:02,289 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/Shitao/MLDR/d67138e705d963e346253a80e59676ddb418810a/qrels%2Fqrels.mldr-v1.0-it-test.tsv "HTTP/1.1 200 OK"
+2026-08-23 17:19:04,735 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-23 17:19:04,735 INFO it_colbert.benchmark.run: --- mldr-it / ItColBERT (phase1-only) ---
+2026-08-23 17:19:04,735 INFO it_colbert.benchmark.retrievers: loading colbert model outputs/final_phase1
+2026-08-23 17:19:04,737 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-23 17:19:04,737 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/final_phase1
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 5552.79it/s]
+2026-08-23 17:19:05,182 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/outputs/final_phase1 "HTTP/1.1 404 Not Found"
+2026-08-23 17:19:05,633 INFO it_colbert.benchmark.retrievers: encoding 10000 documents with colbert (bruteforce=True)
+Encoding documents (bs=32):   0%|          | 0/313 [00:00<?, ?it/s]Encoding documents (bs=32):   0%|          | 1/313 [00:00<05:10,  1.00it/s]Encoding documents (bs=32):   1%|          | 2/313 [00:01<03:09,  1.64it/s]Encoding documents (bs=32):   1%|          | 3/313 [00:01<02:30,  2.05it/s]Encoding documents (bs=32):   1%|▏         | 4/313 [00:02<02:12,  2.33it/s]Encoding documents (bs=32):   2%|▏         | 5/313 [00:02<02:02,  2.52it/s]Encoding documents (bs=32):   2%|▏         | 6/313 [00:02<01:55,  2.65it/s]Encoding documents (bs=32):   2%|▏         | 7/313 [00:03<01:51,  2.74it/s]Encoding documents (bs=32):   3%|▎         | 8/313 [00:03<01:49,  2.80it/s]Encoding documents (bs=32):   3%|▎         | 9/313 [00:03<01:47,  2.84it/s]Encoding documents (bs=32):   3%|▎         | 10/313 [00:04<01:45,  2.87it/s]Encoding documents (bs=32):   4%|▎         | 11/313 [00:04<01:44,  2.89it/s]Encoding documents (bs=32):   4%|▍         | 12/313 [00:04<01:43,  2.91it/s]Encoding documents (bs=32):   4%|▍         | 13/313 [00:05<01:42,  2.92it/s]Encoding documents (bs=32):   4%|▍         | 14/313 [00:05<01:42,  2.92it/s]Encoding documents (bs=32):   5%|▍         | 15/313 [00:05<01:42,  2.90it/s]Encoding documents (bs=32):   5%|▌         | 16/313 [00:06<01:42,  2.90it/s]Encoding documents (bs=32):   5%|▌         | 17/313 [00:06<01:42,  2.89it/s]Encoding documents (bs=32):   6%|▌         | 18/313 [00:06<01:41,  2.89it/s]Encoding documents (bs=32):   6%|▌         | 19/313 [00:07<01:41,  2.89it/s]Encoding documents (bs=32):   6%|▋         | 20/313 [00:07<01:41,  2.88it/s]Encoding documents (bs=32):   7%|▋         | 21/313 [00:07<01:40,  2.90it/s]Encoding documents (bs=32):   7%|▋         | 22/313 [00:08<01:40,  2.90it/s]Encoding documents (bs=32):   7%|▋         | 23/313 [00:08<01:40,  2.89it/s]Encoding documents (bs=32):   8%|▊         | 24/313 [00:08<01:40,  2.88it/s]Encoding documents (bs=32):   8%|▊         | 25/313 [00:09<01:40,  2.88it/s]Encoding documents (bs=32):   8%|▊         | 26/313 [00:09<01:39,  2.89it/s]Encoding documents (bs=32):   9%|▊         | 27/313 [00:09<01:38,  2.89it/s]Encoding documents (bs=32):   9%|▉         | 28/313 [00:10<01:38,  2.90it/s]Encoding documents (bs=32):   9%|▉         | 29/313 [00:10<01:37,  2.90it/s]Encoding documents (bs=32):  10%|▉         | 30/313 [00:10<01:37,  2.90it/s]Encoding documents (bs=32):  10%|▉         | 31/313 [00:11<01:37,  2.89it/s]Encoding documents (bs=32):  10%|█         | 32/313 [00:11<01:36,  2.90it/s]Encoding documents (bs=32):  11%|█         | 33/313 [00:11<01:36,  2.91it/s]Encoding documents (bs=32):  11%|█         | 34/313 [00:12<01:35,  2.91it/s]Encoding documents (bs=32):  11%|█         | 35/313 [00:12<01:35,  2.92it/s]Encoding documents (bs=32):  12%|█▏        | 36/313 [00:13<01:35,  2.91it/s]Encoding documents (bs=32):  12%|█▏        | 37/313 [00:13<01:34,  2.91it/s]Encoding documents (bs=32):  12%|█▏        | 38/313 [00:13<01:34,  2.92it/s]Encoding documents (bs=32):  12%|█▏        | 39/313 [00:14<01:33,  2.92it/s]Encoding documents (bs=32):  13%|█▎        | 40/313 [00:14<01:35,  2.87it/s]Encoding documents (bs=32):  13%|█▎        | 41/313 [00:14<01:35,  2.85it/s]Encoding documents (bs=32):  13%|█▎        | 42/313 [00:15<01:34,  2.85it/s]Encoding documents (bs=32):  14%|█▎        | 43/313 [00:15<01:34,  2.85it/s]Encoding documents (bs=32):  14%|█▍        | 44/313 [00:15<01:35,  2.83it/s]Encoding documents (bs=32):  14%|█▍        | 45/313 [00:16<01:34,  2.83it/s]Encoding documents (bs=32):  15%|█▍        | 46/313 [00:16<01:33,  2.85it/s]Encoding documents (bs=32):  15%|█▌        | 47/313 [00:16<01:32,  2.87it/s]Encoding documents (bs=32):  15%|█▌        | 48/313 [00:17<01:31,  2.88it/s]Encoding documents (bs=32):  16%|█▌        | 49/313 [00:17<01:31,  2.88it/s]Encoding documents (bs=32):  16%|█▌        | 50/313 [00:17<01:31,  2.89it/s]Encoding documents (bs=32):  16%|█▋        | 51/313 [00:18<01:31,  2.87it/s]Encoding documents (bs=32):  17%|█▋        | 52/313 [00:18<01:31,  2.86it/s]Encoding documents (bs=32):  17%|█▋        | 53/313 [00:18<01:31,  2.85it/s]Encoding documents (bs=32):  17%|█▋        | 54/313 [00:19<01:30,  2.85it/s]Encoding documents (bs=32):  18%|█▊        | 55/313 [00:19<01:30,  2.85it/s]Encoding documents (bs=32):  18%|█▊        | 56/313 [00:20<01:30,  2.84it/s]Encoding documents (bs=32):  18%|█▊        | 57/313 [00:20<01:30,  2.84it/s]Encoding documents (bs=32):  19%|█▊        | 58/313 [00:20<01:29,  2.84it/s]Encoding documents (bs=32):  19%|█▉        | 59/313 [00:21<01:29,  2.84it/s]Encoding documents (bs=32):  19%|█▉        | 60/313 [00:21<01:29,  2.83it/s]Encoding documents (bs=32):  19%|█▉        | 61/313 [00:21<01:29,  2.83it/s]Encoding documents (bs=32):  20%|█▉        | 62/313 [00:22<01:28,  2.84it/s]Encoding documents (bs=32):  20%|██        | 63/313 [00:22<01:27,  2.84it/s]Encoding documents (bs=32):  20%|██        | 64/313 [00:22<01:27,  2.86it/s]Encoding documents (bs=32):  21%|██        | 65/313 [00:23<01:26,  2.87it/s]Encoding documents (bs=32):  21%|██        | 66/313 [00:23<01:26,  2.87it/s]Encoding documents (bs=32):  21%|██▏       | 67/313 [00:23<01:25,  2.88it/s]Encoding documents (bs=32):  22%|██▏       | 68/313 [00:24<01:24,  2.89it/s]Encoding documents (bs=32):  22%|██▏       | 69/313 [00:24<01:24,  2.89it/s]Encoding documents (bs=32):  22%|██▏       | 70/313 [00:24<01:24,  2.89it/s]Encoding documents (bs=32):  23%|██▎       | 71/313 [00:25<01:23,  2.89it/s]Encoding documents (bs=32):  23%|██▎       | 72/313 [00:25<01:24,  2.87it/s]Encoding documents (bs=32):  23%|██▎       | 73/313 [00:25<01:24,  2.85it/s]Encoding documents (bs=32):  24%|██▎       | 74/313 [00:26<01:24,  2.84it/s]Encoding documents (bs=32):  24%|██▍       | 75/313 [00:26<01:24,  2.83it/s]Encoding documents (bs=32):  24%|██▍       | 76/313 [00:27<01:23,  2.84it/s]Encoding documents (bs=32):  25%|██▍       | 77/313 [00:27<01:22,  2.85it/s]Encoding documents (bs=32):  25%|██▍       | 78/313 [00:27<01:22,  2.85it/s]Encoding documents (bs=32):  25%|██▌       | 79/313 [00:28<01:22,  2.84it/s]Encoding documents (bs=32):  26%|██▌       | 80/313 [00:28<01:21,  2.85it/s]Encoding documents (bs=32):  26%|██▌       | 81/313 [00:28<01:21,  2.83it/s]Encoding documents (bs=32):  26%|██▌       | 82/313 [00:29<01:23,  2.78it/s]Encoding documents (bs=32):  27%|██▋       | 83/313 [00:29<01:22,  2.77it/s]Encoding documents (bs=32):  27%|██▋       | 84/313 [00:29<01:22,  2.76it/s]Encoding documents (bs=32):  27%|██▋       | 85/313 [00:30<01:22,  2.77it/s]Encoding documents (bs=32):  27%|██▋       | 86/313 [00:30<01:21,  2.78it/s]Encoding documents (bs=32):  28%|██▊       | 87/313 [00:30<01:20,  2.80it/s]Encoding documents (bs=32):  28%|██▊       | 88/313 [00:31<01:19,  2.82it/s]Encoding documents (bs=32):  28%|██▊       | 89/313 [00:31<01:19,  2.82it/s]Encoding documents (bs=32):  29%|██▉       | 90/313 [00:31<01:18,  2.83it/s]Encoding documents (bs=32):  29%|██▉       | 91/313 [00:32<01:17,  2.85it/s]Encoding documents (bs=32):  29%|██▉       | 92/313 [00:32<01:17,  2.85it/s]Encoding documents (bs=32):  30%|██▉       | 93/313 [00:33<01:17,  2.85it/s]Encoding documents (bs=32):  30%|███       | 94/313 [00:33<01:17,  2.84it/s]Encoding documents (bs=32):  30%|███       | 95/313 [00:33<01:16,  2.83it/s]Encoding documents (bs=32):  31%|███       | 96/313 [00:34<01:16,  2.83it/s]Encoding documents (bs=32):  31%|███       | 97/313 [00:34<01:16,  2.83it/s]Encoding documents (bs=32):  31%|███▏      | 98/313 [00:34<01:15,  2.83it/s]Encoding documents (bs=32):  32%|███▏      | 99/313 [00:35<01:15,  2.83it/s]Encoding documents (bs=32):  32%|███▏      | 100/313 [00:35<01:14,  2.84it/s]Encoding documents (bs=32):  32%|███▏      | 101/313 [00:35<01:14,  2.85it/s]Encoding documents (bs=32):  33%|███▎      | 102/313 [00:36<01:14,  2.85it/s]Encoding documents (bs=32):  33%|███▎      | 103/313 [00:36<01:13,  2.84it/s]Encoding documents (bs=32):  33%|███▎      | 104/313 [00:36<01:13,  2.84it/s]Encoding documents (bs=32):  34%|███▎      | 105/313 [00:37<01:13,  2.84it/s]Encoding documents (bs=32):  34%|███▍      | 106/313 [00:37<01:13,  2.83it/s]Encoding documents (bs=32):  34%|███▍      | 107/313 [00:37<01:12,  2.83it/s]Encoding documents (bs=32):  35%|███▍      | 108/313 [00:38<01:12,  2.83it/s]Encoding documents (bs=32):  35%|███▍      | 109/313 [00:38<01:12,  2.83it/s]Encoding documents (bs=32):  35%|███▌      | 110/313 [00:39<01:11,  2.83it/s]Encoding documents (bs=32):  35%|███▌      | 111/313 [00:39<01:11,  2.83it/s]Encoding documents (bs=32):  36%|███▌      | 112/313 [00:39<01:11,  2.83it/s]Encoding documents (bs=32):  36%|███▌      | 113/313 [00:40<01:10,  2.83it/s]Encoding documents (bs=32):  36%|███▋      | 114/313 [00:40<01:10,  2.82it/s]Encoding documents (bs=32):  37%|███▋      | 115/313 [00:40<01:10,  2.83it/s]Encoding documents (bs=32):  37%|███▋      | 116/313 [00:41<01:09,  2.84it/s]Encoding documents (bs=32):  37%|███▋      | 117/313 [00:41<01:09,  2.82it/s]Encoding documents (bs=32):  38%|███▊      | 118/313 [00:41<01:09,  2.82it/s]Encoding documents (bs=32):  38%|███▊      | 119/313 [00:42<01:08,  2.83it/s]Encoding documents (bs=32):  38%|███▊      | 120/313 [00:42<01:08,  2.84it/s]Encoding documents (bs=32):  39%|███▊      | 121/313 [00:42<01:07,  2.85it/s]Encoding documents (bs=32):  39%|███▉      | 122/313 [00:43<01:07,  2.85it/s]Encoding documents (bs=32):  39%|███▉      | 123/313 [00:43<01:06,  2.85it/s]Encoding documents (bs=32):  40%|███▉      | 124/313 [00:43<01:06,  2.84it/s]Encoding documents (bs=32):  40%|███▉      | 125/313 [00:44<01:06,  2.83it/s]Encoding documents (bs=32):  40%|████      | 126/313 [00:44<01:05,  2.84it/s]Encoding documents (bs=32):  41%|████      | 127/313 [00:45<01:05,  2.83it/s]Encoding documents (bs=32):  41%|████      | 128/313 [00:45<01:05,  2.83it/s]Encoding documents (bs=32):  41%|████      | 129/313 [00:45<01:06,  2.78it/s]Encoding documents (bs=32):  42%|████▏     | 130/313 [00:46<01:06,  2.76it/s]Encoding documents (bs=32):  42%|████▏     | 131/313 [00:46<01:05,  2.77it/s]Encoding documents (bs=32):  42%|████▏     | 132/313 [00:46<01:05,  2.77it/s]Encoding documents (bs=32):  42%|████▏     | 133/313 [00:47<01:05,  2.77it/s]Encoding documents (bs=32):  43%|████▎     | 134/313 [00:47<01:04,  2.78it/s]Encoding documents (bs=32):  43%|████▎     | 135/313 [00:47<01:03,  2.80it/s]Encoding documents (bs=32):  43%|████▎     | 136/313 [00:48<01:02,  2.82it/s]Encoding documents (bs=32):  44%|████▍     | 137/313 [00:48<01:02,  2.83it/s]Encoding documents (bs=32):  44%|████▍     | 138/313 [00:48<01:01,  2.83it/s]Encoding documents (bs=32):  44%|████▍     | 139/313 [00:49<01:01,  2.84it/s]Encoding documents (bs=32):  45%|████▍     | 140/313 [00:49<01:00,  2.84it/s]Encoding documents (bs=32):  45%|████▌     | 141/313 [00:50<01:00,  2.85it/s]Encoding documents (bs=32):  45%|████▌     | 142/313 [00:50<00:59,  2.85it/s]Encoding documents (bs=32):  46%|████▌     | 143/313 [00:50<00:59,  2.85it/s]Encoding documents (bs=32):  46%|████▌     | 144/313 [00:51<00:59,  2.85it/s]Encoding documents (bs=32):  46%|████▋     | 145/313 [00:51<00:59,  2.84it/s]Encoding documents (bs=32):  47%|████▋     | 146/313 [00:51<00:59,  2.82it/s]Encoding documents (bs=32):  47%|████▋     | 147/313 [00:52<00:59,  2.80it/s]Encoding documents (bs=32):  47%|████▋     | 148/313 [00:52<00:59,  2.78it/s]Encoding documents (bs=32):  48%|████▊     | 149/313 [00:52<00:58,  2.78it/s]Encoding documents (bs=32):  48%|████▊     | 150/313 [00:53<00:58,  2.79it/s]Encoding documents (bs=32):  48%|████▊     | 151/313 [00:53<00:57,  2.80it/s]Encoding documents (bs=32):  49%|████▊     | 152/313 [00:53<00:57,  2.81it/s]Encoding documents (bs=32):  49%|████▉     | 153/313 [00:54<00:56,  2.81it/s]Encoding documents (bs=32):  49%|████▉     | 154/313 [00:54<00:56,  2.82it/s]Encoding documents (bs=32):  50%|████▉     | 155/313 [00:55<00:56,  2.81it/s]Encoding documents (bs=32):  50%|████▉     | 156/313 [00:55<00:56,  2.77it/s]Encoding documents (bs=32):  50%|█████     | 157/313 [00:55<00:56,  2.75it/s]Encoding documents (bs=32):  50%|█████     | 158/313 [00:56<00:56,  2.75it/s]Encoding documents (bs=32):  51%|█████     | 159/313 [00:56<00:56,  2.73it/s]Encoding documents (bs=32):  51%|█████     | 160/313 [00:56<00:55,  2.73it/s]Encoding documents (bs=32):  51%|█████▏    | 161/313 [00:57<00:55,  2.74it/s]Encoding documents (bs=32):  52%|█████▏    | 162/313 [00:57<00:54,  2.75it/s]Encoding documents (bs=32):  52%|█████▏    | 163/313 [00:57<00:54,  2.74it/s]Encoding documents (bs=32):  52%|█████▏    | 164/313 [00:58<00:54,  2.74it/s]Encoding documents (bs=32):  53%|█████▎    | 165/313 [00:58<00:54,  2.73it/s]Encoding documents (bs=32):  53%|█████▎    | 166/313 [00:59<00:53,  2.73it/s]Encoding documents (bs=32):  53%|█████▎    | 167/313 [00:59<00:53,  2.74it/s]Encoding documents (bs=32):  54%|█████▎    | 168/313 [00:59<00:52,  2.76it/s]Encoding documents (bs=32):  54%|█████▍    | 169/313 [01:00<00:52,  2.76it/s]Encoding documents (bs=32):  54%|█████▍    | 170/313 [01:00<00:51,  2.75it/s]Encoding documents (bs=32):  55%|█████▍    | 171/313 [01:00<00:51,  2.73it/s]Encoding documents (bs=32):  55%|█████▍    | 172/313 [01:01<00:52,  2.71it/s]Encoding documents (bs=32):  55%|█████▌    | 173/313 [01:01<00:51,  2.72it/s]Encoding documents (bs=32):  56%|█████▌    | 174/313 [01:01<00:51,  2.69it/s]Encoding documents (bs=32):  56%|█████▌    | 175/313 [01:02<00:51,  2.70it/s]Encoding documents (bs=32):  56%|█████▌    | 176/313 [01:02<00:50,  2.71it/s]Encoding documents (bs=32):  57%|█████▋    | 177/313 [01:03<00:50,  2.71it/s]Encoding documents (bs=32):  57%|█████▋    | 178/313 [01:03<00:49,  2.73it/s]Encoding documents (bs=32):  57%|█████▋    | 179/313 [01:03<00:48,  2.75it/s]Encoding documents (bs=32):  58%|█████▊    | 180/313 [01:04<00:47,  2.77it/s]Encoding documents (bs=32):  58%|█████▊    | 181/313 [01:04<00:47,  2.79it/s]Encoding documents (bs=32):  58%|█████▊    | 182/313 [01:04<00:46,  2.79it/s]Encoding documents (bs=32):  58%|█████▊    | 183/313 [01:05<00:47,  2.76it/s]Encoding documents (bs=32):  59%|█████▉    | 184/313 [01:05<00:47,  2.73it/s]Encoding documents (bs=32):  59%|█████▉    | 185/313 [01:05<00:46,  2.73it/s]Encoding documents (bs=32):  59%|█████▉    | 186/313 [01:06<00:46,  2.72it/s]Encoding documents (bs=32):  60%|█████▉    | 187/313 [01:06<00:46,  2.73it/s]Encoding documents (bs=32):  60%|██████    | 188/313 [01:07<00:45,  2.75it/s]Encoding documents (bs=32):  60%|██████    | 189/313 [01:07<00:45,  2.74it/s]Encoding documents (bs=32):  61%|██████    | 190/313 [01:07<00:45,  2.73it/s]Encoding documents (bs=32):  61%|██████    | 191/313 [01:08<00:44,  2.72it/s]Encoding documents (bs=32):  61%|██████▏   | 192/313 [01:08<00:44,  2.72it/s]Encoding documents (bs=32):  62%|██████▏   | 193/313 [01:08<00:45,  2.61it/s]Encoding documents (bs=32):  62%|██████▏   | 194/313 [01:09<00:45,  2.64it/s]Encoding documents (bs=32):  62%|██████▏   | 195/313 [01:09<00:44,  2.65it/s]Encoding documents (bs=32):  63%|██████▎   | 196/313 [01:10<00:43,  2.67it/s]Encoding documents (bs=32):  63%|██████▎   | 197/313 [01:10<00:42,  2.70it/s]Encoding documents (bs=32):  63%|██████▎   | 198/313 [01:10<00:42,  2.69it/s]Encoding documents (bs=32):  64%|██████▎   | 199/313 [01:11<00:42,  2.70it/s]Encoding documents (bs=32):  64%|██████▍   | 200/313 [01:11<00:42,  2.68it/s]Encoding documents (bs=32):  64%|██████▍   | 201/313 [01:11<00:41,  2.67it/s]Encoding documents (bs=32):  65%|██████▍   | 202/313 [01:12<00:41,  2.69it/s]Encoding documents (bs=32):  65%|██████▍   | 203/313 [01:12<00:40,  2.73it/s]Encoding documents (bs=32):  65%|██████▌   | 204/313 [01:13<00:39,  2.75it/s]Encoding documents (bs=32):  65%|██████▌   | 205/313 [01:13<00:39,  2.76it/s]Encoding documents (bs=32):  66%|██████▌   | 206/313 [01:13<00:38,  2.76it/s]Encoding documents (bs=32):  66%|██████▌   | 207/313 [01:14<00:38,  2.75it/s]Encoding documents (bs=32):  66%|██████▋   | 208/313 [01:14<00:38,  2.75it/s]Encoding documents (bs=32):  67%|██████▋   | 209/313 [01:14<00:38,  2.73it/s]Encoding documents (bs=32):  67%|██████▋   | 210/313 [01:15<00:37,  2.73it/s]Encoding documents (bs=32):  67%|██████▋   | 211/313 [01:15<00:37,  2.71it/s]Encoding documents (bs=32):  68%|██████▊   | 212/313 [01:15<00:37,  2.73it/s]Encoding documents (bs=32):  68%|██████▊   | 213/313 [01:16<00:36,  2.71it/s]Encoding documents (bs=32):  68%|██████▊   | 214/313 [01:16<00:36,  2.70it/s]Encoding documents (bs=32):  69%|██████▊   | 215/313 [01:17<00:36,  2.71it/s]Encoding documents (bs=32):  69%|██████▉   | 216/313 [01:17<00:35,  2.75it/s]Encoding documents (bs=32):  69%|██████▉   | 217/313 [01:17<00:34,  2.77it/s]Encoding documents (bs=32):  70%|██████▉   | 218/313 [01:18<00:34,  2.79it/s]Encoding documents (bs=32):  70%|██████▉   | 219/313 [01:18<00:33,  2.78it/s]Encoding documents (bs=32):  70%|███████   | 220/313 [01:18<00:33,  2.75it/s]Encoding documents (bs=32):  71%|███████   | 221/313 [01:19<00:33,  2.74it/s]Encoding documents (bs=32):  71%|███████   | 222/313 [01:19<00:33,  2.76it/s]Encoding documents (bs=32):  71%|███████   | 223/313 [01:19<00:32,  2.77it/s]Encoding documents (bs=32):  72%|███████▏  | 224/313 [01:20<00:31,  2.79it/s]Encoding documents (bs=32):  72%|███████▏  | 225/313 [01:20<00:31,  2.78it/s]Encoding documents (bs=32):  72%|███████▏  | 226/313 [01:21<00:31,  2.78it/s]Encoding documents (bs=32):  73%|███████▎  | 227/313 [01:21<00:30,  2.80it/s]Encoding documents (bs=32):  73%|███████▎  | 228/313 [01:21<00:30,  2.81it/s]Encoding documents (bs=32):  73%|███████▎  | 229/313 [01:22<00:29,  2.81it/s]Encoding documents (bs=32):  73%|███████▎  | 230/313 [01:22<00:29,  2.80it/s]Encoding documents (bs=32):  74%|███████▍  | 231/313 [01:22<00:29,  2.81it/s]Encoding documents (bs=32):  74%|███████▍  | 232/313 [01:23<00:28,  2.81it/s]Encoding documents (bs=32):  74%|███████▍  | 233/313 [01:23<00:28,  2.81it/s]Encoding documents (bs=32):  75%|███████▍  | 234/313 [01:23<00:28,  2.81it/s]Encoding documents (bs=32):  75%|███████▌  | 235/313 [01:24<00:27,  2.82it/s]Encoding documents (bs=32):  75%|███████▌  | 236/313 [01:24<00:27,  2.79it/s]Encoding documents (bs=32):  76%|███████▌  | 237/313 [01:24<00:27,  2.77it/s]Encoding documents (bs=32):  76%|███████▌  | 238/313 [01:25<00:27,  2.75it/s]Encoding documents (bs=32):  76%|███████▋  | 239/313 [01:25<00:27,  2.72it/s]Encoding documents (bs=32):  77%|███████▋  | 240/313 [01:26<00:27,  2.69it/s]Encoding documents (bs=32):  77%|███████▋  | 241/313 [01:26<00:26,  2.69it/s]Encoding documents (bs=32):  77%|███████▋  | 242/313 [01:26<00:26,  2.69it/s]Encoding documents (bs=32):  78%|███████▊  | 243/313 [01:27<00:26,  2.69it/s]Encoding documents (bs=32):  78%|███████▊  | 244/313 [01:27<00:25,  2.66it/s]Encoding documents (bs=32):  78%|███████▊  | 245/313 [01:27<00:25,  2.68it/s]Encoding documents (bs=32):  79%|███████▊  | 246/313 [01:28<00:24,  2.70it/s]Encoding documents (bs=32):  79%|███████▉  | 247/313 [01:28<00:24,  2.72it/s]Encoding documents (bs=32):  79%|███████▉  | 248/313 [01:29<00:23,  2.72it/s]Encoding documents (bs=32):  80%|███████▉  | 249/313 [01:29<00:23,  2.74it/s]Encoding documents (bs=32):  80%|███████▉  | 250/313 [01:29<00:22,  2.76it/s]Encoding documents (bs=32):  80%|████████  | 251/313 [01:30<00:22,  2.77it/s]Encoding documents (bs=32):  81%|████████  | 252/313 [01:30<00:21,  2.78it/s]Encoding documents (bs=32):  81%|████████  | 253/313 [01:30<00:21,  2.74it/s]Encoding documents (bs=32):  81%|████████  | 254/313 [01:31<00:21,  2.74it/s]Encoding documents (bs=32):  81%|████████▏ | 255/313 [01:31<00:21,  2.72it/s]Encoding documents (bs=32):  82%|████████▏ | 256/313 [01:31<00:21,  2.69it/s]Encoding documents (bs=32):  82%|████████▏ | 257/313 [01:32<00:20,  2.67it/s]Encoding documents (bs=32):  82%|████████▏ | 258/313 [01:32<00:20,  2.69it/s]Encoding documents (bs=32):  83%|████████▎ | 259/313 [01:33<00:19,  2.71it/s]Encoding documents (bs=32):  83%|████████▎ | 260/313 [01:33<00:19,  2.74it/s]Encoding documents (bs=32):  83%|████████▎ | 261/313 [01:33<00:18,  2.76it/s]Encoding documents (bs=32):  84%|████████▎ | 262/313 [01:34<00:18,  2.76it/s]Encoding documents (bs=32):  84%|████████▍ | 263/313 [01:34<00:18,  2.76it/s]Encoding documents (bs=32):  84%|████████▍ | 264/313 [01:34<00:17,  2.76it/s]Encoding documents (bs=32):  85%|████████▍ | 265/313 [01:35<00:17,  2.78it/s]Encoding documents (bs=32):  85%|████████▍ | 266/313 [01:35<00:16,  2.79it/s]Encoding documents (bs=32):  85%|████████▌ | 267/313 [01:35<00:16,  2.79it/s]Encoding documents (bs=32):  86%|████████▌ | 268/313 [01:36<00:16,  2.81it/s]Encoding documents (bs=32):  86%|████████▌ | 269/313 [01:36<00:15,  2.81it/s]Encoding documents (bs=32):  86%|████████▋ | 270/313 [01:36<00:15,  2.80it/s]Encoding documents (bs=32):  87%|████████▋ | 271/313 [01:37<00:15,  2.79it/s]Encoding documents (bs=32):  87%|████████▋ | 272/313 [01:37<00:14,  2.79it/s]Encoding documents (bs=32):  87%|████████▋ | 273/313 [01:38<00:14,  2.81it/s]Encoding documents (bs=32):  88%|████████▊ | 274/313 [01:38<00:13,  2.81it/s]Encoding documents (bs=32):  88%|████████▊ | 275/313 [01:38<00:13,  2.83it/s]Encoding documents (bs=32):  88%|████████▊ | 276/313 [01:39<00:13,  2.81it/s]Encoding documents (bs=32):  88%|████████▊ | 277/313 [01:39<00:12,  2.81it/s]Encoding documents (bs=32):  89%|████████▉ | 278/313 [01:39<00:12,  2.81it/s]Encoding documents (bs=32):  89%|████████▉ | 279/313 [01:40<00:12,  2.83it/s]Encoding documents (bs=32):  89%|████████▉ | 280/313 [01:40<00:11,  2.86it/s]Encoding documents (bs=32):  90%|████████▉ | 281/313 [01:40<00:11,  2.86it/s]Encoding documents (bs=32):  90%|█████████ | 282/313 [01:41<00:10,  2.86it/s]Encoding documents (bs=32):  90%|█████████ | 283/313 [01:41<00:10,  2.85it/s]Encoding documents (bs=32):  91%|█████████ | 284/313 [01:41<00:10,  2.85it/s]Encoding documents (bs=32):  91%|█████████ | 285/313 [01:42<00:09,  2.84it/s]Encoding documents (bs=32):  91%|█████████▏| 286/313 [01:42<00:09,  2.85it/s]Encoding documents (bs=32):  92%|█████████▏| 287/313 [01:42<00:09,  2.83it/s]Encoding documents (bs=32):  92%|█████████▏| 288/313 [01:43<00:08,  2.84it/s]Encoding documents (bs=32):  92%|█████████▏| 289/313 [01:43<00:08,  2.83it/s]Encoding documents (bs=32):  93%|█████████▎| 290/313 [01:44<00:08,  2.83it/s]Encoding documents (bs=32):  93%|█████████▎| 291/313 [01:44<00:07,  2.84it/s]Encoding documents (bs=32):  93%|█████████▎| 292/313 [01:44<00:07,  2.86it/s]Encoding documents (bs=32):  94%|█████████▎| 293/313 [01:45<00:07,  2.85it/s]Encoding documents (bs=32):  94%|█████████▍| 294/313 [01:45<00:06,  2.83it/s]Encoding documents (bs=32):  94%|█████████▍| 295/313 [01:45<00:06,  2.82it/s]Encoding documents (bs=32):  95%|█████████▍| 296/313 [01:46<00:06,  2.83it/s]Encoding documents (bs=32):  95%|█████████▍| 297/313 [01:46<00:05,  2.84it/s]Encoding documents (bs=32):  95%|█████████▌| 298/313 [01:46<00:05,  2.84it/s]Encoding documents (bs=32):  96%|█████████▌| 299/313 [01:47<00:04,  2.86it/s]Encoding documents (bs=32):  96%|█████████▌| 300/313 [01:47<00:04,  2.86it/s]Encoding documents (bs=32):  96%|█████████▌| 301/313 [01:47<00:04,  2.84it/s]Encoding documents (bs=32):  96%|█████████▋| 302/313 [01:48<00:03,  2.85it/s]Encoding documents (bs=32):  97%|█████████▋| 303/313 [01:48<00:03,  2.85it/s]Encoding documents (bs=32):  97%|█████████▋| 304/313 [01:48<00:03,  2.86it/s]Encoding documents (bs=32):  97%|█████████▋| 305/313 [01:49<00:02,  2.86it/s]Encoding documents (bs=32):  98%|█████████▊| 306/313 [01:49<00:02,  2.86it/s]Encoding documents (bs=32):  98%|█████████▊| 307/313 [01:50<00:02,  2.84it/s]Encoding documents (bs=32):  98%|█████████▊| 308/313 [01:50<00:01,  2.85it/s]Encoding documents (bs=32):  99%|█████████▊| 309/313 [01:50<00:01,  2.86it/s]Encoding documents (bs=32):  99%|█████████▉| 310/313 [01:51<00:01,  2.85it/s]Encoding documents (bs=32):  99%|█████████▉| 311/313 [01:51<00:00,  2.87it/s]Encoding documents (bs=32): 100%|█████████▉| 312/313 [01:51<00:00,  2.86it/s]Encoding documents (bs=32): 100%|██████████| 313/313 [01:51<00:00,  3.35it/s]Encoding documents (bs=32): 100%|██████████| 313/313 [01:51<00:00,  2.80it/s]
+Encoding queries (bs=32):   0%|          | 0/7 [00:00<?, ?it/s]Encoding queries (bs=32):  57%|█████▋    | 4/7 [00:00<00:00, 28.75it/s]Encoding queries (bs=32): 100%|██████████| 7/7 [00:00<00:00, 30.20it/s]
+2026-08-23 17:21:06,533 INFO it_colbert.benchmark.retrievers: maxsim 20/200 queries
+2026-08-23 17:21:12,110 INFO it_colbert.benchmark.retrievers: maxsim 40/200 queries
+2026-08-23 17:21:17,665 INFO it_colbert.benchmark.retrievers: maxsim 60/200 queries
+2026-08-23 17:21:23,506 INFO it_colbert.benchmark.retrievers: maxsim 80/200 queries
+2026-08-23 17:21:29,570 INFO it_colbert.benchmark.retrievers: maxsim 100/200 queries
+2026-08-23 17:21:35,611 INFO it_colbert.benchmark.retrievers: maxsim 120/200 queries
+2026-08-23 17:21:40,199 INFO it_colbert.benchmark.retrievers: maxsim 140/200 queries
+2026-08-23 17:21:44,629 INFO it_colbert.benchmark.retrievers: maxsim 160/200 queries
+2026-08-23 17:21:49,108 INFO it_colbert.benchmark.retrievers: maxsim 180/200 queries
