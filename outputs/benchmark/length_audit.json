@@ -1,0 +1,252 @@
+{
+  "tokenizer": "outputs/final_round1",
+  "query_length": 32,
+  "document_length": 512,
+  "benchmarks": {
+    "mldr-it": {
+      "n_queries": 200,
+      "n_docs": 10000,
+      "docs_sampled": 2000,
+      "query_tokens": {
+        "n": 200,
+        "mean": 27.4,
+        "p50": 22,
+        "p90": 36,
+        "p95": 46,
+        "p99": 79,
+        "max": 445
+      },
+      "query_truncation": {
+        "limit": 32,
+        "n_truncated": 25,
+        "frac_truncated": 0.125,
+        "tokens_kept_frac": 0.805,
+        "truncated_len": {
+          "n": 25,
+          "mean": 74.8,
+          "p50": 44,
+          "p90": 79,
+          "p95": 388,
+          "p99": 445,
+          "max": 445
+        }
+      },
+      "doc_tokens": {
+        "n": 2000,
+        "mean": 2528.3,
+        "p50": 2666,
+        "p90": 2914,
+        "p95": 3051,
+        "p99": 3866,
+        "max": 5421
+      },
+      "doc_truncation": {
+        "limit": 512,
+        "n_truncated": 2000,
+        "frac_truncated": 1.0,
+        "tokens_kept_frac": 0.2025,
+        "truncated_len": {
+          "n": 2000,
+          "mean": 2528.3,
+          "p50": 2666,
+          "p90": 2914,
+          "p95": 3051,
+          "p99": 3866,
+          "max": 5421
+        }
+      },
+      "doc_chars": {
+        "n": 2000,
+        "mean": 11013.3,
+        "p50": 12000,
+        "p90": 12000,
+        "p95": 12000,
+        "p99": 12000,
+        "max": 12000
+      },
+      "chunk_projection": {
+        "chunk_chars": 2000,
+        "overlap_chars": 200,
+        "est_chunks": 64640,
+        "chunks_per_doc": 6.46,
+        "chars_per_token": 4.36,
+        "est_tokens_per_chunk": 459,
+        "est_total_vectors": 29678063,
+        "est_embedding_gb_fp32": 14.15,
+        "est_embedding_gb_fp16": 7.08,
+        "unchunked_embedding_gb_fp32": 2.44,
+        "exceeds_bruteforce_limit_25k": true
+      }
+    },
+    "mmarco-it": {
+      "n_queries": 6980,
+      "n_docs": 100000,
+      "docs_sampled": 2000,
+      "query_tokens": {
+        "n": 6980,
+        "mean": 10.8,
+        "p50": 10,
+        "p90": 15,
+        "p95": 16,
+        "p99": 21,
+        "max": 48
+      },
+      "query_truncation": {
+        "limit": 32,
+        "n_truncated": 10,
+        "frac_truncated": 0.0014,
+        "tokens_kept_frac": 0.9993,
+        "truncated_len": {
+          "n": 10,
+          "mean": 37.1,
+          "p50": 34,
+          "p90": 47,
+          "p95": 48,
+          "p99": 48,
+          "max": 48
+        }
+      },
+      "doc_tokens": {
+        "n": 2000,
+        "mean": 88.1,
+        "p50": 78,
+        "p90": 139,
+        "p95": 157,
+        "p99": 212,
+        "max": 347
+      },
+      "doc_truncation": {
+        "limit": 512,
+        "n_truncated": 0,
+        "frac_truncated": 0.0,
+        "tokens_kept_frac": 1.0,
+        "truncated_len": {}
+      },
+      "doc_chars": {
+        "n": 2000,
+        "mean": 372.4,
+        "p50": 332,
+        "p90": 606,
+        "p95": 676,
+        "p99": 828,
+        "max": 1092
+      }
+    },
+    "miracl-ita": {
+      "n_queries": 799,
+      "n_docs": 33689,
+      "docs_sampled": 2000,
+      "query_tokens": {
+        "n": 799,
+        "mean": 12.6,
+        "p50": 12,
+        "p90": 17,
+        "p95": 18,
+        "p99": 21,
+        "max": 27
+      },
+      "query_truncation": {
+        "limit": 32,
+        "n_truncated": 0,
+        "frac_truncated": 0.0,
+        "tokens_kept_frac": 1.0,
+        "truncated_len": {}
+      },
+      "doc_tokens": {
+        "n": 2000,
+        "mean": 187.1,
+        "p50": 172,
+        "p90": 305,
+        "p95": 359,
+        "p99": 544,
+        "max": 1240
+      },
+      "doc_truncation": {
+        "limit": 512,
+        "n_truncated": 27,
+        "frac_truncated": 0.0135,
+        "tokens_kept_frac": 0.9897,
+        "truncated_len": {
+          "n": 27,
+          "mean": 654.7,
+          "p50": 606,
+          "p90": 766,
+          "p95": 905,
+          "p99": 1240,
+          "max": 1240
+        }
+      },
+      "doc_chars": {
+        "n": 2000,
+        "mean": 818.1,
+        "p50": 752,
+        "p90": 1366,
+        "p95": 1601,
+        "p99": 2408,
+        "max": 5450
+      }
+    },
+    "squad-ita": {
+      "n_queries": 7609,
+      "n_docs": 1988,
+      "docs_sampled": 1988,
+      "query_tokens": {
+        "n": 7609,
+        "mean": 16.4,
+        "p50": 16,
+        "p90": 23,
+        "p95": 25,
+        "p99": 30,
+        "max": 40
+      },
+      "query_truncation": {
+        "limit": 32,
+        "n_truncated": 46,
+        "frac_truncated": 0.006,
+        "tokens_kept_frac": 0.9988,
+        "truncated_len": {
+          "n": 46,
+          "mean": 35.3,
+          "p50": 35,
+          "p90": 38,
+          "p95": 40,
+          "p99": 40,
+          "max": 40
+        }
+      },
+      "doc_tokens": {
+        "n": 1988,
+        "mean": 184.1,
+        "p50": 171,
+        "p90": 274,
+        "p95": 319,
+        "p99": 446,
+        "max": 969
+      },
+      "doc_truncation": {
+        "limit": 512,
+        "n_truncated": 13,
+        "frac_truncated": 0.0065,
+        "tokens_kept_frac": 0.9953,
+        "truncated_len": {
+          "n": 13,
+          "mean": 643.7,
+          "p50": 596,
+          "p90": 821,
+          "p95": 821,
+          "p99": 969,
+          "max": 969
+        }
+      },
+      "doc_chars": {
+        "n": 1988,
+        "mean": 847.0,
+        "p50": 770,
+        "p90": 1264,
+        "p95": 1445,
+        "p99": 2124,
+        "max": 4830
+      }
+    }
+  }
+}

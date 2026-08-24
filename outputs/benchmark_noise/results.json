@@ -1,0 +1,203 @@
+{
+  "protocol": {
+    "metrics": [
+      "mrr@10",
+      "ndcg@1",
+      "ndcg@5",
+      "ndcg@10",
+      "ndcg@100",
+      "map@100",
+      "recall@1",
+      "recall@5",
+      "recall@10",
+      "recall@100",
+      "precision@10",
+      "hits@1",
+      "hits@5",
+      "hits@10"
+    ],
+    "top_k": 100,
+    "mmarco_max_corpus_docs": 100000,
+    "mmarco_note": "pooled corpus = all qrel positives + reservoir sample; relative comparison across models. for absolute published full-corpus mrr@10 see published_mmarco_it_mrr10.",
+    "mldr_note": "full italian mldr corpus (~10k docs), official test split",
+    "miracl_note": "miracl has no italian language split; not used",
+    "colbert_document_length": 512,
+    "colbert_query_length": null,
+    "chunk_chars": 0,
+    "chunk_overlap_chars": 0,
+    "bm25_analyzer": "italian: lowercase + stopwords + snowball stem"
+  },
+  "published_mmarco_it_mrr10": {
+    "BM25": {
+      "mrr@10": 0.153,
+      "source": "Bonifacio et al. 2021 / Jina table"
+    },
+    "mColBERT": {
+      "mrr@10": 0.292,
+      "source": "Bonifacio et al. 2021"
+    },
+    "mono-mT5": {
+      "mrr@10": 0.303,
+      "source": "Bonifacio et al. 2021"
+    },
+    "mE5-base": {
+      "mrr@10": 0.28,
+      "source": "ColBERT-XM model card (Wang et al.)"
+    },
+    "ColBERT-XM": {
+      "mrr@10": 0.265,
+      "source": "Louis et al. 2024 / Jina table"
+    },
+    "jina-colbert-v2": {
+      "mrr@10": 0.337,
+      "source": "Jina-ColBERT-v2 model card"
+    }
+  },
+  "results": {
+    "mldr-it": {
+      "n_queries": 200,
+      "n_docs": 10000,
+      "models": {
+        "ItColBERT p1 ckpt-4750": {
+          "kind": "colbert",
+          "model_id": "outputs/phase1/checkpoint-4750",
+          "notes": "ad-hoc checkpoint passed via --extra-colbert",
+          "effective_length": 512,
+          "effective_query_length": 32,
+          "chunk_chars": 0,
+          "metrics": {
+            "mrr@10": 0.261218253968254,
+            "ndcg@1": 0.19,
+            "ndcg@5": 0.2803110002979044,
+            "ndcg@10": 0.2981500116917378,
+            "ndcg@100": 0.34525199594344275,
+            "map@100": 0.27050763992943666,
+            "recall@1": 0.19,
+            "recall@5": 0.36,
+            "recall@10": 0.415,
+            "recall@100": 0.64,
+            "precision@10": 0.0415,
+            "hits@1": 0.19,
+            "hits@5": 0.36,
+            "hits@10": 0.415
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.2981500116917378,
+              "ci_low": 0.24359028342141334,
+              "ci_high": 0.3549563389582799,
+              "n_queries": 200
+            },
+            "mrr@10": {
+              "mean": 0.26121825396825393,
+              "ci_low": 0.20675629960317457,
+              "ci_high": 0.3164645337301587,
+              "n_queries": 200
+            },
+            "recall@100": {
+              "mean": 0.64,
+              "ci_low": 0.575,
+              "ci_high": 0.705,
+              "n_queries": 200
+            }
+          },
+          "seconds": 153.5,
+          "error": null
+        },
+        "ItColBERT p1 ckpt-5000": {
+          "kind": "colbert",
+          "model_id": "outputs/phase1/checkpoint-5000",
+          "notes": "ad-hoc checkpoint passed via --extra-colbert",
+          "effective_length": 512,
+          "effective_query_length": 32,
+          "chunk_chars": 0,
+          "metrics": {
+            "mrr@10": 0.2626071428571429,
+            "ndcg@1": 0.19,
+            "ndcg@5": 0.28162029783361897,
+            "ndcg@10": 0.2991834232702322,
+            "ndcg@100": 0.3476381969355708,
+            "map@100": 0.27185345696050256,
+            "recall@1": 0.19,
+            "recall@5": 0.36,
+            "recall@10": 0.415,
+            "recall@100": 0.65,
+            "precision@10": 0.0415,
+            "hits@1": 0.19,
+            "hits@5": 0.36,
+            "hits@10": 0.415
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.2991834232702322,
+              "ci_low": 0.24394263845827752,
+              "ci_high": 0.35658324285402665,
+              "n_queries": 200
+            },
+            "mrr@10": {
+              "mean": 0.2626071428571429,
+              "ci_low": 0.20793645833333335,
+              "ci_high": 0.31845292658730157,
+              "n_queries": 200
+            },
+            "recall@100": {
+              "mean": 0.65,
+              "ci_low": 0.585,
+              "ci_high": 0.715,
+              "n_queries": 200
+            }
+          },
+          "seconds": 153.5,
+          "error": null
+        },
+        "ItColBERT p1 ckpt-5222": {
+          "kind": "colbert",
+          "model_id": "outputs/phase1/checkpoint-5222",
+          "notes": "ad-hoc checkpoint passed via --extra-colbert",
+          "effective_length": 512,
+          "effective_query_length": 32,
+          "chunk_chars": 0,
+          "metrics": {
+            "mrr@10": 0.2636349206349206,
+            "ndcg@1": 0.19,
+            "ndcg@5": 0.2818394165878132,
+            "ndcg@10": 0.3011237521132361,
+            "ndcg@100": 0.3466320022613787,
+            "map@100": 0.27231537586703614,
+            "recall@1": 0.19,
+            "recall@5": 0.36,
+            "recall@10": 0.42,
+            "recall@100": 0.64,
+            "precision@10": 0.041999999999999996,
+            "hits@1": 0.19,
+            "hits@5": 0.36,
+            "hits@10": 0.42
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.3011237521132361,
+              "ci_low": 0.2462958962923124,
+              "ci_high": 0.3584737148354168,
+              "n_queries": 200
+            },
+            "mrr@10": {
+              "mean": 0.2636349206349206,
+              "ci_low": 0.209940376984127,
+              "ci_high": 0.31933497023809515,
+              "n_queries": 200
+            },
+            "recall@100": {
+              "mean": 0.64,
+              "ci_low": 0.575,
+              "ci_high": 0.705,
+              "n_queries": 200
+            }
+          },
+          "seconds": 150.2,
+          "error": null
+        }
+      },
+      "comparable_to_literature": true
+    }
+  }
+}

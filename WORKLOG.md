@@ -573,3 +573,111 @@ per-query values) so the comparisons above are genuinely paired, not a diff of t
 independently-computed point estimates. Do this backup step *before* clearing any
 `results.json` entries in future rounds — there's no other copy of round 1's
 per-query data.
+
+---
+
+## 17. The no-training audit — the length ceiling was the whole story (2026-08-24)
+
+After round 2 came back negative, the question was what to try next given mined hard
+negatives and the phase-2 fixes had both failed to move MLDR-it. Instead of picking
+another training lever, ran the three cheap never-executed items in TODO.md §10.5,
+§11.2 and §11.4 first. All three resolved in one evening, no training, and the
+answer to "what should round 3 do" changed completely.
+
+### Noise floor first (§11.4)
+
+Benchmarked the round-2 phase-1 decay tail — `checkpoint-4750`, `-5000`, `-5222`,
+which were still on disk — on the full MLDR-it suite: **.2982 / .2992 / .3011,
+range .0030, monotone.** The .4403-.4507 spread this section worried about came from
+the 150-query in-training slice and was slice noise, not run instability. Gives a
+floor to judge everything else against: round 2's −.0473 phase-1 regression is 16x
+it, so those regressions were real.
+
+Needed a way to score arbitrary checkpoints, so `run_benchmark.py` gained
+`--extra-colbert "NAME=PATH"` and `--models-only-extra`. Beats editing
+`DEFAULT_MODELS` for every one-off comparison, which is how round 2's stale-entry
+trap happened in the first place (§16).
+
+### Query length: a real truncation not worth fixing (§10.5)
+
+New `scripts/inspect_lengths.py` (tokenizer only, ~20s, no gpu). MLDR-it truncates
+**12.5% of queries** at `query_length=32`, p95 46 tokens, max 445; the other three
+benchmarks are clean (≤0.6%). So the suspicion was right.
+
+But raising it loses, monotonically: MLDR nDCG@10 .4008 → .3764 (q64) → .3053 (q96)
+on `outputs/final_round1`. Splitting by query separated the two effects — the 25
+truncated queries gain (+.031 at q64), the 175 untouched ones lose (−.032) — because
+ColBERT pads queries to `query_length` with `[MASK]` and the count is trained in.
+So the fix can only happen in training, and the ceiling is +.031 on 12.5% of
+queries ≈ **+.004 overall, inside the noise floor**, resting on 2 queries that
+actually changed rank. Closed as a non-lever.
+
+### The document side, which was the real problem (§11.2)
+
+Same tokenizer pass on documents: MLDR-it median **2666 tokens** against a 512 cap.
+**100% of documents truncate and 20.2% of the corpus's tokens are all any neural
+model has ever seen.** mMARCO 0%, MIRACL 1.4%, SQuAD 0.7% — MLDR-it is the only
+benchmark with this problem, which is why two rounds of negative-mining never
+touched it.
+
+Chunked `outputs/final_round1` at 2000 chars / 200 overlap, max-pooled per document
+(code that had existed unused since the harness was written, `chunk_chars` default 0):
+
+| protocol | doc chars | BM25 | trunc-512 | chunked |
+|---|---|---|---|---|
+| as reported in §6 | 12000 vs ~2200 | .4850 | .4008 | — |
+| length-symmetric | 4000 all | .4487 | .4008 | .4384 |
+| full coverage | 12000 all | .4850 | .4008 | **.4610** |
+
+**+.0602 nDCG@10, p=.0225, paired — 20x the noise floor, and larger than every
+training lever from both rounds combined.** MRR@10 +.0558 (p=.040), recall@100
+.6850 → .7550, tying BM25 exactly. Against BM25 the lead becomes −.0241 (p=.249) at
+full coverage and −.0103 (p=.628) at symmetric 4000, so **"loses to BM25 on the only
+clean out-of-domain benchmark" is a protocol artifact** — corrected in TODO.md §6.
+
+Sanity check that fell out for free: dropping the corpus from 12000 to 4000 chars
+costs BM25 .0363 and costs the truncated ColBERT exactly nothing (.4008 either way,
+since it never read past ~2200 chars).
+
+### What it took to run
+
+First full-coverage attempt died. 64780 chunks → past the 25000 brute-force
+threshold → ANN path → `fast_plaid`'s native extension fails to load against the
+installed torch (`undefined symbol: _ZN3c106detail14torchCheckFail...`), silent
+fallback to Voyager, which holds a second full copy: killed it at 24.1 GB RSS on a
+27 GB box. **That fallback has been silently in effect for every 100k-doc mmarco run
+to date** — worth its own fix.
+
+Two changes made it fit:
+
+- `maxsim_topk(..., consume=True)` frees each source embedding as it copies it into
+  the padded tensors, so the brute-force path holds one copy instead of two. Guarded
+  to lists only (a stacked ndarray can't be freed piecewise) and off by default, so
+  `ir_eval`'s training-time calls are untouched. Verified numerically inert: the
+  unchunked run reproduces **.400773 to six decimals** with and without it.
+- `--colbert-brute-force-limit` to keep a chunked corpus on the exact path rather
+  than the heavier, broken ANN one.
+
+Also added `--mldr-max-doc-chars`, which is what makes the length-symmetric row
+possible: `load_mldr_italian`'s 12000-char cap applies to BM25 too, so it was the
+only knob that could equalize document access. It had been a silent loader default.
+
+Even so, full coverage peaks at **26 of 27 GB** and takes 999s vs 148s truncated
+(6.7x) on a 10000-document corpus — first real efficiency data in the project, now
+recorded in TODO.md §11.7. Chunked mmarco at 100k docs is not runnable on this box.
+
+### Conclusion
+
+Round 3 is a document-length problem, not a data problem: raise `document_length`
+past 512 (ModernBERT's window is 8192, no run has used more than 512), cheapest
+decisive step being phase 2 alone at 1024 on the existing `final_phase1` (~1.8h).
+Chunking proves the information in tokens 512-3000 is worth +.06 to a model never
+trained to use it, and training at length avoids chunking's 6.7x inference cost.
+Full plan in TODO.md §12, including what not to do — no re-mining, no query-length
+change, no more mMARCO.
+
+Caveat that gates publishing any of it: `chunk_chars` applies to the ColBERT path
+only, so the other four late-interaction models and every dense baseline are still
+truncated. The old asymmetry favoured BM25; this one would favour us. The field has
+to be re-run chunked before .4610 appears next to anyone else's number (TODO.md
+§12.1).

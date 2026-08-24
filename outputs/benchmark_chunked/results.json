@@ -1,0 +1,158 @@
+{
+  "protocol": {
+    "metrics": [
+      "mrr@10",
+      "ndcg@1",
+      "ndcg@5",
+      "ndcg@10",
+      "ndcg@100",
+      "map@100",
+      "recall@1",
+      "recall@5",
+      "recall@10",
+      "recall@100",
+      "precision@10",
+      "hits@1",
+      "hits@5",
+      "hits@10"
+    ],
+    "top_k": 100,
+    "mmarco_max_corpus_docs": 100000,
+    "mmarco_note": "pooled corpus = all qrel positives + reservoir sample; relative comparison across models. for absolute published full-corpus mrr@10 see published_mmarco_it_mrr10.",
+    "mldr_note": "full italian mldr corpus (~10k docs), official test split",
+    "miracl_note": "miracl has no italian language split; not used",
+    "colbert_document_length": 512,
+    "colbert_query_length": null,
+    "chunk_chars": 2000,
+    "chunk_overlap_chars": 200,
+    "bm25_analyzer": "italian: lowercase + stopwords + snowball stem",
+    "mldr_max_doc_chars": 12000
+  },
+  "published_mmarco_it_mrr10": {
+    "BM25": {
+      "mrr@10": 0.153,
+      "source": "Bonifacio et al. 2021 / Jina table"
+    },
+    "mColBERT": {
+      "mrr@10": 0.292,
+      "source": "Bonifacio et al. 2021"
+    },
+    "mono-mT5": {
+      "mrr@10": 0.303,
+      "source": "Bonifacio et al. 2021"
+    },
+    "mE5-base": {
+      "mrr@10": 0.28,
+      "source": "ColBERT-XM model card (Wang et al.)"
+    },
+    "ColBERT-XM": {
+      "mrr@10": 0.265,
+      "source": "Louis et al. 2024 / Jina table"
+    },
+    "jina-colbert-v2": {
+      "mrr@10": 0.337,
+      "source": "Jina-ColBERT-v2 model card"
+    }
+  },
+  "results": {
+    "mldr-it": {
+      "n_queries": 200,
+      "n_docs": 10000,
+      "models": {
+        "BM25": {
+          "kind": "bm25",
+          "model_id": null,
+          "notes": "lexical baseline",
+          "effective_length": 512,
+          "effective_query_length": null,
+          "chunk_chars": 0,
+          "metrics": {
+            "mrr@10": 0.44152380952380954,
+            "ndcg@1": 0.37,
+            "ndcg@5": 0.4645942795005233,
+            "ndcg@10": 0.48504805320031535,
+            "ndcg@100": 0.5132858238250867,
+            "map@100": 0.4474936396462404,
+            "recall@1": 0.37,
+            "recall@5": 0.56,
+            "recall@10": 0.625,
+            "recall@100": 0.755,
+            "precision@10": 0.0625,
+            "hits@1": 0.37,
+            "hits@5": 0.56,
+            "hits@10": 0.625
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.4850480532003154,
+              "ci_low": 0.42296336674017054,
+              "ci_high": 0.5435824461868359,
+              "n_queries": 200
+            },
+            "mrr@10": {
+              "mean": 0.44152380952380954,
+              "ci_low": 0.3769993551587302,
+              "ci_high": 0.5030624503968254,
+              "n_queries": 200
+            },
+            "recall@100": {
+              "mean": 0.755,
+              "ci_low": 0.695,
+              "ci_high": 0.815,
+              "n_queries": 200
+            }
+          },
+          "seconds": 243.6,
+          "error": null
+        },
+        "ItColBERT round1 chunked": {
+          "kind": "colbert",
+          "model_id": "outputs/final_round1",
+          "notes": "ad-hoc checkpoint passed via --extra-colbert",
+          "effective_length": 512,
+          "effective_query_length": 32,
+          "chunk_chars": 2000,
+          "metrics": {
+            "mrr@10": 0.41545436507936506,
+            "ndcg@1": 0.325,
+            "ndcg@5": 0.4384926238384354,
+            "ndcg@10": 0.4609909708721095,
+            "ndcg@100": 0.49330523763935746,
+            "map@100": 0.4222023094442531,
+            "recall@1": 0.325,
+            "recall@5": 0.535,
+            "recall@10": 0.605,
+            "recall@100": 0.755,
+            "precision@10": 0.0605,
+            "hits@1": 0.325,
+            "hits@5": 0.535,
+            "hits@10": 0.605
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.4609909708721095,
+              "ci_low": 0.4001609250158561,
+              "ci_high": 0.5211768768510672,
+              "n_queries": 200
+            },
+            "mrr@10": {
+              "mean": 0.41545436507936506,
+              "ci_low": 0.3551054067460318,
+              "ci_high": 0.4763391865079365,
+              "n_queries": 200
+            },
+            "recall@100": {
+              "mean": 0.755,
+              "ci_low": 0.695,
+              "ci_high": 0.815,
+              "n_queries": 200
+            }
+          },
+          "seconds": 999.3,
+          "error": null
+        }
+      },
+      "comparable_to_literature": true
+    }
+  }
+}

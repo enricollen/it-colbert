@@ -210,6 +210,11 @@ class BenchmarkConfig:
     mmarco_max_corpus_docs: int = 100_000
     mmarco_max_queries: int | None = None
     mldr_split: str = "test"
+    # load_mldr_italian's own cap. it applies to every retriever including BM25,
+    # so lowering it is the only way to make the BM25 comparison length-symmetric
+    # (§11.2): at 12000 chars BM25 reads the whole document and a 512-token
+    # colbert reads ~2200 of it.
+    mldr_max_doc_chars: int | None = 12_000
     # corpus cap for the miracl-ita / squad-ita style splits
     extra_max_corpus_docs: int = 50_000
     top_k: int = 100
@@ -222,9 +227,19 @@ class BenchmarkConfig:
     # 180 tokens and ours at 512, silently handicapping the strongest baseline on
     # long documents, and nothing in the output revealed it. set None to opt out.
     colbert_document_length: int | None = 512
+    # same length-matching argument as colbert_document_length, for the query side.
+    # None keeps each spec's own query_length. MLDR-it truncates 12.5% of its
+    # queries at 32 (see outputs/benchmark/length_audit.json), so this is a knob
+    # worth sweeping — but sweep it for every colbert model or the ranking is unfair.
+    colbert_query_length: int | None = None
     # long-doc mode: index chunks of this many characters and max-pool per document
     chunk_chars: int = 0
     chunk_overlap_chars: int = 0
+    # corpora at or below this many documents are scored with exact maxsim instead
+    # of an ann index. chunking multiplies the document count, and the ann path
+    # holds a second full copy of the embeddings, so raising this keeps a chunked
+    # run on the exact path and inside host memory.
+    colbert_brute_force_limit: int = 25_000
     # bootstrap confidence intervals on the headline metrics
     ci_metrics: tuple[str, ...] = ("ndcg@10", "mrr@10", "recall@100")
     bootstrap_samples: int = 2_000
@@ -293,9 +308,10 @@ def _retrieve_for_model(
             index_name=index_dir.name,
             batch_size=cfg.colbert_batch_size,
             document_length=doc_len,
-            query_length=spec.query_length,
+            query_length=cfg.colbert_query_length or spec.query_length,
             language=spec.language,
             override_index=True,
+            brute_force_limit=cfg.colbert_brute_force_limit,
             chunk_chars=cfg.chunk_chars,
             chunk_overlap_chars=cfg.chunk_overlap_chars,
         )
@@ -309,7 +325,9 @@ def _retrieve_for_model(
 
 def _load_split(name: str, cfg: BenchmarkConfig) -> RetrievalSplit:
     if name == "mldr-it":
-        return load_mldr_italian(split=cfg.mldr_split)
+        return load_mldr_italian(
+            split=cfg.mldr_split, max_doc_chars=cfg.mldr_max_doc_chars
+        )
     if name == "mmarco-it":
         return load_mmarco_italian_dev(
             max_corpus_docs=cfg.mmarco_max_corpus_docs,
@@ -382,8 +400,10 @@ def run_benchmark(cfg: BenchmarkConfig) -> dict[str, Any]:
             "top_k": cfg.top_k,
             "mmarco_max_corpus_docs": cfg.mmarco_max_corpus_docs,
             "colbert_document_length": cfg.colbert_document_length,
+            "colbert_query_length": cfg.colbert_query_length,
             "chunk_chars": cfg.chunk_chars,
             "chunk_overlap_chars": cfg.chunk_overlap_chars,
+            "mldr_max_doc_chars": cfg.mldr_max_doc_chars,
             "bm25_analyzer": "italian: lowercase + stopwords + snowball stem",
         }
     )
@@ -463,6 +483,11 @@ def run_benchmark(cfg: BenchmarkConfig) -> dict[str, Any]:
                     (cfg.colbert_document_length or spec.document_length)
                     if spec.kind == "colbert"
                     else spec.max_seq_length
+                ),
+                "effective_query_length": (
+                    (cfg.colbert_query_length or spec.query_length)
+                    if spec.kind == "colbert"
+                    else None
                 ),
                 "chunk_chars": cfg.chunk_chars if spec.kind == "colbert" else 0,
                 "metrics": metrics,

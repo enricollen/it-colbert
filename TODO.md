@@ -443,7 +443,11 @@ reported.
 MLDR-it is the only clean out-of-domain benchmark. It is also the weakest result,
 and it loses to BM25 — though that specific comparison is length-asymmetric, since
 BM25 indexes the full document text while every neural model is truncated at 512
-tokens (§11.2). Re-run MLDR chunked before repeating the BM25 claim.
+tokens (§11.2). **Re-run 2026-08-24, and the claim does not survive:** chunked to
+the same document coverage BM25 gets, the same round-1 checkpoint scores .4610
+instead of .4008, and BM25's lead falls to −.0241 with p=0.249. Do not repeat "loses
+to BM25 on the only clean out-of-domain benchmark" — measured at equal document
+access it is a tie. §11.2 has the full table and the protocol caveats.
 
 ### Test every claim
 
@@ -719,8 +723,13 @@ of two point estimates.
    are truncated or chunked (§11.2), pinned dataset revisions (§11.8), and index
    size / query latency (§11.7).
 
-   **§11.2 is a release blocker.** A BM25 comparison where only one side reads the
-   whole document puts a claim in the model card that the harness does not support.
+   **§11.2 was a release blocker and is now measured (2026-08-24), but it did not
+   go away — it moved.** The old asymmetry favoured BM25; chunking only ItColBERT
+   would favour ItColBERT, since every dense and late-interaction baseline is still
+   truncated at 512. So the model card cannot quote .4610 next to the existing
+   table. Either report the truncated protocol throughout (.4008, and drop the
+   "loses to BM25" framing, which is a tie at equal access) or re-run the whole
+   field chunked. Report both protocols and label which is which; do not mix rows.
    §11.1 is fixed in code and its round-1 numbers came back clean, so it is now a
    disclosure item rather than a blocker — say which half the numbers are from.
 
@@ -765,11 +774,36 @@ of two point estimates.
 4. **`ReDiX/wikipediaQA-ita`** (105k wiki QA rows), a plausible extra Italian
    source, but it ships as one raw JSONL with no dataset-server access, so the
    schema needs checking by hand.
-5. **Query length** is fixed at 32. Check MLDR-it query token lengths; if a real
-   fraction truncate, raise to 48 or 64. MLDR-it is the weakest benchmark (§6), so
-   this is worth checking before assuming the gap is purely a document-length
-   problem. **Promoted by §8.3:** this is a few minutes of tokenizer counting with
-   no training attached, so run it while round 2 finishes rather than after.
+5. ~~**Query length** is fixed at 32. Check MLDR-it query token lengths; if a real
+   fraction truncate, raise to 48 or 64.~~ **Measured and closed 2026-08-24 — a real
+   truncation that is not worth fixing.** `scripts/inspect_lengths.py` (tokenizer
+   only, no gpu) against `outputs/benchmark/length_audit.json`:
+
+   | benchmark | query p95 | % queries > 32 tok | % query tokens kept |
+   |---|---|---|---|
+   | MLDR-it | 46 | **12.5%** (25 of 200) | 80.5% |
+   | mMARCO-it | 16 | 0.1% | 99.9% |
+   | MIRACL-ita | 18 | 0.0% | 100% |
+   | SQuAD-ita | 25 | 0.6% | 99.9% |
+
+   So the truncation is real and it is confined to the weak benchmark, as suspected.
+   But raising the length **loses**, monotonically, on `outputs/final_round1` at
+   inference: MLDR nDCG@10 .4008 at 32, .3764 at 64, .3053 at 96. Splitting by query
+   proves both effects exist and which one wins:
+
+   | subset | n | q32 | q64 | q96 |
+   |---|---|---|---|---|
+   | queries > 32 tok (truncated) | 25 | .2945 | .3252 | .3305 |
+   | queries ≤ 32 tok (untouched) | 175 | .4160 | .3838 | .3017 |
+
+   Un-truncating helps the affected queries (+.031) and costs the other 87.5%
+   (−.032), because ColBERT pads queries to `query_length` with `[MASK]` tokens and
+   the count is trained in — a model trained at 32 is not a model that reads 64.
+   The fix therefore has to happen in training, not at inference, and the ceiling
+   is small: +.031 on 12.5% of queries is ≈ +.004 overall, which is inside the
+   §11.4 noise floor. Also only 2 of the 25 truncated queries changed rank at all,
+   so even the +.031 rests on two queries. **Not a lever. Do not spend a training
+   run on it.** The document side is where the length problem actually is (§11.2).
 6. **A dedicated long-document Italian training source.** MLDR-it is the only clean
    out-of-domain benchmark and the weakest result, and `mldr_it` is 0.15% of the KD
    mixture. Nothing in phase 1 or phase 2 currently targets long documents.
@@ -780,6 +814,18 @@ of two point estimates.
    committing GPU time: the Italian slice of `Shitao/MLDR` *train* (disjoint from
    the test split used in §3), Italian Wikipedia full-article retrieval pairs, and
    `ReDiX/wikipediaQA-ita` (item 4) once its schema is verified.
+
+   **Reinforced 2026-08-24 by §11.2, and re-scoped.** MLDR-it documents are a median
+   2666 tokens against a 512-token cap: **100% of them truncate and only 20.2% of
+   their tokens are ever encoded**. Simply letting the existing round-1 model read
+   the rest at inference is worth +.0602 nDCG@10 (p=.0225) — twenty times the §11.4
+   noise floor, and more than every training lever tried in two rounds put together.
+   So the length ceiling, not the training data, is the binding constraint on this
+   benchmark, and the item splits in two: (a) `document_length` above 512 in both
+   phase configs, which the ModernBERT backbone supports natively at 8192 and which
+   no run has ever used; (b) a long-document source to train that capacity on.
+   Do (a) first — it is a config change, and (b) without it just feeds long
+   documents to an encoder that discards 80% of each one.
 7. **Mining is single-domain.** `mine_hard_negatives.py` draws queries and corpus
    from `load_mmarco_italian` only (§8.1). Any future mining pass should take a
    `--corpus` / `--queries` source list so negatives can be mined over the wiki and
@@ -868,7 +914,82 @@ Wiring:
 
 Still to do: state in the model card which half the reported numbers come from.
 
-### 11.2 The MLDR-vs-BM25 comparison is length-asymmetric
+### 11.2 The MLDR-vs-BM25 comparison is length-asymmetric — resolved 2026-08-24
+
+**Run, and it was the largest single gain in the project so far.** Everything below
+the horizontal rule is the original 2026-08-16 diagnosis and stands; this is what
+measuring it produced.
+
+First, the size of the hole (`scripts/inspect_lengths.py`): MLDR-it documents are a
+median 2666 tokens and a p95 of 3051 against `document_length = 512`. **Every single
+document truncates, and 20.2% of the corpus's tokens are all any neural model has
+ever seen.** No other benchmark has this problem — mMARCO 0%, MIRACL 1.4%,
+SQuAD 0.7% of documents truncated — which is exactly why MLDR-it is the outlier
+result and why two rounds of negative-mining never touched it.
+
+Then the re-run, on `outputs/final_round1`, chunked at 2000 chars with 200 overlap
+and max-pooled per document, paired bootstrap via `compare_models.py`:
+
+| protocol | doc chars read | BM25 | ItColBERT trunc-512 | ItColBERT chunked |
+|---|---|---|---|---|
+| as reported in §6 | 12000 (BM25) vs ~2200 (neural) | .4850 | .4008 | — |
+| length-symmetric | 4000 for everyone | .4487 | .4008 | **.4384** |
+| full split coverage | 12000 for everyone | .4850 | .4008 | **.4610** |
+
+- **chunked vs truncated, same checkpoint, full coverage: +.0602 nDCG@10,
+  95% CI [+.0100, +.1104], p=.0225 — significant.** MRR@10 +.0558, p=.040. Also
+  recall@100 .6850 → .7550, which ties BM25 exactly.
+- **chunked vs BM25 is a tie**: −.0241, p=.249 at 12000 chars, and −.0103, p=.628
+  at a symmetric 4000. The §6 claim that MLDR "loses to BM25" is a protocol
+  artifact, now corrected in §6.
+- Truncating the corpus from 12000 to 4000 chars costs BM25 .0363 and costs
+  ItColBERT-truncated exactly nothing (.4008 either way, since it never read past
+  ~2200 chars) — an internal consistency check that the knob does what it claims.
+
+Reproduce:
+
+```bash
+uv run python scripts/run_benchmark.py --benchmarks mldr-it \
+  --chunk-chars 2000 --chunk-overlap-chars 200 \
+  --colbert-brute-force-limit 70000 \
+  --output-dir outputs/benchmark_chunked \
+  --models-only-extra \
+  --extra-colbert "ItColBERT round1 chunked=outputs/final_round1"
+```
+
+Three caveats before any of this becomes a headline number:
+
+1. **The field has not been re-run.** `chunk_chars` only applies to the ColBERT
+   path, so the other four late-interaction models and every dense baseline are
+   still truncated at 512. A chunked ItColBERT against a truncated mE5-large is the
+   same asymmetry as before, pointing the other way. Adopting chunked MLDR as the
+   headline means re-running all five ColBERT models chunked (~17 min each) and
+   extending chunking to `DenseRetriever` before comparing to the dense field.
+2. **It costs 6.7x.** 999s vs 148s per model, 64780 chunks from 10000 documents,
+   and peak host memory 26 of 27 GB even after the fix below. This belongs in
+   §11.7 as a real efficiency number, not a footnote.
+3. `load_mldr_italian(max_doc_chars=12_000)` still truncates the underlying
+   documents for everyone, so "full coverage" means full coverage of the split as
+   loaded, not of MLDR. Now exposed as `--mldr-max-doc-chars` so it is at least
+   visible and settable rather than a silent loader default.
+
+Two code changes were needed to run it at all, both worth keeping:
+
+- `maxsim_topk(..., consume=True)` frees each source embedding as it is copied into
+  the padded tensors. Without it the brute-force path holds two full copies of the
+  corpus; the first attempt at full coverage died building a Voyager index at 24 GB
+  RSS. Verified numerically inert: the unchunked run reproduces .400773 to six
+  decimals with and without it.
+- `--colbert-brute-force-limit` (default unchanged at 25000). Chunking multiplies
+  the document count past the ANN threshold, and the ANN path is both heavier and,
+  here, broken: `fast_plaid`'s native extension fails to load against the installed
+  torch (`undefined symbol: _ZN3c106detail14torchCheckFail...`), so PLAID silently
+  falls back to Voyager. **That fallback is a live bug for any large corpus** — the
+  100k-doc mmarco runs have been going through Voyager, not PLAID, this whole time.
+
+---
+
+#### Original diagnosis (2026-08-16)
 
 `BM25Retriever.__init__` (`benchmark/retrievers.py:191-196`) tokenizes `d["text"]`
 whole — no truncation anywhere in that path. Every neural model is capped at 512
@@ -909,15 +1030,43 @@ attributable: if it beats round 1, the cause is unknown. Phase 2 costs ~1.8h, so
 run it more than once — at minimum anchor-only, then anchor + the lr change. Record
 in WORKLOG which variant produced `outputs/final`.
 
-### 11.4 n=1 everywhere
+### 11.4 n=1 everywhere — partially measured 2026-08-24
 
 Bootstrap CIs measure query-sampling variance, not training variance. No seed
 repeats, so a .015 round-2-over-round-1 delta is unfalsifiable.
 
-Cheap partial estimate, no extra training: benchmark 2-3 checkpoints from the phase-1
-decay tail (4000 / 4500 / 4750) and treat the spread as a floor on run-internal
-noise. Round 1's tail evals sat in .4403-.4507 on the in-training slice, which
-already suggests the floor is not small.
+The cheap partial estimate suggested here has now been run: the round-2 phase-1
+decay-tail checkpoints, benchmarked on the full MLDR-it suite rather than the
+in-training slice.
+
+| checkpoint | MLDR-it nDCG@10 | MRR@10 | recall@10 |
+|---|---|---|---|
+| phase1 ckpt-4750 | .2982 | .2612 | .4150 |
+| phase1 ckpt-5000 | .2992 | .2626 | .4150 |
+| phase1 ckpt-5222 (= `final_phase1`) | .3011 | .2636 | .4200 |
+
+**Range .0030, and monotone increasing.** Much tighter than this section feared: the
+.4403-.4507 spread quoted below came from the 150-query/2000-doc in-training slice
+and was slice noise, not run instability. Two consequences:
+
+- the round-2 regressions are not checkpoint-picking artifacts. −.0473 on phase-1
+  MLDR and −.0229 on the final model are 16x and 8x this floor;
+- **a working floor to hold future claims to: anything under ~.003 on MLDR-it is
+  not a result.** Note what that does to the §11.2 chunking gain (+.0602, 20x) and
+  to the abandoned query-length lever (≈+.004 projected, 1.3x).
+
+Still open, and not addressed by the above: adjacent checkpoints share nearly all
+their optimization history, so this bounds *endpoint* jitter, not seed-to-seed
+variance, which is certainly larger. A real answer needs a second phase-1 run at a
+different seed, ~6.5h.
+
+```bash
+uv run python scripts/run_benchmark.py --benchmarks mldr-it \
+  --output-dir outputs/benchmark_noise --models-only-extra \
+  --extra-colbert "ItColBERT p1 ckpt-4750=outputs/phase1/checkpoint-4750" \
+                  "ItColBERT p1 ckpt-5000=outputs/phase1/checkpoint-5000" \
+                  "ItColBERT p1 ckpt-5222=outputs/phase1/checkpoint-5222"
+```
 
 ### 11.5 Every corrective lever pushes the same axis
 
@@ -937,6 +1086,13 @@ runbook. BM25 leads MLDR outright and ItColBERT is 6th on mMARCO; rank fusion is
 nearly free, needs no training, and is what anyone deploying this would actually
 run. Add it as a benchmark row (`ItColBERT + BM25 (RRF)`) rather than a model.
 
+Nothing in the repo implements it — no `rrf` / `fusion` symbol anywhere under
+`src/`. Still unbuilt as of 2026-08-24, and now more interesting rather than less:
+§11.2 leaves chunked ItColBERT and BM25 statistically tied on MLDR-it while
+disagreeing on individual queries, which is the condition under which rank fusion
+pays. Both rankings are already computed and saved per query, so a first estimate
+needs no retrieval at all — fuse the existing top-100 lists offline.
+
 ### 11.7 No efficiency numbers
 
 Index size on disk, query latency, peak memory — none are measured. That is
@@ -945,6 +1101,20 @@ measurement plan attached to it. Record per-model index bytes and mean query
 latency in `results.json` during the next benchmark run; both are cheap to capture
 where the index is already being built.
 
+First real data points, from the §11.2 runs on MLDR-it (10000 documents, 200
+queries, one 3090):
+
+| protocol | vectors | wall clock | peak host RAM |
+|---|---|---|---|
+| trunc-512, unchunked | ~5.1M | 148s | ~4 GB |
+| chunked 2000/200, 4000-char docs | ~13.7M | 366s | 12 GB |
+| chunked 2000/200, full 12000-char docs | ~29.7M | 999s | **26 of 27 GB** |
+
+The bottom row is at the machine's ceiling on a 10k-document corpus, which is the
+number that matters for the dim-64 argument in §9.2 and for whether chunked
+retrieval is deployable here at all. mmarco's 100k-document corpus cannot be run
+chunked on this box.
+
 ### 11.8 Dataset versions unpinned
 
 The round-2 logs show `datasets` resolving every source from the local cache in
@@ -952,3 +1122,80 @@ offline mode ("couldn't be found on the Hugging Face Hub (offline mode is
 enabled)"). No `revision=` pins in the loaders. Reproducible on this machine,
 not on anyone else's. Pin revisions in `data.py` and record them in the model card
 before release.
+
+---
+
+## 12. Round 3 — what to do instead of another mining pass
+
+**Written 2026-08-24, after the no-training audit in §10.5 / §11.2 / §11.4.**
+
+Two rounds of training have moved MLDR-it by nothing outside noise. One afternoon of
+measurement moved it +.0602 with the round-1 weights untouched. That reorders the
+plan: the constraint on this benchmark is how much of a document the model is
+allowed to read, not what it was trained against.
+
+What the audit established, in the order it should be trusted:
+
+| finding | size | vs noise floor (.0030) |
+|---|---|---|
+| chunked vs truncated MLDR, same checkpoint (§11.2) | +.0602, p=.0225 | 20x |
+| round-2 phase-1 mining regression (§8.3) | −.0473 | 16x |
+| round-2 final vs round-1 final (§8.4) | −.0229, p=.082 | 8x |
+| query_length raised in training, projected (§10.5) | ≈ +.004 | 1.3x |
+
+### 12.1 Do these first — no training, hours not GPU-days
+
+1. **Re-run the ColBERT field chunked** so §11.2's number is comparable to
+   something. Five models at ~17 min. Without this the .4610 cannot be published
+   next to anyone (§9, §11.2 caveat 1).
+2. **Extend `chunk_chars` to `DenseRetriever`.** It is ColBERT-only today, which
+   means the dense baselines stay truncated and any chunked comparison tilts our
+   way. Same `chunk_long_documents` / `maxpool_chunks_to_documents` helpers apply.
+3. **RRF fusion (§11.6).** Chunked ItColBERT and BM25 are now a statistical tie on
+   MLDR-it, which is the setup where fusion pays. The per-query top-100 lists are
+   already on disk, so the first estimate costs no retrieval.
+4. **Fix the PLAID fallback (§11.2).** `fast_plaid`'s extension does not load
+   against the installed torch, so every large-corpus run so far silently used
+   Voyager. This is also what makes chunked retrieval hit 26 GB.
+
+### 12.2 Then the one training bet worth making
+
+**Raise `document_length` past 512 in both phase configs, and only then add a
+long-document Italian source (§10.6).** ModernBERT's window is 8192 and no run has
+used more than 512 of it. Chunking proves the information in tokens 512-3000 is
+worth +.06 to a model that was never trained to use it; training at length should
+beat max-pooling over a model that reads in 512-token slices, and it costs nothing
+at inference the way chunking costs 6.7x (§11.7).
+
+Sequence, cheapest decisive step first:
+
+1. phase 2 only, `document_length` 1024, on the existing `outputs/final_phase1`
+   (~1.8h). Phase 2 is the cheap stage and the one whose round-2 fixes demonstrably
+   worked (§8.4).
+2. if that moves MLDR outside .003, phase 1 at 1024 as well (~6.5h at best; batch
+   512 will not fit at double the sequence length, so expect to re-tune
+   `mini_batch_size` and possibly halve the batch, which changes the negative count
+   and makes it not-a-clean-comparison — budget for that).
+3. long-document source last, once there is capacity to use it.
+
+### 12.3 What not to do
+
+- **Do not re-mine.** §8.3 settled it: mined mMARCO negatives cost .0473 on MLDR
+  and .0277 on mMARCO itself. Raising `--skip-top` tunes difficulty when the
+  problem was distribution (§8.1, §11.5).
+- **Do not raise `query_length`.** Measured, projected at +.004, inside the noise
+  floor (§10.5).
+- **Do not add mMARCO anywhere.** Both round-2 levers were mMARCO and both moved
+  the axis that was already strongest (§11.5).
+- **Do not chase deltas under .003 on MLDR-it** without a seed repeat to justify
+  them (§11.4).
+
+### 12.4 Round-1 phase-1 weights are gone
+
+Worth recording because it removes an otherwise obvious experiment. Round 2
+overwrote `outputs/final_phase1`, and only the post-phase-2 `outputs/final_round1`
+survived. So "round-1 phase 1 + round-2's fixed phase 2" — which would isolate the
+one round-2 lever that worked from the one that did not — cannot be run without
+re-training phase 1 from scratch (~6.5h + 1.8h). Given §12.2 is a better use of the
+same overnight, it is not worth it for attribution alone. Keep every phase-1 `final/`
+under a round-tagged name from here on.

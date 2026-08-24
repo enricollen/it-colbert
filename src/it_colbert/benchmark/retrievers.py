@@ -35,16 +35,27 @@ def maxsim_topk(
     k: int = 100,
     doc_chunk: int = 256,
     log_every: int = 0,
+    consume: bool = False,
 ) -> tuple[list[list[str]], list[list[float]]]:
     """exact late-interaction maxsim of every query against the whole corpus.
 
     kept separate from ColBERTRetriever so the training-time IR evaluator can
     score a checkpoint without building a second model/index.
+
+    `consume` frees each source embedding as it is copied into the padded
+    tensors, so peak host memory is one copy of the corpus instead of two. that
+    matters in long-document mode: MLDR-it chunked to full coverage is ~25M
+    vectors (~13gb fp32), and holding the padded copy alongside the originals
+    does not fit in 27gb. only pass it when the caller has no further use for
+    `doc_embeddings` — the list is emptied in place.
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     n_docs = len(doc_embeddings)
     ranked_ids: list[list[str]] = []
     ranked_scores: list[list[float]] = []
+    # only a python list can release its elements one at a time; a stacked
+    # ndarray/tensor owns one buffer and freeing it piecewise is impossible
+    consume = consume and isinstance(doc_embeddings, list)
 
     # pre-pad the corpus once into fixed chunks on cpu, then stream to gpu
     chunk_tensors: list[tuple[torch.Tensor, torch.Tensor, int, int]] = []
@@ -60,6 +71,10 @@ def maxsim_topk(
             padded[i, : arr.shape[0]] = torch.from_numpy(arr)
             mask[i, : arr.shape[0]] = True
         chunk_tensors.append((padded, mask, start, end))
+        if consume:
+            del chunk
+            for i in range(start, end):
+                doc_embeddings[i] = None
 
     for qi, qe in enumerate(query_embeddings):
         q = torch.as_tensor(qe, dtype=torch.float32, device=device)
@@ -455,9 +470,13 @@ class ColBERTRetriever:
         # over-fetch when chunking so max-pooling still yields k distinct documents
         fetch_k = k * 4 if self.chunk_to_parent else k
         if self.use_bruteforce:
+            # retrieve() is called once per model per benchmark, so the raw
+            # embeddings are dead after this call — let maxsim free them as it
+            # pads rather than holding two copies of a chunked corpus
             ranked_ids, ranked_scores = maxsim_topk(
-                self.doc_emb, q_emb, self.doc_ids, k=fetch_k, log_every=20
+                self.doc_emb, q_emb, self.doc_ids, k=fetch_k, log_every=20, consume=True
             )
+            self.doc_emb = None
             ranked = scores_to_pylate([], ranked_ids, ranked_scores)
         else:
             ranked = self.retriever.retrieve(

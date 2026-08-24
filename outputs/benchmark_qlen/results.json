@@ -1,0 +1,250 @@
+{
+  "protocol": {
+    "metrics": [
+      "mrr@10",
+      "ndcg@1",
+      "ndcg@5",
+      "ndcg@10",
+      "ndcg@100",
+      "map@100",
+      "recall@1",
+      "recall@5",
+      "recall@10",
+      "recall@100",
+      "precision@10",
+      "hits@1",
+      "hits@5",
+      "hits@10"
+    ],
+    "top_k": 100,
+    "mmarco_max_corpus_docs": 100000,
+    "mmarco_note": "pooled corpus = all qrel positives + reservoir sample; relative comparison across models. for absolute published full-corpus mrr@10 see published_mmarco_it_mrr10.",
+    "mldr_note": "full italian mldr corpus (~10k docs), official test split",
+    "miracl_note": "miracl has no italian language split; not used",
+    "colbert_document_length": 512,
+    "colbert_query_length": 32,
+    "chunk_chars": 0,
+    "chunk_overlap_chars": 0,
+    "bm25_analyzer": "italian: lowercase + stopwords + snowball stem",
+    "mldr_max_doc_chars": 12000
+  },
+  "published_mmarco_it_mrr10": {
+    "BM25": {
+      "mrr@10": 0.153,
+      "source": "Bonifacio et al. 2021 / Jina table"
+    },
+    "mColBERT": {
+      "mrr@10": 0.292,
+      "source": "Bonifacio et al. 2021"
+    },
+    "mono-mT5": {
+      "mrr@10": 0.303,
+      "source": "Bonifacio et al. 2021"
+    },
+    "mE5-base": {
+      "mrr@10": 0.28,
+      "source": "ColBERT-XM model card (Wang et al.)"
+    },
+    "ColBERT-XM": {
+      "mrr@10": 0.265,
+      "source": "Louis et al. 2024 / Jina table"
+    },
+    "jina-colbert-v2": {
+      "mrr@10": 0.337,
+      "source": "Jina-ColBERT-v2 model card"
+    }
+  },
+  "results": {
+    "mldr-it": {
+      "n_queries": 200,
+      "n_docs": 10000,
+      "models": {
+        "ItColBERT round1 q32": {
+          "kind": "colbert",
+          "model_id": "outputs/final_round1",
+          "notes": "ad-hoc checkpoint passed via --extra-colbert",
+          "effective_length": 512,
+          "effective_query_length": 32,
+          "chunk_chars": 0,
+          "metrics": {
+            "mrr@10": 0.3596964285714286,
+            "ndcg@1": 0.28,
+            "ndcg@5": 0.3810042347171705,
+            "ndcg@10": 0.40077345017601246,
+            "ndcg@100": 0.4325942297471025,
+            "map@100": 0.3656986832459903,
+            "recall@1": 0.28,
+            "recall@5": 0.47,
+            "recall@10": 0.53,
+            "recall@100": 0.685,
+            "precision@10": 0.053,
+            "hits@1": 0.28,
+            "hits@5": 0.47,
+            "hits@10": 0.53
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.40077345017601246,
+              "ci_low": 0.34158545138957574,
+              "ci_high": 0.45887535478790986,
+              "n_queries": 200
+            },
+            "mrr@10": {
+              "mean": 0.3596964285714286,
+              "ci_low": 0.3004071428571429,
+              "ci_high": 0.4189136408730157,
+              "n_queries": 200
+            },
+            "recall@100": {
+              "mean": 0.685,
+              "ci_low": 0.62,
+              "ci_high": 0.745,
+              "n_queries": 200
+            }
+          },
+          "seconds": 165.6,
+          "error": null
+        },
+        "ItColBERT round1 q64": {
+          "kind": "colbert",
+          "model_id": "outputs/final_round1",
+          "notes": "ad-hoc checkpoint passed via --extra-colbert",
+          "effective_length": 512,
+          "effective_query_length": 64,
+          "chunk_chars": 0,
+          "metrics": {
+            "mrr@10": 0.33614682539682533,
+            "ndcg@1": 0.26,
+            "ndcg@5": 0.35067555827372415,
+            "ndcg@10": 0.37644787590033757,
+            "ndcg@100": 0.40469117240356356,
+            "map@100": 0.34157302007067863,
+            "recall@1": 0.26,
+            "recall@5": 0.425,
+            "recall@10": 0.505,
+            "recall@100": 0.64,
+            "precision@10": 0.050499999999999996,
+            "hits@1": 0.26,
+            "hits@5": 0.425,
+            "hits@10": 0.505
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.3764478759003376,
+              "ci_low": 0.3182128586177983,
+              "ci_high": 0.4338380113361872,
+              "n_queries": 200
+            },
+            "mrr@10": {
+              "mean": 0.3361468253968254,
+              "ci_low": 0.27687495039682536,
+              "ci_high": 0.3945320932539682,
+              "n_queries": 200
+            },
+            "recall@100": {
+              "mean": 0.64,
+              "ci_low": 0.575,
+              "ci_high": 0.705,
+              "n_queries": 200
+            }
+          },
+          "seconds": 155.4,
+          "error": null
+        },
+        "ItColBERT round1 q96": {
+          "kind": "colbert",
+          "model_id": "outputs/final_round1",
+          "notes": "ad-hoc checkpoint passed via --extra-colbert",
+          "effective_length": 512,
+          "effective_query_length": 96,
+          "chunk_chars": 0,
+          "metrics": {
+            "mrr@10": 0.2734166666666667,
+            "ndcg@1": 0.205,
+            "ndcg@5": 0.29441388039590527,
+            "ndcg@10": 0.3053103391658519,
+            "ndcg@100": 0.34676267836604624,
+            "map@100": 0.2808653061520049,
+            "recall@1": 0.205,
+            "recall@5": 0.37,
+            "recall@10": 0.405,
+            "recall@100": 0.61,
+            "precision@10": 0.0405,
+            "hits@1": 0.205,
+            "hits@5": 0.37,
+            "hits@10": 0.405
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.3053103391658519,
+              "ci_low": 0.24932878474521616,
+              "ci_high": 0.36512955890162785,
+              "n_queries": 200
+            },
+            "mrr@10": {
+              "mean": 0.27341666666666664,
+              "ci_low": 0.21863263888888887,
+              "ci_high": 0.3307822916666667,
+              "n_queries": 200
+            },
+            "recall@100": {
+              "mean": 0.61,
+              "ci_low": 0.54,
+              "ci_high": 0.675,
+              "n_queries": 200
+            }
+          },
+          "seconds": 164.1,
+          "error": null
+        },
+        "ItColBERT round1 q32 consume-check": {
+          "kind": "colbert",
+          "model_id": "outputs/final_round1",
+          "notes": "ad-hoc checkpoint passed via --extra-colbert",
+          "effective_length": 512,
+          "effective_query_length": 32,
+          "chunk_chars": 0,
+          "metrics": {
+            "mrr@10": 0.3596964285714286,
+            "ndcg@1": 0.28,
+            "ndcg@5": 0.3810042347171705,
+            "ndcg@10": 0.40077345017601246,
+            "ndcg@100": 0.4325942297471025,
+            "map@100": 0.3656986832459903,
+            "recall@1": 0.28,
+            "recall@5": 0.47,
+            "recall@10": 0.53,
+            "recall@100": 0.685,
+            "precision@10": 0.053,
+            "hits@1": 0.28,
+            "hits@5": 0.47,
+            "hits@10": 0.53
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.40077345017601246,
+              "ci_low": 0.34158545138957574,
+              "ci_high": 0.45887535478790986,
+              "n_queries": 200
+            },
+            "mrr@10": {
+              "mean": 0.3596964285714286,
+              "ci_low": 0.3004071428571429,
+              "ci_high": 0.4189136408730157,
+              "n_queries": 200
+            },
+            "recall@100": {
+              "mean": 0.685,
+              "ci_low": 0.62,
+              "ci_high": 0.745,
+              "n_queries": 200
+            }
+          },
+          "seconds": 150.8,
+          "error": null
+        }
+      },
+      "comparable_to_literature": true
+    }
+  }
+}

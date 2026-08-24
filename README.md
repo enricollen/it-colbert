@@ -172,6 +172,21 @@ Defaults: all four benchmarks, every ColBERT indexed at 512, mMARCO pooled to
 100k, bootstrap intervals on. Override with `--benchmarks`, `--colbert-doc-length`
 and `--mmarco-max-corpus-docs`.
 
+To score a checkpoint that is not in `DEFAULT_MODELS` — an intermediate
+`checkpoint-N`, a previous round's `final/` — pass it inline instead of editing the
+model list, and give it its own output directory:
+
+```bash
+uv run python scripts/run_benchmark.py --benchmarks mldr-it \
+  --output-dir outputs/benchmark_scratch --models-only-extra \
+  --extra-colbert "round1=outputs/final_round1" "p1 ckpt-5000=outputs/phase1/checkpoint-5000"
+```
+
+Completed `(benchmark, model name)` pairs are skipped on re-run, which is what makes
+the pipeline resumable — but it keys off the display *name*, not the weights. Reusing
+a name for new weights silently skips the model. Use a fresh name or a fresh
+`--output-dir`.
+
 | Benchmark | Source | Corpus | Primary metric |
 |---|---|---|---|
 | `mldr-it` | `Shitao/MLDR` italian test | full (~10k long docs) | nDCG@10 |
@@ -190,7 +205,19 @@ resources. Label them as such anywhere you publish.
   revealed it. The per-model `effective_length` is now recorded in `results.json`.
 - **Long-document mode.** `--chunk-chars 2000 --chunk-overlap-chars 200` indexes
   chunks and max-pools per document, so text past the encoder's truncation point
-  still counts.
+  still counts. This matters more than it sounds on MLDR-it, where the median
+  document is 2666 tokens against a 512-token cap: every document truncates and
+  only 20% of the corpus's tokens are otherwise encoded. Chunking is worth +.060
+  nDCG@10 (p=.02) to an unchanged checkpoint. Add
+  `--colbert-brute-force-limit 70000` so the chunked corpus stays on the exact
+  MaxSim path, and expect ~7x the wall clock and ~26 GB of host RAM.
+  **Chunked and unchunked numbers are different protocols** — keep them in separate
+  `--output-dir`s, and note that chunking currently applies to the ColBERT path
+  only, so a chunked ColBERT against a truncated dense baseline is not a fair row.
+- **Document truncation is measurable before you spend a GPU on it.**
+  `scripts/inspect_lengths.py` reports query/document token percentiles against the
+  configured limits, plus how many chunks and how much memory a chunked run would
+  need.
 - **BM25** uses an Italian analyzer (lowercase, punctuation strip, stopwords,
   Snowball stem). A whitespace tokenizer badly understates the lexical baseline in
   an inflected language.
