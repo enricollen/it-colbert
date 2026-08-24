@@ -1,0 +1,72 @@
+# long-doc ablation, CONTROL arm — document_length 512.
+#
+# paired with configs/phase1_longdoc_1024.toml. the two files differ in exactly
+# two values, document_length and mini_batch_size, so the measured difference is
+# attributable to how much of each document the model is allowed to read.
+#
+# why this mixture is smaller than phase1_contrastive.toml: the question here is
+# not "how good can phase 1 get", it is "does reading past 512 tokens help at
+# all". a ~500k-triplet budget answers that in ~980 steps per arm instead of
+# ~4.6k, and both arms pay the same price. mmarco hard negatives, miracl/squad
+# and wiki-hn are all off so the mixture is exactly two sources with known
+# sizes: 250k short mmarco + 250k long wikipedia.
+#
+# read the result on the mldr-it report half. arm B must clear the .0030 noise
+# floor (TODO.md §11.4) to justify a full-scale run at 1024.
+
+[phase1]
+model_name = "nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl"
+output_dir = "outputs/phase1_longdoc_512"
+run_name = "it-colbert-longdoc-512"
+dim = 128
+
+# --- the variable under test ------------------------------------------------
+document_length = 512
+mini_batch_size = 32
+query_length = 32
+
+# --- mixture: identical in both arms ---------------------------------------
+mmarco_samples = 250000
+mmarco_eval_samples = 2000
+include_mmarco_hn = false
+include_italian_sources = false
+include_wiki_hn = false
+
+# it-long_doc: median ~1,033 tokens, 98.2% over 512. at this arm's truncation
+# the query's evidence span is outside the window for 30.7% of these rows;
+# at 1024 that falls to 14.2%. that gap is the experiment.
+include_longdoc = true
+longdoc_samples = 250000
+# articles that also appear in the mldr-it test corpus are dropped, so mldr-it
+# stays an out-of-domain benchmark (scripts/check_longdoc_overlap.py)
+longdoc_exclude_path = "outputs/longdoc_exclude.txt"
+
+# --- optimization: identical in both arms ----------------------------------
+num_train_epochs = 1.0
+# batch sets the in-batch negative count and must match across arms; only
+# mini_batch_size (peak VRAM) moves with document_length
+per_device_train_batch_size = 512
+per_device_eval_batch_size = 32
+learning_rate = 1.0e-5
+temperature = 0.02
+warmup_ratio = 0.05
+logging_steps = 10
+eval_steps = 100
+save_steps = 100
+save_total_limit = 2
+
+# --- validation -------------------------------------------------------------
+# a live nDCG curve on small pooled slices, read by a human deciding whether the
+# arm trained at all. selection happens in phase 2, not here.
+ir_eval_enabled = true
+ir_eval_mldr_queries = 150
+ir_eval_mldr_docs = 2000
+ir_eval_mmarco_queries = 300
+ir_eval_mmarco_docs = 3000
+
+early_stopping_patience = 0
+load_best_model_at_end = false
+seed = 42
+bf16 = true
+fp16 = false
+compile_model = false

@@ -681,3 +681,106 @@ only, so the other four late-interaction models and every dense baseline are sti
 truncated. The old asymmetry favoured BM25; this one would favour us. The field has
 to be re-run chunked before .4610 appears next to anyone else's number (TODO.md
 §12.1).
+
+---
+
+## 18. Finding a long-document Italian source, and building the ablation (2026-08-24)
+
+§17 ended with "round 3 is a document-length problem". This is the follow-on: find
+data that actually has long documents, then build an experiment that can tell
+whether training at length helps. No GPU time spent yet. Full spec in TODO.md §13.
+
+### ReDiX was a dead end, and not for the reason expected
+
+`ReDiX/wikipediaQA-ita` had been sitting in TODO.md §10.4/§10.6 as "gated, schema
+unverified". It looked blocked: the card demands an email to `redix.ai@redix.it`,
+and an earlier `load_dataset` raised `DatasetNotFoundError: is a gated dataset`.
+
+Both assumptions were wrong. The repo is `gated: auto`, and the token already in
+`~/.cache/huggingface/token` reads it — `hf_hub_download` of `README.md` succeeded,
+then a ranged GET pulled the data file directly. No access request was ever needed.
+
+What killed it was the content. Sampling 4,724 rows across ten windows of the full
+237 MB file (`usedStorage` reports 788 MB; the live file is 237 MB) and tokenizing
+with the round-1 tokenizer: schema is `question` / `context` / `answer` with no
+negatives, and `context` is median **439 tokens**, p90 489, max 1,085 — only 4.6%
+over 512. 1,613 unique contexts across those 4,724 rows, so it is ~3 questions per
+pre-chunked passage. It exercises nothing past the current cap. Ruled out.
+
+### `it-long_doc`, and why it is the right source
+
+Searching the Hub for Italian retrieval sets surfaced
+`hotchpotch/wikipedia-multilingual-synthetic-ir-query`, which ships a per-language
+`long_doc` config. Verified over all 9 Italian shards (650,885 rows):
+
+| quantity | value |
+|---|---|
+| document length | median 4,133 chars (~1,033 tok), p75 ~1,779 tok, p90 ~3,257 tok |
+| over 512 / 1,024 tokens | **98.2%** / 50.5% |
+| evidence span starts past 512 / 1,024 tok | **30.7%** / 14.2% |
+
+The last row is the one that matters and it comes from the dataset's own
+`query_source_text_start` column, which records the span the synthetic query was
+generated from. At `document_length = 512`, 30.7% of these rows train the model to
+match a query against a document whose evidence is not in the window. At 1024,
+14.2%. That gap is a measurable lever, not a hypothesis.
+
+Ungated, Parquet, CC-BY-SA-4.0/GFDL, revision pinned. Crucially **not** MLDR, so
+MLDR-it survives as the held-out benchmark — unlike `Shitao/MLDR` it-train, the
+other long candidate, which is clean and long (median 5,785 tok, zero query overlap
+with test) but in-domain against the benchmark and only 2,151 queries.
+
+Two honest caveats, both going in the model card: the dataset card warns its queries
+are "relatively easy" and recommends mixing rather than sole use, and both it and
+MLDR-it come from Wikipedia, so article overlap is plausible and has to be measured.
+
+### The overlap check
+
+`scripts/check_longdoc_overlap.py` does content-defined word-shingle containment:
+13-word n-grams, kept only where the first word hashes to 0 mod 16. The mod-p
+selection is the point — it depends on content, not offset, so the same passage
+yields the same shingles on both sides even when the surrounding article is cut
+differently. Naive fixed-offset sampling would have missed almost everything.
+
+Cost control matters here: 650k rows at ~690 words each is ~450M positions. Two
+things make it tractable — articles are deduplicated by a text-derived key first
+(rows repeat articles across query styles), and per-word crc32 is memoized, so the
+inner loop is dict lookups and only 1/16 of positions build an n-gram string.
+
+Validated on a synthetic pair before running: the same article written with
+markdown headings and different punctuation scored 5 hits, an unrelated article 0.
+
+`longdoc_normalize` / `longdoc_doc_key` live in `data.py` and are imported by the
+script, so the keys it writes are exactly the keys the loader filters on. Getting
+that wrong would silently exclude nothing.
+
+### The ablation, and why both arms get trained
+
+`configs/phase1_longdoc_512.toml` and `configs/phase1_longdoc_1024.toml` differ in
+exactly two values: `document_length` (512/1024) and `mini_batch_size` (32/16).
+`per_device_train_batch_size` stays 512 in both so the in-batch negative count is
+identical — GradCache is what allows peak VRAM to move without touching the loss.
+
+Mixture is deliberately small and exactly two sources of known size: 250k mMARCO +
+250k `it-long_doc` = 500k triplets, ~980 steps. mMARCO hard negatives, MIRACL/SQuAD
+and wiki-hn are all off. The question is not how good phase 1 can get; it is whether
+reading past 512 tokens helps at all, and both arms pay the same price to answer it.
+
+Training both arms rather than reusing a checkpoint is forced by §12.4: round 2
+overwrote `outputs/final_phase1`, so there is no phase-1-only 512 control on disk.
+
+Gate: arm B must beat arm A on the MLDR-it **report half** by more than the .0030
+noise floor, with mMARCO-it and MIRACL-ita not dropping by more than the same. Both
+arms are phase-1-only on a fifth of round 1's data, so neither is comparable to
+.4008 or .4610 — the comparison is strictly A-vs-B.
+
+### Two operational notes
+
+`hf download` stalls on Xet: seven blob files sat at 0 bytes indefinitely, no error.
+`HF_HUB_DISABLE_XET=1` fixes it and transfers at ~7 MB/s. Worth remembering for
+every Hub download on this box.
+
+`hf datasets sql` needs DuckDB, which is not installed. PyArrow over `HfFileSystem`
+reads Parquet footers and single columns with range requests instead, which is how
+the 650k-row distribution was measured without downloading 62 GB — though at ~13
+minutes for two int columns it is slow enough that bulk work should download first.

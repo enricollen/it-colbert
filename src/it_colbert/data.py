@@ -6,6 +6,7 @@ import hashlib
 import json
 import logging
 import math
+import re
 import shutil
 from pathlib import Path
 
@@ -36,6 +37,45 @@ MMARCO_IT_QUERIES = "data/google/queries/train/italian_queries.train.tsv"
 # mmarco-it hard negatives already scored by bge-reranker-v2-m3 (option b kd)
 MMARCO_HN_KD_REPO = "hotchpotch/mmarco-hard-negatives-reranker-filtered"
 MMARCO_HN_KD_CONFIG = "italian-hard-negatives"
+
+# italian long-document retrieval supervision (TODO.md §10.6). wikipedia-derived,
+# ungated, cc-by-sa-4.0/gfdl. 650,885 rows: median ~1,033 tokens per document,
+# 98.2% over 512 tokens, and the query's evidence span starts past the
+# 512-token mark in 30.7% of rows — which is the length lever being tested.
+# revision is pinned so the mixture stays reproducible from the model card.
+LONGDOC_REPO = "hotchpotch/wikipedia-multilingual-synthetic-ir-query"
+LONGDOC_CONFIG = "it-long_doc"
+LONGDOC_REVISION = "5089a24f75a297ecacfe51fb88a0b5138c5081aa"
+# the generator emits several query styles. `title` is near-verbatim the article's
+# own first line, and `summary` / `keywords` / `synonym_keywords` are not
+# search-shaped, so only the question-like styles are kept as supervision.
+LONGDOC_KEEP_TYPES = ("query", "faq", "alt_query")
+# char cap before tokenization, matching load_mldr_italian's own default. at
+# 12k chars a 1024-token window is never starved and tokenizing 32k-char
+# articles down to 1024 tokens is avoided.
+LONGDOC_MAX_CHARS = 12_000
+
+_LONGDOC_DROP = re.compile(r"[^0-9a-z\u00e0-\u00ff\s]+")
+_LONGDOC_WS = re.compile(r"\s+")
+
+
+def longdoc_normalize(text: str) -> str:
+    """lowercase alphanumeric word stream.
+
+    absorbs the markdown headings and punctuation differences between the
+    long-doc training text and the mldr-it benchmark corpus, so the same
+    wikipedia article normalizes identically on both sides.
+    """
+    return _LONGDOC_WS.sub(" ", _LONGDOC_DROP.sub(" ", text.casefold())).strip()
+
+
+def longdoc_doc_key(text: str) -> str:
+    """stable article identity, shared by this loader and check_longdoc_overlap.py.
+
+    text-derived on purpose: the exclusion list stays valid across shard
+    layouts, row orders and dataset revisions.
+    """
+    return hashlib.sha1(longdoc_normalize(text).encode("utf-8")).hexdigest()[:16]
 
 
 def _download_mmarco_file(filename: str) -> Path:
@@ -252,6 +292,139 @@ def load_tevatron_style_contrastive_italian(
     return out
 
 
+def load_wikipedia_longdoc_italian(
+    max_samples: int | None = None,
+    keep_instruction_types: tuple[str, ...] | None = LONGDOC_KEEP_TYPES,
+    exclude_path: str | None = None,
+    max_chars: int | None = LONGDOC_MAX_CHARS,
+    seed: int = 42,
+) -> Dataset:
+    """long-document italian triplets from it-long_doc.
+
+    the documents are whole wikipedia articles and the query is generated from
+    one span inside them, so at document_length 512 a third of these examples
+    supervise a match the model cannot see. that truncation is deliberate and
+    is left to the tokenizer: cropping around `query_source_text_start` would
+    erase the very signal the 512-vs-1024 ablation measures.
+
+    the source ships no negatives, so each query is paired with another
+    article from the same subsample. in-batch negatives at batch 512 carry the
+    contrastive signal; this only fills the `negative` column the other phase-1
+    sources already use.
+    """
+    logger.info(
+        "loading %s [%s] rev %s...", LONGDOC_REPO, LONGDOC_CONFIG, LONGDOC_REVISION[:8]
+    )
+    ds = load_dataset(
+        LONGDOC_REPO,
+        name=LONGDOC_CONFIG,
+        split="train",
+        revision=LONGDOC_REVISION,
+    )
+    n_raw = len(ds)
+
+    if keep_instruction_types:
+        keep = set(keep_instruction_types)
+        ds = ds.filter(
+            lambda batch: [t in keep for t in batch["instruction_type"]],
+            batched=True,
+            batch_size=10_000,
+            desc="filtering instruction_type",
+        )
+        logger.info(
+            "longdoc instruction_type filter %s: %s -> %s rows",
+            sorted(keep),
+            f"{n_raw:,}",
+            f"{len(ds):,}",
+        )
+
+    excluded_keys: set[str] = set()
+    if exclude_path:
+        path = Path(exclude_path)
+        if not path.exists():
+            raise FileNotFoundError(
+                f"longdoc exclusion list {path} not found; "
+                "run scripts/check_longdoc_overlap.py first"
+            )
+        excluded_keys = {
+            line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
+        }
+        logger.info(
+            "longdoc exclusion list: %s article keys from %s",
+            f"{len(excluded_keys):,}",
+            path,
+        )
+
+    if excluded_keys:
+        n_before = len(ds)
+        ds = ds.filter(
+            lambda batch: [
+                longdoc_doc_key(doc) not in excluded_keys for doc in batch["document"]
+            ],
+            batched=True,
+            batch_size=2_000,
+            desc="dropping mldr-overlapping articles",
+        )
+        logger.info(
+            "longdoc mldr overlap filter: %s -> %s rows (%s dropped)",
+            f"{n_before:,}",
+            f"{len(ds):,}",
+            f"{n_before - len(ds):,}",
+        )
+
+    ds = ds.shuffle(seed=seed)
+    if max_samples is not None and max_samples < len(ds):
+        ds = ds.select(range(max_samples))
+
+    types_seen: dict[str, int] = {}
+    queries: list[str] = []
+    positives: list[str] = []
+    for row in ds:
+        document = row["document"] or ""
+        query = row["query"] or ""
+        if not document or not query:
+            continue
+        if max_chars is not None and len(document) > max_chars:
+            document = document[:max_chars]
+        queries.append(query)
+        positives.append(document)
+        style = row.get("instruction_type") or "?"
+        types_seen[style] = types_seen.get(style, 0) + 1
+
+    n = len(positives)
+    if n < 2:
+        raise RuntimeError(f"longdoc source produced {n} usable rows")
+
+    # rotate the positives by half the corpus to get one negative per query.
+    # the fingerprint walk covers the case where a rotation lines up two rows
+    # generated from the same article.
+    fingerprints = [hash(text) for text in positives]
+    offset = max(1, n // 2)
+    negatives: list[str] = []
+    for i in range(n):
+        j = (i + offset) % n
+        guard = 0
+        while fingerprints[j] == fingerprints[i] and guard < 8:
+            j = (j + 1) % n
+            guard += 1
+        negatives.append(positives[j])
+
+    out = Dataset.from_dict(
+        {"query": queries, "positive": positives, "negative": negatives}
+    ).shuffle(seed=seed)
+
+    doc_chars = sorted(len(text) for text in positives)
+    logger.info(
+        "longdoc ready: %s triplets | styles %s | doc chars p50=%s p90=%s max=%s",
+        f"{len(out):,}",
+        {k: types_seen[k] for k in sorted(types_seen)},
+        doc_chars[n // 2],
+        doc_chars[int(0.9 * n)],
+        doc_chars[-1],
+    )
+    return out
+
+
 def load_mined_hard_negatives(
     path: str,
     negatives_per_query: int = 4,
@@ -295,6 +468,9 @@ def build_phase1_dataset(
     mmarco_hn_negatives_per_query: int = 4,
     include_italian_sources: bool = False,
     italian_source_max_samples: int | None = None,
+    include_longdoc: bool = False,
+    longdoc_samples: int | None = None,
+    longdoc_exclude_path: str | None = None,
     mined_negatives_path: str | None = None,
     mined_negatives_per_query: int = 4,
     cache_dir: str | None = "outputs/dataset_cache",
@@ -307,6 +483,8 @@ def build_phase1_dataset(
     - `include_wiki_hn`: native italian wiki retrieval pairs
     - `include_italian_sources`: MIRACL-ita / SQuAD-ita, to widen the domain
       past machine-translated mmarco
+    - `include_longdoc`: it-long_doc whole wikipedia articles, the only source
+      in the mixture whose documents exceed the truncation window
     - `mined_negatives_path`: round-2 negatives mined with your own checkpoint
 
     the result is cached under `cache_dir` keyed by these arguments. building it
@@ -326,6 +504,9 @@ def build_phase1_dataset(
             mmarco_hn_negatives_per_query=mmarco_hn_negatives_per_query,
             include_italian_sources=include_italian_sources,
             italian_source_max_samples=italian_source_max_samples,
+            include_longdoc=include_longdoc,
+            longdoc_samples=longdoc_samples,
+            longdoc_exclude_path=longdoc_exclude_path,
             mined_negatives_path=mined_negatives_path,
             mined_negatives_per_query=mined_negatives_per_query,
         )
@@ -358,6 +539,14 @@ def build_phase1_dataset(
                     seed=seed + 23,
                 )
             )
+    if include_longdoc:
+        parts.append(
+            load_wikipedia_longdoc_italian(
+                max_samples=longdoc_samples,
+                exclude_path=longdoc_exclude_path,
+                seed=seed + 29,
+            )
+        )
     if mined_negatives_path:
         parts.append(
             load_mined_hard_negatives(

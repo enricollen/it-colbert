@@ -33,6 +33,13 @@ class Phase1Config:
     # miracl-ita / squad-ita, to widen phase 1 past machine-translated mmarco
     include_italian_sources: bool = True
     italian_source_max_samples: int | None = 50_000
+    # it-long_doc: whole wikipedia articles, the only long-document supervision
+    # in the mixture. off by default so existing configs are unchanged.
+    include_longdoc: bool = False
+    longdoc_samples: int | None = None
+    # exclusion list from scripts/check_longdoc_overlap.py, which keeps mldr-it
+    # out of domain by dropping articles that also sit in its test corpus
+    longdoc_exclude_path: str | None = None
     # round-2 negatives from scripts/mine_hard_negatives.py
     mined_negatives_path: str | None = None
     mined_negatives_per_query: int = 4

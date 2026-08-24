@@ -1,0 +1,59 @@
+# long-doc ablation, TREATMENT arm — document_length 1024.
+#
+# diff against configs/phase1_longdoc_512.toml is two lines:
+#   document_length  512 -> 1024
+#   mini_batch_size   32 -> 16
+#
+# mini_batch_size halves because it sets peak VRAM and the sequence is twice as
+# long; per_device_train_batch_size stays at 512 so both arms see the same
+# number of in-batch negatives. GradCache is what makes that separation possible.
+# if this still ooms on the 3090, drop mini_batch_size again — never the batch,
+# which would change the loss and break the pairing.
+
+[phase1]
+model_name = "nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl"
+output_dir = "outputs/phase1_longdoc_1024"
+run_name = "it-colbert-longdoc-1024"
+dim = 128
+
+# --- the variable under test ------------------------------------------------
+document_length = 1024
+mini_batch_size = 16
+query_length = 32
+
+# --- mixture: identical in both arms ---------------------------------------
+mmarco_samples = 250000
+mmarco_eval_samples = 2000
+include_mmarco_hn = false
+include_italian_sources = false
+include_wiki_hn = false
+
+include_longdoc = true
+longdoc_samples = 250000
+longdoc_exclude_path = "outputs/longdoc_exclude.txt"
+
+# --- optimization: identical in both arms ----------------------------------
+num_train_epochs = 1.0
+per_device_train_batch_size = 512
+per_device_eval_batch_size = 32
+learning_rate = 1.0e-5
+temperature = 0.02
+warmup_ratio = 0.05
+logging_steps = 10
+eval_steps = 100
+save_steps = 100
+save_total_limit = 2
+
+# --- validation -------------------------------------------------------------
+ir_eval_enabled = true
+ir_eval_mldr_queries = 150
+ir_eval_mldr_docs = 2000
+ir_eval_mmarco_queries = 300
+ir_eval_mmarco_docs = 3000
+
+early_stopping_patience = 0
+load_best_model_at_end = false
+seed = 42
+bf16 = true
+fp16 = false
+compile_model = false

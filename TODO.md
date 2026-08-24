@@ -13,6 +13,14 @@ measure the model. §7 to §9 cover the follow-up work.
 
 This file is self-contained: start at the top and work down.
 
+**Current state, 2026-08-24.** `outputs/final_round1` is the release candidate
+(MLDR-it .4008 truncated, **.4610** with free inference-time chunking). Rounds 2's
+mining and KD did not beat it. Two tracks are open and independent:
+
+- **Track A — ship v1.** Release round-1 weights plus the chunking recipe: §9.
+- **Track B — beat it with long-document training.** Fully specified, code written
+  and validated, nothing run yet: **§13**. Start at §13.3.
+
 ---
 
 ## Start here — first pull on the training machine
@@ -826,6 +834,20 @@ of two point estimates.
    no run has ever used; (b) a long-document source to train that capacity on.
    Do (a) first — it is a config change, and (b) without it just feeds long
    documents to an encoder that discards 80% of each one.
+
+   **Part (b) resolved 2026-08-24: the source exists and is `it-long_doc`.** Three
+   candidates were measured with the round-1 tokenizer before any GPU time (§13.1).
+   `ReDiX/wikipediaQA-ita` is **ruled out** — it needs no access request after all
+   (`gated: auto`, readable with the existing stored token), but its `context`
+   field is pre-chunked at median **439 tokens** with only 4.6% over 512, so it
+   exercises nothing past the current cap. `nickprock/it-wiki-retrieval-synthetic-hn`
+   is likewise short (median 117 tokens). The one that works is
+   **`hotchpotch/wikipedia-multilingual-synthetic-ir-query`, config `it-long_doc`**:
+   650,885 Italian rows of whole Wikipedia articles, median ~1,033 tokens, 98.2%
+   over 512, and — the number that matters — the query's evidence span begins past
+   the 512-token mark in **30.7%** of rows. Ungated, Parquet, CC-BY-SA-4.0/GFDL,
+   and not MLDR, so MLDR-it survives as the held-out benchmark. Full measurements,
+   implementation and the run plan are in **§13**.
 7. **Mining is single-domain.** `mine_hard_negatives.py` draws queries and corpus
    from `load_mmarco_italian` only (§8.1). Any future mining pass should take a
    `--corpus` / `--queries` source list so negatives can be mined over the wiki and
@@ -1199,3 +1221,195 @@ one round-2 lever that worked from the one that did not — cannot be run withou
 re-training phase 1 from scratch (~6.5h + 1.8h). Given §12.2 is a better use of the
 same overnight, it is not worth it for attribution alone. Keep every phase-1 `final/`
 under a round-tagged name from here on.
+
+This is also why the §13 ablation trains **both** arms instead of comparing one new
+1024 run against a surviving 512 checkpoint: there is no phase-1-only 512 control
+on disk to compare against.
+
+---
+
+## 13. Track B — long-document training on `it-long_doc`
+
+**Opened 2026-08-24.** This is §12.2 item 3 and §10.6 part (b), now unblocked
+because a usable source was found and measured. Read §13.1 for what was measured,
+§13.2 for what is already implemented, §13.3 for the exact commands, §13.4 for the
+gate. Track A (release `outputs/final_round1` + the chunking recipe) is independent
+and can ship without any of this.
+
+### 13.1 The source landscape, measured
+
+All three candidates were tokenized with `outputs/final_round1`'s tokenizer, no GPU.
+
+| candidate | rows | positive/context length | verdict |
+|---|---|---|---|
+| `ReDiX/wikipediaQA-ita` | ~112k | median **439 tok**, p90 489, 4.6% > 512 | **ruled out** — pre-chunked passages |
+| `nickprock/it-wiki-retrieval-synthetic-hn` | — | median **117 tok** | **ruled out** — short, already in the mixture |
+| `Shitao/MLDR` it-**train** | 2,151 | median 5,785 tok | long and clean, but **in-domain** vs the MLDR-it test set, and only 2,151 queries |
+| **`hotchpotch/…-synthetic-ir-query` / `it-long_doc`** | **650,885** | median **~1,033 tok** | **selected** |
+
+On ReDiX specifically, so nobody re-investigates it: the dataset card demands an
+email to `redix.ai@redix.it`, but the repo is `gated: auto` and the token already in
+`~/.cache/huggingface/token` reads it fine. It was never actually blocked. It is
+simply not a long-document dataset — 1,613 unique contexts across 4,724 sampled
+rows, i.e. ~3 questions per pre-chunked passage.
+
+`it-long_doc`, measured across all 9 shards (650,885 rows):
+
+- document length: median 4,133 chars (~1,033 tok), p75 ~1,779 tok, p90 ~3,257 tok,
+  hard cap 32,000 chars
+- **98.2%** of documents exceed 512 tokens; 50.5% exceed 1,024
+- `query_source_text_start` gives the span the query was generated from: it begins
+  past the **512**-token mark in **30.7%** of rows, past 1,024 in **14.2%**
+- schema: `query`, `document`, `instruction_type`, `title_section`,
+  `query_source_text_start/end`, `query_source_text_length`, `document_length`
+- no negatives ship with it; license CC-BY-SA-4.0 / GFDL; revision pinned at
+  `5089a24f75a297ecacfe51fb88a0b5138c5081aa`
+
+That 30.7% is the whole thesis of this track: at `document_length = 512`, nearly a
+third of these examples supervise the model to match a query against a document
+whose supporting evidence is not in the window. At 1024 that halves to 14.2%.
+
+Two caveats to carry into the model card. The dataset card itself warns the
+synthetic queries are "relatively easy" and recommends mixing rather than training
+on it alone — which is how §13.2 uses it (half the mixture). And both `it-long_doc`
+and MLDR-it derive from Wikipedia, so article overlap is plausible; §13.3 step 1
+measures it and excludes the offenders, which is what keeps MLDR-it out-of-domain.
+
+### 13.2 What is already implemented
+
+All code is written and validated; nothing below is speculative.
+
+- **`scripts/check_longdoc_overlap.py`** (new). Content-defined word-shingle
+  containment between `it-long_doc` and the MLDR-it test corpus. 13-word n-grams
+  kept only where the first word hashes to 0 mod 16, so selection depends on
+  content and not on offset — the same passage yields the same shingles even when
+  the surrounding article is cut differently. An article is flagged at ≥2 hits.
+  Writes a JSON report plus a newline-delimited exclusion key file. Validated on a
+  synthetic pair: 5 hits for the same article across markdown/punctuation
+  differences, 0 for an unrelated one.
+- **`load_wikipedia_longdoc_italian`** in `src/it_colbert/data.py`. Filters
+  `instruction_type` to `{query, faq, alt_query}` (dropping `title`, which is
+  near-verbatim the article's own first line, plus `summary` / `keywords` /
+  `synonym_keywords`, which are not search-shaped); applies the exclusion list;
+  caps documents at 12,000 chars, matching `load_mldr_italian`'s own default; pairs
+  each query with another article as the `negative` column by rotating the
+  subsample, with a fingerprint walk so a rotation cannot pair a row with its own
+  article. Deliberately **head-truncates** — cropping around
+  `query_source_text_start` would erase the 30.7%-vs-14.2% gap the ablation exists
+  to measure.
+- **`longdoc_normalize` / `longdoc_doc_key`** in `data.py`, imported by the script,
+  so the exclusion keys written by one are exactly the keys filtered by the other.
+- **Plumbing**: `include_longdoc`, `longdoc_samples`, `longdoc_exclude_path` added
+  to `build_phase1_dataset` (including `_cache_key`, so the two arms cannot collide
+  in `outputs/dataset_cache`), to `Phase1Config`, and passed through in
+  `train_phase1.py`. All default to off, so every existing config is unchanged.
+- **`configs/phase1_longdoc_512.toml`** and **`configs/phase1_longdoc_1024.toml`**.
+  Both parse; verified. They differ in exactly two values:
+
+  | | arm A (control) | arm B (treatment) |
+  |---|---|---|
+  | `document_length` | 512 | 1024 |
+  | `mini_batch_size` | 32 | 16 |
+
+  Everything else is identical: 250k mMARCO + 250k `it-long_doc` = 500k triplets,
+  `per_device_train_batch_size = 512` in both so the in-batch negative count
+  matches, lr 1e-5, seed 42, one epoch ≈ 980 steps. `include_mmarco_hn`,
+  `include_italian_sources` and `include_wiki_hn` are all **off**, so the mixture is
+  exactly two sources of known size. This is smaller than
+  `phase1_contrastive.toml` on purpose: the question is not how good phase 1 can
+  get, it is whether reading past 512 tokens helps at all.
+
+**Gotcha that cost 5 minutes and will cost it again: `hf download` stalls on Xet.**
+Seven blob files sat at 0 bytes indefinitely. `HF_HUB_DISABLE_XET=1` fixes it and
+transfers at ~7 MB/s. Use it for any Hub download on this machine, including
+whatever `load_dataset` still has to fetch.
+
+### 13.3 Commands, in order
+
+```bash
+# 0. dataset into the hub cache (~2.5 GB; XET MUST BE DISABLED, see above)
+HF_HUB_DISABLE_XET=1 hf download hotchpotch/wikipedia-multilingual-synthetic-ir-query \
+  --repo-type dataset --include "it-long_doc/*" --max-workers 4
+
+# 1. overlap against the mldr-it test corpus -> outputs/longdoc_exclude.txt
+#    --longdoc-dir points at the snapshot; omit it to stream from the hub (slow)
+NUMBA_CACHE_DIR="" uv run python scripts/check_longdoc_overlap.py \
+  --longdoc-dir ~/.cache/huggingface/hub/datasets--hotchpotch--wikipedia-multilingual-synthetic-ir-query/snapshots/*/it-long_doc
+
+# 2. the two arms (arm B second: if it ooms, lower mini_batch_size, never the batch)
+NUMBA_CACHE_DIR="" HF_HUB_DISABLE_XET=1 uv run it-colbert-phase1 \
+  --config configs/phase1_longdoc_512.toml  2>&1 | tee outputs/logs/longdoc_512.log
+NUMBA_CACHE_DIR="" HF_HUB_DISABLE_XET=1 uv run it-colbert-phase1 \
+  --config configs/phase1_longdoc_1024.toml 2>&1 | tee outputs/logs/longdoc_1024.log
+
+# 3. benchmark each arm at its own index length, unchunked and chunked.
+#    chunked protocol must match the §11.2 run that produced .4610:
+#    chunk_chars 2000, overlap 200, mldr_max_doc_chars 12000.
+for arm in 512 1024; do
+  NUMBA_CACHE_DIR="" uv run python scripts/run_benchmark.py \
+    --output-dir outputs/benchmark_longdoc_${arm} \
+    --benchmarks mldr-it mmarco-it miracl-ita \
+    --models-only-extra --extra-colbert "longdoc-${arm}=outputs/phase1_longdoc_${arm}/final" \
+    --colbert-doc-length ${arm}
+  NUMBA_CACHE_DIR="" uv run python scripts/run_benchmark.py \
+    --output-dir outputs/benchmark_longdoc_${arm}_chunked \
+    --benchmarks mldr-it \
+    --models-only-extra --extra-colbert "longdoc-${arm} chunked=outputs/phase1_longdoc_${arm}/final" \
+    --colbert-doc-length ${arm} --chunk-chars 2000 --chunk-overlap-chars 200
+done
+
+# 4. read the held-out half only
+uv run python scripts/report_query_half.py --benchmark-dir outputs/benchmark_longdoc_1024 \
+  --half report --benchmark mldr-it
+```
+
+Note `it-colbert-phase1` is the console script (`src/it_colbert/cli.py:phase1`);
+`--config` is its only required argument.
+
+### 13.4 The gate — decide with this, not with a hunch
+
+- **Pass**: arm B beats arm A on MLDR-it nDCG@10, **report half**, by more than the
+  measured **.0030** noise floor (§11.4). Compare best-of-arm (each arm's better of
+  chunked / unchunked) as well as like-for-like.
+- **Guardrail**: mMARCO-it and MIRACL-ita must not drop by more than the same
+  .0030. A long-doc win paid for by short-passage regression is §11.5 repeating for
+  a third round.
+- **Both arms are phase-1 only**, so both will sit well below `outputs/final_round1`
+  (which has phase 2) and below the 500k-vs-2.4M sample budget. **The gate is
+  strictly A-vs-B.** Do not compare either arm to .4008 or .4610 and conclude
+  anything.
+- **If it fails**: abandon Track B, ship v1 (round-1 weights + the chunking recipe),
+  and record the negative result here. That is a real answer — it means the +.0602
+  from chunking is the whole long-document story and training at length adds nothing.
+- **If it passes**: §13.5.
+
+### 13.5 If the gate passes — the full run
+
+1. Phase 1 at `document_length = 1024` with the **full** mixture (restore
+   `mmarco_samples = 1500000`, `include_wiki_hn`, `include_italian_sources`) plus
+   `include_longdoc`, `mini_batch_size` 16. Expect ~2x round 1's ~6.5h.
+2. Phase 2 unchanged at 512 — its KD data (lighton) is short, so raising its
+   document length buys nothing. Instead route long-doc through the **existing
+   replay stream**: `contrastive_anchor_enabled` in `train_phase2.py` already calls
+   `build_phase1_dataset`, so it inherits `include_longdoc` once the three fields
+   are added to `Phase2Config` and passed through (not yet done — the only piece of
+   Track B plumbing still missing). This also fixes §11.5's complaint that the
+   anchor stream is 100% mMARCO.
+   Phase 2 batch is already 4 after an OOM at 8, so if the anchor needs headroom
+   lower `contrastive_anchor_mini_batch_size` before touching `kd_n_ways`.
+3. Only then compare against round 1 on the report half, and supersede v1 only if
+   it beats **.4610** (round 1 + free chunking), not .4008. Chunking is free and
+   already available, so .4008 is not the bar any more.
+
+### 13.6 Housekeeping and disclosures
+
+- Disk was at 39 GB free before this track. `outputs/mining_index` holds **17 GB**
+  for the abandoned round-2 mining loop (§12.3 says never repeat it) and is the
+  obvious thing to delete if space runs short.
+- Record in the model card: the pinned `it-long_doc` revision, the measured
+  MLDR-overlap fraction from §13.3 step 1 (whatever it turns out to be, including
+  zero), the CC-BY-SA-4.0/GFDL provenance, and the dataset card's own warning that
+  its queries are easy. This is part of the §11.8 pinning item.
+- `it-long_doc` also has an `it-short_doc` sibling (4.58M rows). Not used, and not
+  obviously worth using: §11.5 is explicit that adding more short-passage data
+  pushes the axis that is already strongest.
