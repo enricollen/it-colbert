@@ -171,6 +171,7 @@ this matters and how much it recovers.
 | Document length | 512 tokens (see the chunking note above for longer documents) |
 | Language | Italian only |
 | License | Apache 2.0 |
+| Trained on | One RTX 3090 (24GB), Intel Core i7-14700K, 32GB RAM (27GB usable under WSL2) — no cluster |
 
 ```
 ColBERT(
@@ -204,6 +205,11 @@ on hold-out KD KL divergence — that metric measures how closely the student
 copies the teacher's opinion on the teacher's own data, not whether retrieval
 actually improved, and in an earlier run it kept climbing while real
 retrieval quality fell.
+
+Everything here — training, benchmarking, significance testing — ran on a
+single consumer GPU, no cluster. That budget shaped some choices directly:
+batch/mini-batch sizes, and the fact that chunked long-document evaluation
+(~26GB host RAM) runs right at this machine's ceiling.
 
 ## How I got here
 

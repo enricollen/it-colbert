@@ -119,6 +119,93 @@ full detail and numbers in [TODO.md](TODO.md):
 6. **What shipped:** since neither training round beat "train normally, then
    chunk long documents at query time," that's what's here.
 
+<details>
+<summary><strong>The full timeline, with numbers (click to expand)</strong></summary>
+
+<br>
+
+**Round 1 — the model that shipped.** The backbone
+([`nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl`](https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl))
+already retrieved on its own (0.302 MLDR-it nDCG@10 alone), but its training
+data was mMARCO only — machine-translated, and the axis it was already
+strongest on. Phase 1 broadened that with reranker-mined hard negatives plus
+Italian wiki, MIRACL-ita and SQuAD-ita, ~2.4M triplets, one epoch, lr 1e-5,
+batch 512 (~12.6h). That alone reached 0.3484 MLDR-it nDCG@10. Phase 2
+distilled from a single cross-encoder teacher (`mxbai-rerank-large-v2` via
+LightOn's dataset), sample budget spread proportionally across all 8 splits
+so the mixture couldn't collapse to one dominant split (an earlier bug had
+done exactly that — see TODO.md §0.1). Final result: MLDR-it 0.4008, mMARCO-it
+0.7196 MRR@10, MIRACL-ita 0.7194, SQuAD-ita 0.9026 — 3 of 4 up over phase-1
+alone, with the sole regression (mMARCO, −0.028) landing on the one axis that
+was already in-domain. Ranked ahead of every other late-interaction model
+tested except one (mLateOn).
+
+**The chunking discovery — the single largest gain in the project.**
+MLDR-it's documents run a median 2,666 tokens against the 512-token index —
+every document truncates, and only ~20% of the corpus's tokens were ever
+encoded. Splitting documents into 2,000-character overlapping chunks and
+max-pooling scores at query time, with the *same, already-trained*
+checkpoint — no retraining at all — moved MLDR-it nDCG@10 from 0.4008 to
+0.4610 (+0.0602, p=0.0225, the largest single measured effect in the whole
+project). It also reframed an earlier, wrong headline: "loses to BM25 on the
+only clean out-of-domain benchmark" turned out to be a protocol artifact —
+BM25 reads the whole document, the truncated model didn't. Read at equal
+document access, it's a statistical tie (p=0.249), not a loss. Cost: ~7×
+wall-clock, ~26GB host RAM — right at this machine's ceiling, as later rounds
+found out the hard way.
+
+**Round 2 — mining harder negatives, rejected.** Hypothesis: the model's own
+retrieval mistakes on mMARCO could mine better negatives than the original
+BM25-sampled ones. Mined 46,583 rows (200k-document pool, `--skip-top 5` to
+avoid unlabelled true positives) and retrained phase 1 with them added.
+Result: MLDR-it −0.0473 (not significant alone, n=200), but mMARCO-it MRR@10
+−0.0277 (n=6980, *significant* — the mining made the axis it targeted worse,
+not better). Phase 2's fixes (a replay stream, lower learning rate) partially
+recovered mMARCO (net +0.0100 over round 1) but MIRACL-ita and SQuAD-ita both
+moved down significantly, and MLDR-it never moved outside noise (0.4008 →
+0.3779, p=0.082). Root cause, diagnosed after the fact: both correctives —
+the mined negatives and the phase-2 replay stream — drew from mMARCO only,
+so the model got sharper on the axis that was already strongest and never
+touched the one benchmark that mattered. Round 1 stayed the release
+candidate.
+
+**Round 3 (this README calls it "Track B") — training at length, rejected.**
+Given chunking's result, the next hypothesis was obvious: what if the model
+were trained to natively read past 512 tokens, instead of relying on
+inference-time chunking? Vetted three long-document Italian sources before
+spending any GPU time; two turned out to be pre-chunked and short (median
+117–439 tokens — no better than what the model already saw). The one that
+worked: `hotchpotch/wikipedia-multilingual-synthetic-ir-query`'s
+`it-long_doc` split — 650,885 rows, median ~1,033 tokens, and critically, the
+query's supporting evidence starts past token 512 in 30.7% of rows (past
+1,024 in 14.2%). Checked and removed the 7.8% of articles that overlapped
+MLDR-it's own test corpus before using it.
+
+Ran a controlled A/B: two phase-1-only models on an identical 500k-triplet
+mixture (250k mMARCO + 250k `it-long_doc`), differing in exactly one thing —
+document length, 512 vs 1024 tokens. Gate: does the 1024 arm beat the 512 arm
+on held-out MLDR-it by more than the measured noise floor (0.0030), without
+regressing mMARCO/MIRACL? Result: unchunked, +0.0293 (not significant, p=0.35,
+n=104 held-out queries). Chunked — arguably the fairer comparison, since it's
+each arm's *stronger* protocol — essentially a dead tie: −0.0032, p=0.85.
+Best-of-arm (each arm's better of chunked/unchunked) nominally favored the
+*512* arm, not the one trained at length. Guardrails on mMARCO/MIRACL were
+clean, but moot — the primary comparison never cleared the bar either way.
+
+(One real infrastructure bug surfaced running this: the documented chunked-
+benchmark command was missing a required flag, which silently routed the run
+through a broken ANN fallback and OOM-killed both arms on a 27GB-RAM
+machine. Fixed and reran cleanly at ~999s/arm once the flag was restored —
+worth knowing if you're reproducing any chunked benchmark from this repo.)
+
+**Conclusion:** two independent training-based attempts (round 2, round 3)
+both failed to beat a training-free trick (chunking) discovered by
+measurement, not by guessing. That's the actual argument for why chunking,
+not further training, is the right lever here — and why `outputs/final_round1`
+plus the chunking recipe is what shipped as v1.
+
+</details>
+
 ---
 
 ## Recipe
@@ -147,6 +234,14 @@ See [TODO.md](TODO.md) for the runbook and the reasoning behind each choice.
 - Linux + NVIDIA GPU (sized for **24 GB**, e.g. RTX 3090)
 - [`uv`](https://docs.astral.sh/uv/)
 - Hugging Face access for dataset downloads
+
+Everything in this repo — every training run, every benchmark, all significance
+testing — was done on **one consumer machine**, not a cluster: a single RTX 3090
+(24GB), Intel Core i7-14700K, 32GB RAM (27GB usable — WSL2 caps it below the
+physical total, Ubuntu 22.04). No multi-GPU, no cloud compute. That ceiling
+is also why some decisions in [TODO.md](TODO.md) look the way they do
+(mini-batch sizes, chunking's ~26GB host-RAM cost, the OOM kills documented
+in §13.4 — WSL2's 27GB cap, not the physical 32GB, is what got hit).
 
 ```bash
 uv sync
