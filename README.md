@@ -3,13 +3,117 @@
 Monolingual **Italian late-interaction (ColBERT)** retriever for search and RAG,
 trained with [PyLate](https://github.com/lightonai/pylate).
 
-Goal, stated plainly: the best Italian-specialized late-interaction retriever at
-base size, with **reproducible Italian evaluation**. Not "the first Italian
-ColBERT" — [`SauerkrautLM-Multi-ModernColBERT`](https://huggingface.co/VAGOsolutions/SauerkrautLM-Multi-ModernColBERT)
-already covers Italian, and it is in the benchmark as the model to beat.
+**[Model on Hugging Face →](https://huggingface.co/enricollen/ItColBERT)**
+· License: Apache-2.0 · This repo: training + evaluation code and the full
+development history. Weights and the polished model card live in the HF repo
+above.
 
-This repo is the **training and evaluation code**. Weights live in a separate
-model repo.
+## What this is
+
+Most retrieval embedding models compress a whole passage into a single
+vector. ColBERT-style **late interaction** models keep one small vector per
+*token* instead, and score a document by matching each query token against
+its best document token (MaxSim) rather than comparing two averaged blobs.
+That keeps fine-grained detail — exact names, numbers, phrasing — that gets
+blurred away by single-vector compression, at the cost of a larger index.
+
+Before building this, the Italian options were: multilingual late-interaction
+models that *include* Italian among many languages
+([`jina-colbert-v2`](https://huggingface.co/jinaai/jina-colbert-v2),
+[`mLateOn`](https://huggingface.co/lightonai/mLateOn),
+[`ColBERT-XM`](https://huggingface.co/antoinelouis/colbertxm),
+[`SauerkrautLM-Multi-ModernColBERT`](https://huggingface.co/VAGOsolutions/SauerkrautLM-Multi-ModernColBERT)),
+or strong Italian dense embedders that drop late interaction entirely.
+Nothing combined the two — an Italian-*specialized* model that keeps
+token-level matching. That gap is what this project fills. Not "the first
+Italian ColBERT" (the models above already cover Italian); the first one
+specialized on it.
+
+## Results at a glance
+
+Real numbers, paired-bootstrap significance tested. **†** = not statistically
+distinguishable from ItColBERT (p > .05); read those as ties regardless of
+which number is higher. Full protocol, caveats, and confidence intervals in
+the [model card](https://huggingface.co/enricollen/ItColBERT).
+
+| Model | MLDR-it (nDCG@10) | mMARCO-it (MRR@10) | MIRACL-ita (nDCG@10) | SQuAD-ita (nDCG@10) |
+|---|---|---|---|---|
+| **ItColBERT** | **0.4008** (0.4610 chunked) | **0.7196** | **0.7194** | **0.9026** |
+| mLateOn | 0.4623 | 0.8207 | 0.7880 | 0.9480 |
+| jina-colbert-v2 | 0.3858 † | 0.8389 | 0.7755 | 0.8849 |
+| bge-m3 (dense) | 0.4531 | 0.7812 | 0.7566 | 0.8247 |
+| multilingual-e5-large (dense) | 0.4310 † | 0.8239 | 0.7653 | 0.8513 |
+| SauerkrautLM-Multi-ModernColBERT | 0.3122 | 0.5342 | 0.5996 | 0.8338 |
+| ColBERT-XM | 0.2734 | 0.6654 | 0.6260 | 0.8558 |
+| BM25 | 0.4850 (vs. 0.4610 chunked: †) | 0.5715 | 0.5516 | 0.8262 |
+
+The strongest **Italian-specialized** late-interaction model tested here,
+beating every general-purpose late-interaction alternative except one
+(mLateOn, the strongest multilingual late-interaction model found). Behind
+large multilingual dense embedders on most benchmarks — matching those was
+never the goal, they're a different model class.
+
+## Try it
+
+```bash
+pip install -U pylate
+```
+
+```python
+from pylate import rank, models
+
+model = models.ColBERT(model_name_or_path="enricollen/ItColBERT")
+
+queries = ["Qual è la capitale d'Italia?"]
+documents = [[
+    "Roma è la capitale d'Italia.",
+    "Milano è la capitale economica del Paese.",
+]]
+documents_ids = [[1, 2]]
+
+queries_embeddings = model.encode(queries, is_query=True)
+documents_embeddings = model.encode(documents, is_query=False)
+
+reranked = rank.rerank(
+    documents_ids=documents_ids,
+    queries_embeddings=queries_embeddings,
+    documents_embeddings=documents_embeddings,
+)
+print(reranked)
+```
+
+Indexing a full corpus, RAG integration notes, and the long-document chunking
+recipe: see the [model card](https://huggingface.co/enricollen/ItColBERT).
+
+## The journey, briefly
+
+The short version of three rounds of work, including what didn't work —
+full detail and numbers in [TODO.md](TODO.md):
+
+1. **Start from a model that already retrieves**, not a raw language model —
+   the [ColBERT-Zero](https://huggingface.co/blog/lightonai/colbert-zero)
+   efficiency result: supervised contrastive + distillation from a retrieval
+   -capable init reaches ~99% of full multi-vector pretraining at ~10× lower
+   cost.
+2. **Round 1 — broaden the data, then distil.** The starting checkpoint only
+   knew machine-translated mMARCO. Added more varied Italian sources, then a
+   distillation stage from a cross-encoder teacher. This is the model above —
+   strongest Italian-specialized late-interaction model tested, weakest on
+   long documents.
+3. **Found the long-document weakness was mostly mechanical.** The hardest
+   benchmark's documents run a few thousand words; they were being truncated
+   at 512 tokens, discarding ~80% of the average document. Chunking documents
+   at query time — no retraining — recovered most of the gap (+0.06 nDCG@10,
+   the largest single gain in the project).
+4. **Round 2 — tried mining harder training examples** from the model's own
+   predictions. No improvement, and a small real drop in generalization.
+   Rejected.
+5. **Round 3 — tried training the model to read twice as much text per
+   document** natively, instead of relying on chunking. Statistically no
+   better than chunking a normally-trained model, once compared fairly on
+   held-out data. Rejected.
+6. **What shipped:** since neither training round beat "train normally, then
+   chunk long documents at query time," that's what's here.
 
 ---
 
@@ -248,7 +352,9 @@ uv run python scripts/compare_models.py --benchmark-dir outputs/benchmark \
 ## Demo
 
 ```bash
-uv run python scripts/infer_demo.py --model outputs/final --query "Qual è la capitale d'Italia?"
+uv run python scripts/infer_demo.py --model outputs/final_round1 --query "Qual è la capitale d'Italia?"
+# or, without training anything locally:
+uv run python scripts/infer_demo.py --model enricollen/ItColBERT --query "Qual è la capitale d'Italia?"
 ```
 
 ---
