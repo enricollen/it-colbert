@@ -1,0 +1,137 @@
+2026-08-24 16:48:55,553 INFO it_colbert.train_phase1: starting phase 1 contrastive training
+2026-08-24 16:48:55,553 INFO it_colbert.train_phase1: config: Phase1Config(model_name='nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl', output_dir='outputs/phase1_longdoc_1024', run_name='it-colbert-longdoc-1024', dim=128, document_length=1024, query_length=32, mmarco_samples=250000, mmarco_eval_samples=2000, include_wiki_hn=False, wiki_max_hard_negatives=2, include_mmarco_hn=False, mmarco_hn_samples=200000, mmarco_hn_negatives_per_query=4, include_italian_sources=False, italian_source_max_samples=50000, include_longdoc=True, longdoc_samples=250000, longdoc_exclude_path='outputs/longdoc_exclude.txt', mined_negatives_path=None, mined_negatives_per_query=4, num_train_epochs=1.0, per_device_train_batch_size=512, per_device_eval_batch_size=32, mini_batch_size=16, learning_rate=1e-05, temperature=0.02, warmup_ratio=0.05, logging_steps=10, eval_steps=100, save_steps=100, save_total_limit=2, ir_eval_enabled=True, ir_eval_name='it-ir', ir_eval_mldr_queries=150, ir_eval_mldr_docs=2000, ir_eval_mmarco_queries=300, ir_eval_mmarco_docs=3000, ir_eval_mmarco_pool_docs=50000, ir_eval_query_half='all', early_stopping_patience=0, load_best_model_at_end=False, metric_for_best_model='it-ir_score', seed=42, bf16=True, fp16=False, compile_model=False, max_steps=None, resume_from_checkpoint=None, auto_resume=True, dataset_cache_dir='outputs/dataset_cache')
+2026-08-24 16:48:55,553 INFO it_colbert.data: reusing cached phase1 dataset at outputs/dataset_cache/phase1-13e410c02e9c1437
+2026-08-24 16:48:55,714 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
+2026-08-24 16:48:55,715 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-24 16:48:55,715 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl
+2026-08-24 16:48:55,980 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:48:55,998 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-24 16:48:56,195 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:48:56,213 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-24 16:48:56,402 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:48:56,420 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-24 16:48:56,737 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:48:56,755 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/README.md "HTTP/1.1 200 OK"
+2026-08-24 16:48:57,035 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:48:57,056 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-24 16:48:57,253 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:48:57,271 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-08-24 16:48:57,463 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-08-24 16:48:57,648 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:48:57,666 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+The `reference_compile` argument is deprecated and will be removed in `transformers v5.2.0`Use `torch.compile()` directly on the model instead.
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 2465.99it/s]
+2026-08-24 16:48:58,009 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:48:58,026 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+2026-08-24 16:48:58,359 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:48:58,377 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-08-24 16:48:58,604 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-08-24 16:48:58,843 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-24 16:48:59,094 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:48:59,113 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-08-24 16:48:59,313 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl "HTTP/1.1 200 OK"
+2026-08-24 16:48:59,516 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:48:59,534 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-24 16:49:00,066 INFO pylate.models.colbert: The checkpoint does not contain a linear projection layer. Adding one with output dimensions (768, 128).
+2026-08-24 16:49:00,067 INFO pylate.models.colbert: Created a PyLate model from base encoder.
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+2026-08-24 16:49:00,269 WARNING sentence_transformers.evaluation.TripletEvaluator: The 'main_distance_function' parameter is deprecated. Please use 'main_similarity_function' instead. 'main_distance_function' will be removed in a future release.
+2026-08-24 16:49:00,269 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-24 16:49:00,457 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/test.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-24 16:49:00,645 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/corpus.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-24 16:49:00,832 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/qrels/qrels.mldr-v1.0-it-test.tsv "HTTP/1.1 307 Temporary Redirect"
+2026-08-24 16:49:00,851 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/Shitao/MLDR/d67138e705d963e346253a80e59676ddb418810a/qrels%2Fqrels.mldr-v1.0-it-test.tsv "HTTP/1.1 200 OK"
+2026-08-24 16:49:02,970 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-24 16:49:02,972 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
+2026-08-24 16:49:03,174 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/collections/italian_collection.tsv "HTTP/1.1 302 Found"
+2026-08-24 16:49:03,385 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/queries/dev/italian_queries.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-24 16:49:03,631 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/qrels.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-24 16:49:14,648 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 50000 docs (qrel=7433), qrels=7437
+2026-08-24 16:49:14,662 INFO it_colbert.ir_eval: ir eval mldr: 150 queries / 2000 docs (query half: all)
+2026-08-24 16:49:14,663 INFO it_colbert.ir_eval: ir eval mmarco: 300 queries / 3000 docs (query half: all)
+2026-08-24 16:49:14,663 WARNING it_colbert.ir_eval: ir eval reads the full benchmark query set. safe while nothing selects on it, but any run with load_best_model_at_end or early stopping is selecting on test queries — set query_half to 'selection' there (TODO.md §11.1)
+2026-08-24 16:49:14,663 INFO it_colbert.train_phase1: phase1 ir eval on, every 100 steps
+2026-08-24 16:49:15,227 INFO it_colbert.checkpoints: no checkpoint in outputs/phase1_longdoc_1024; starting fresh
+{'loss': '96.48', 'grad_norm': '8.3e+05', 'learning_rate': '1.837e-06', 'epoch': '0.01028'}
+{'loss': '65.23', 'grad_norm': '4.522e+05', 'learning_rate': '3.878e-06', 'epoch': '0.02055'}
+{'loss': '44.78', 'grad_norm': '2.769e+05', 'learning_rate': '5.918e-06', 'epoch': '0.03083'}
+{'loss': '27.06', 'grad_norm': '1.478e+05', 'learning_rate': '7.959e-06', 'epoch': '0.04111'}
+{'loss': '12.47', 'grad_norm': '8.361e+04', 'learning_rate': '1e-05', 'epoch': '0.05139'}
+{'loss': '6.095', 'grad_norm': '6.831e+04', 'learning_rate': '9.892e-06', 'epoch': '0.06166'}
+{'loss': '4.063', 'grad_norm': '2.433e+04', 'learning_rate': '9.784e-06', 'epoch': '0.07194'}
+{'loss': '2.844', 'grad_norm': '1.534e+04', 'learning_rate': '9.675e-06', 'epoch': '0.08222'}
+{'loss': '1.796', 'grad_norm': '3.554e+04', 'learning_rate': '9.567e-06', 'epoch': '0.0925'}
+{'loss': '1.314', 'grad_norm': '5545', 'learning_rate': '9.459e-06', 'epoch': '0.1028'}
+2026-08-24 18:01:22,767 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.10277492291880781 after 100 steps:
+2026-08-24 18:01:46,326 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.93
+2026-08-24 18:02:44,538 INFO it_colbert.ir_eval: ir eval @ step 100: {'it-ir_mldr_ndcg@10': 0.5038790561334088, 'it-ir_mldr_mrr@10': 0.46721693121693114, 'it-ir_mldr_recall@10': 0.62, 'it-ir_mmarco_ndcg@10': 0.7400365927566815, 'it-ir_mmarco_mrr@10': 0.7171269841269841, 'it-ir_mmarco_recall@10': 0.8216666666666667, 'it-ir_score': 0.6105030201301964}
+{'eval_loss': '0.5248', 'eval_accuracy': '0.9265', 'eval_it-ir_mldr_ndcg@10': '0.5039', 'eval_it-ir_mldr_mrr@10': '0.4672', 'eval_it-ir_mldr_recall@10': '0.62', 'eval_it-ir_mmarco_ndcg@10': '0.74', 'eval_it-ir_mmarco_mrr@10': '0.7171', 'eval_it-ir_mmarco_recall@10': '0.8217', 'eval_it-ir_score': '0.6105', 'eval_runtime': '125.2', 'eval_samples_per_second': '15.98', 'eval_steps_per_second': '0.503', 'epoch': '0.1028'}
+2026-08-24 18:02:44,539 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1_longdoc_1024/checkpoint-100
+2026-08-24 18:02:44,539 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1_longdoc_1024/checkpoint-100
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.00it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.00it/s]
+{'loss': '1.075', 'grad_norm': '5219', 'learning_rate': '9.351e-06', 'epoch': '0.1131'}
+{'loss': '1.013', 'grad_norm': '6224', 'learning_rate': '9.242e-06', 'epoch': '0.1233'}
+{'loss': '0.8826', 'grad_norm': '3763', 'learning_rate': '9.134e-06', 'epoch': '0.1336'}
+{'loss': '0.8167', 'grad_norm': '4035', 'learning_rate': '9.026e-06', 'epoch': '0.1439'}
+{'loss': '0.8511', 'grad_norm': '3125', 'learning_rate': '8.918e-06', 'epoch': '0.1542'}
+{'loss': '0.7831', 'grad_norm': '3808', 'learning_rate': '8.81e-06', 'epoch': '0.1644'}
+{'loss': '0.8568', 'grad_norm': '6917', 'learning_rate': '8.701e-06', 'epoch': '0.1747'}
+
+# --- resume 2026-08-25T09:22:00+02:00 from checkpoint-100 ---
+2026-08-25 09:22:04,749 INFO it_colbert.train_phase1: starting phase 1 contrastive training
+2026-08-25 09:22:04,750 INFO it_colbert.train_phase1: config: Phase1Config(model_name='nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl', output_dir='outputs/phase1_longdoc_1024', run_name='it-colbert-longdoc-1024', dim=128, document_length=1024, query_length=32, mmarco_samples=250000, mmarco_eval_samples=2000, include_wiki_hn=False, wiki_max_hard_negatives=2, include_mmarco_hn=False, mmarco_hn_samples=200000, mmarco_hn_negatives_per_query=4, include_italian_sources=False, italian_source_max_samples=50000, include_longdoc=True, longdoc_samples=250000, longdoc_exclude_path='outputs/longdoc_exclude.txt', mined_negatives_path=None, mined_negatives_per_query=4, num_train_epochs=1.0, per_device_train_batch_size=512, per_device_eval_batch_size=32, mini_batch_size=16, learning_rate=1e-05, temperature=0.02, warmup_ratio=0.05, logging_steps=10, eval_steps=100, save_steps=100, save_total_limit=2, ir_eval_enabled=True, ir_eval_name='it-ir', ir_eval_mldr_queries=150, ir_eval_mldr_docs=2000, ir_eval_mmarco_queries=300, ir_eval_mmarco_docs=3000, ir_eval_mmarco_pool_docs=50000, ir_eval_query_half='all', early_stopping_patience=0, load_best_model_at_end=False, metric_for_best_model='it-ir_score', seed=42, bf16=True, fp16=False, compile_model=False, max_steps=None, resume_from_checkpoint=None, auto_resume=True, dataset_cache_dir='outputs/dataset_cache')
+2026-08-25 09:22:04,750 INFO it_colbert.data: reusing cached phase1 dataset at outputs/dataset_cache/phase1-13e410c02e9c1437
+2026-08-25 09:22:04,874 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
+2026-08-25 09:22:04,876 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-25 09:22:04,876 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl
+2026-08-25 09:22:05,201 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:05,227 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-25 09:22:05,554 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:05,572 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 09:22:05,796 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:05,814 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 09:22:06,007 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:06,025 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/README.md "HTTP/1.1 200 OK"
+2026-08-25 09:22:06,219 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:06,235 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-25 09:22:06,662 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:06,681 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-08-25 09:22:06,873 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-08-25 09:22:07,111 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:07,128 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+The `reference_compile` argument is deprecated and will be removed in `transformers v5.2.0`Use `torch.compile()` directly on the model instead.
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 2657.38it/s]
+2026-08-25 09:22:07,421 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:07,438 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+2026-08-25 09:22:07,639 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:07,657 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-08-25 09:22:07,841 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-08-25 09:22:08,040 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-25 09:22:08,329 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:08,346 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-08-25 09:22:08,527 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl "HTTP/1.1 200 OK"
+2026-08-25 09:22:08,712 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:08,728 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 09:22:09,267 INFO pylate.models.colbert: The checkpoint does not contain a linear projection layer. Adding one with output dimensions (768, 128).
+2026-08-25 09:22:09,268 INFO pylate.models.colbert: Created a PyLate model from base encoder.
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+2026-08-25 09:22:09,517 WARNING sentence_transformers.evaluation.TripletEvaluator: The 'main_distance_function' parameter is deprecated. Please use 'main_similarity_function' instead. 'main_distance_function' will be removed in a future release.
+2026-08-25 09:22:09,517 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-25 09:22:09,707 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/test.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-25 09:22:09,937 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/corpus.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-25 09:22:10,125 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/qrels/qrels.mldr-v1.0-it-test.tsv "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 09:22:10,143 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/Shitao/MLDR/d67138e705d963e346253a80e59676ddb418810a/qrels%2Fqrels.mldr-v1.0-it-test.tsv "HTTP/1.1 200 OK"
+2026-08-25 09:22:12,314 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-25 09:22:12,316 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
+2026-08-25 09:22:12,554 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/collections/italian_collection.tsv "HTTP/1.1 302 Found"
+2026-08-25 09:22:12,778 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/queries/dev/italian_queries.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-25 09:22:12,974 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/qrels.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-25 09:22:22,545 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 50000 docs (qrel=7433), qrels=7437
+2026-08-25 09:22:22,556 INFO it_colbert.ir_eval: ir eval mldr: 150 queries / 2000 docs (query half: all)
+2026-08-25 09:22:22,556 INFO it_colbert.ir_eval: ir eval mmarco: 300 queries / 3000 docs (query half: all)
+2026-08-25 09:22:22,556 WARNING it_colbert.ir_eval: ir eval reads the full benchmark query set. safe while nothing selects on it, but any run with load_best_model_at_end or early stopping is selecting on test queries — set query_half to 'selection' there (TODO.md §11.1)
+2026-08-25 09:22:22,556 INFO it_colbert.train_phase1: phase1 ir eval on, every 100 steps
+2026-08-25 09:22:23,149 INFO it_colbert.checkpoints: auto-resuming from outputs/phase1_longdoc_1024/checkpoint-100
+2026-08-25 09:22:23,151 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-25 09:22:23,151 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/phase1_longdoc_1024/checkpoint-100
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 2612.27it/s]

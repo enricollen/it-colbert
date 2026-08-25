@@ -1272,8 +1272,11 @@ whose supporting evidence is not in the window. At 1024 that halves to 14.2%.
 Two caveats to carry into the model card. The dataset card itself warns the
 synthetic queries are "relatively easy" and recommends mixing rather than training
 on it alone — which is how §13.2 uses it (half the mixture). And both `it-long_doc`
-and MLDR-it derive from Wikipedia, so article overlap is plausible; §13.3 step 1
-measures it and excludes the offenders, which is what keeps MLDR-it out-of-domain.
+and MLDR-it derive from Wikipedia, so article overlap is plausible. **Measured
+2026-08-24:** 50,839 of 650,885 articles (7.811%) share ≥2 content-defined
+13-word shingles with the MLDR-it test corpus (`outputs/longdoc_exclude.txt`).
+Those rows are dropped from training; ~600k remain, so the 250k ablation sample
+is unaffected. The 7.811% figure goes in the model card regardless.
 
 ### 13.2 What is already implemented
 
@@ -1333,12 +1336,24 @@ HF_HUB_DISABLE_XET=1 hf download hotchpotch/wikipedia-multilingual-synthetic-ir-
 
 # 1. overlap against the mldr-it test corpus -> outputs/longdoc_exclude.txt
 #    --longdoc-dir points at the snapshot; omit it to stream from the hub (slow)
+# DONE 2026-08-24: 50,839/650,885 articles (7.811%) flagged. after the
+# instruction_type filter the loader dropped 35,856 of 460,531 kept rows.
 NUMBA_CACHE_DIR="" uv run python scripts/check_longdoc_overlap.py \
   --longdoc-dir ~/.cache/huggingface/hub/datasets--hotchpotch--wikipedia-multilingual-synthetic-ir-query/snapshots/*/it-long_doc
 
 # 2. the two arms (arm B second: if it ooms, lower mini_batch_size, never the batch)
+# ARM A DONE 2026-08-24: 973 steps, ~5.4h. last in-training eval (step 900):
+# mldr ndcg@10 .5175, mmarco .8735, triplet acc .962. saved to
+# outputs/phase1_longdoc_512/final (end-of-schedule, not best-eval).
 NUMBA_CACHE_DIR="" HF_HUB_DISABLE_XET=1 uv run it-colbert-phase1 \
   --config configs/phase1_longdoc_512.toml  2>&1 | tee outputs/logs/longdoc_512.log
+# ARM B STOPPED 2026-08-24 18:58, not mid-save. last complete checkpoint is
+# checkpoint-100 (optimizer.pt + trainer_state.json + model.safetensors).
+# lost ~70 steps of the 100→200 interval (~50 min). auto_resume=true, so
+# tomorrow just re-run the same command (tee -a to keep tonight's log):
+#   PYTHONUNBUFFERED=1 NUMBA_CACHE_DIR="" HF_HUB_DISABLE_XET=1 uv run it-colbert-phase1 \
+#     --config configs/phase1_longdoc_1024.toml 2>&1 | tee -a outputs/logs/longdoc_1024.log
+# expect "resuming from outputs/phase1_longdoc_1024/checkpoint-100".
 NUMBA_CACHE_DIR="" HF_HUB_DISABLE_XET=1 uv run it-colbert-phase1 \
   --config configs/phase1_longdoc_1024.toml 2>&1 | tee outputs/logs/longdoc_1024.log
 
@@ -1403,13 +1418,14 @@ Note `it-colbert-phase1` is the console script (`src/it_colbert/cli.py:phase1`);
 
 ### 13.6 Housekeeping and disclosures
 
-- Disk was at 39 GB free before this track. `outputs/mining_index` holds **17 GB**
-  for the abandoned round-2 mining loop (§12.3 says never repeat it) and is the
-  obvious thing to delete if space runs short.
+- Disk: `outputs/mining_index` (**17 GB**, abandoned round-2 mining loop) was
+  deleted 2026-08-24, freeing space for the ablation. `outputs/mining_state`
+  (263 MB) and `outputs/mined_hn` (162 MB) are still on disk; the index is gone
+  so mining cannot be resumed from them.
 - Record in the model card: the pinned `it-long_doc` revision, the measured
-  MLDR-overlap fraction from §13.3 step 1 (whatever it turns out to be, including
-  zero), the CC-BY-SA-4.0/GFDL provenance, and the dataset card's own warning that
-  its queries are easy. This is part of the §11.8 pinning item.
+  MLDR-overlap fraction (**7.811%**, 50,839 of 650,885 articles, excluded from
+  training), the CC-BY-SA-4.0/GFDL provenance, and the dataset card's own warning
+  that its queries are easy. This is part of the §11.8 pinning item.
 - `it-long_doc` also has an `it-short_doc` sibling (4.58M rows). Not used, and not
   obviously worth using: §11.5 is explicit that adding more short-passage data
   pushes the axis that is already strongest.

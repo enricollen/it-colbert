@@ -1,0 +1,152 @@
+{
+  "repo_id": "hotchpotch/wikipedia-multilingual-synthetic-ir-query",
+  "config": "it-long_doc",
+  "method": {
+    "window_words": 13,
+    "anchor_mod": 16,
+    "min_hits": 2,
+    "mldr_max_doc_chars": null
+  },
+  "mldr_reference": {
+    "documents": 10000,
+    "shingles": 5871384
+  },
+  "longdoc": {
+    "rows_scanned": 650885,
+    "unique_articles": 650885,
+    "rows_per_article": 1.0
+  },
+  "overlap": {
+    "articles_flagged": 50839,
+    "articles_flagged_frac": 0.078107,
+    "rows_dropped": 50839,
+    "rows_dropped_frac": 0.078107
+  },
+  "examples": [
+    {
+      "key": "0000288eb2561885",
+      "title_section": "Pensiero di Kant",
+      "shingle_hits": 14
+    },
+    {
+      "key": "00011412fef5a81b",
+      "title_section": "Battaglia di Cortenuova",
+      "shingle_hits": 8
+    },
+    {
+      "key": "000468244c3afef4",
+      "title_section": "Eutelia",
+      "shingle_hits": 3
+    },
+    {
+      "key": "000763474d0ea9b8",
+      "title_section": "Pezze di Greco",
+      "shingle_hits": 3
+    },
+    {
+      "key": "0009e68ecf9ec391",
+      "title_section": "Giulio Nuciari",
+      "shingle_hits": 3
+    },
+    {
+      "key": "0009fd9124ed5987",
+      "title_section": "Supertessile",
+      "shingle_hits": 3
+    },
+    {
+      "key": "000ab333d0ba8173",
+      "title_section": "Verona austriaca",
+      "shingle_hits": 2
+    },
+    {
+      "key": "000c48260bb6dbf4",
+      "title_section": "Cinnamomum verum",
+      "shingle_hits": 69
+    },
+    {
+      "key": "000c8acd9aaaa75a",
+      "title_section": "Dalmine",
+      "shingle_hits": 213
+    },
+    {
+      "key": "000db658937b22b9",
+      "title_section": "Risposta alla domanda: che cos'\u00e8 l'Illuminismo?",
+      "shingle_hits": 12
+    },
+    {
+      "key": "000fa226f819d50c",
+      "title_section": "Battaglia di Custoza (1866)",
+      "shingle_hits": 304
+    },
+    {
+      "key": "001183fca16a248f",
+      "title_section": "Erve",
+      "shingle_hits": 4
+    },
+    {
+      "key": "00131b0537152e27",
+      "title_section": "Discesa dei Candelieri",
+      "shingle_hits": 188
+    },
+    {
+      "key": "001331a096b777c5",
+      "title_section": "Heteroderis pusilla",
+      "shingle_hits": 10
+    },
+    {
+      "key": "0014eabc1c8bd608",
+      "title_section": "Restaurazionismo in Italia",
+      "shingle_hits": 12
+    },
+    {
+      "key": "0016f09a46be0d0c",
+      "title_section": "Monreale",
+      "shingle_hits": 5
+    },
+    {
+      "key": "0016f6347fc0210c",
+      "title_section": "Chiasso",
+      "shingle_hits": 10
+    },
+    {
+      "key": "001793d78de3f367",
+      "title_section": "Guardialfiera",
+      "shingle_hits": 3
+    },
+    {
+      "key": "001842c4d98913ee",
+      "title_section": "Villa Latina",
+      "shingle_hits": 7
+    },
+    {
+      "key": "0019174679cb7bd0",
+      "title_section": "Specie botaniche in Sardegna",
+      "shingle_hits": 139
+    },
+    {
+      "key": "0019ad6e4e38a555",
+      "title_section": "Shugo Chara - La magia del cuore",
+      "shingle_hits": 2
+    },
+    {
+      "key": "001a00a1e5ab8d40",
+      "title_section": "Radio Birdman",
+      "shingle_hits": 65
+    },
+    {
+      "key": "001a9cddc0fa1f8a",
+      "title_section": "Mino Milani",
+      "shingle_hits": 3
+    },
+    {
+      "key": "001b5f334d332878",
+      "title_section": "Le due torri (romanzo)",
+      "shingle_hits": 561
+    },
+    {
+      "key": "001c6f229eee7aea",
+      "title_section": "Regno di Galizia e Lodomiria",
+      "shingle_hits": 487
+    }
+  ]
+}
