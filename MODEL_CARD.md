@@ -107,6 +107,8 @@ reranked = rank.rerank(
     documents_embeddings=documents_embeddings,
 )
 print(reranked)
+# [[{'id': 1, 'score': 31.682}, {'id': 2, 'score': 31.552}, {'id': 3, 'score': 31.454}]]
+# one list per query, sorted highest score first — "Roma" wins, as expected.
 ```
 
 ### Indexing a larger corpus
@@ -138,6 +140,10 @@ queries_embeddings = model.encode(
     ["a query"], batch_size=32, is_query=True, show_progress_bar=True,
 )
 results = retriever.retrieve(queries_embeddings=queries_embeddings, k=10)
+print(results)
+# [[{'id': '1', 'score': 30.81}, {'id': '2', 'score': 30.80}, {'id': '3', 'score': 30.78}]]
+# same shape as reranking above — list per query, sorted by score — but drawn
+# from a persistent index instead of the in-memory documents you pass in.
 ```
 
 Reload an existing index later without re-encoding anything:

@@ -80,6 +80,8 @@ reranked = rank.rerank(
     documents_embeddings=documents_embeddings,
 )
 print(reranked)
+# [[{'id': 1, 'score': 31.682}, {'id': 2, 'score': 31.552}, {'id': 3, 'score': 31.454}]]
+# one list per query, sorted highest score first — "Roma" wins, as expected.
 ```
 
 Indexing a full corpus, RAG integration notes, and the long-document chunking
