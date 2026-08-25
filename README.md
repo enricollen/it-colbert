@@ -1,5 +1,7 @@
 # ItColBERT
 
+![ItColBERT banner](assets/banner.jpg)
+
 Monolingual **Italian late-interaction (ColBERT)** retriever for search and RAG,
 trained with [PyLate](https://github.com/lightonai/pylate).
 
