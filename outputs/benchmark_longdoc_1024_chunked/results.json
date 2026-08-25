@@ -1,0 +1,112 @@
+{
+  "protocol": {
+    "metrics": [
+      "mrr@10",
+      "ndcg@1",
+      "ndcg@5",
+      "ndcg@10",
+      "ndcg@100",
+      "map@100",
+      "recall@1",
+      "recall@5",
+      "recall@10",
+      "recall@100",
+      "precision@10",
+      "hits@1",
+      "hits@5",
+      "hits@10"
+    ],
+    "top_k": 100,
+    "mmarco_max_corpus_docs": 100000,
+    "mmarco_note": "pooled corpus = all qrel positives + reservoir sample; relative comparison across models. for absolute published full-corpus mrr@10 see published_mmarco_it_mrr10.",
+    "mldr_note": "full italian mldr corpus (~10k docs), official test split",
+    "miracl_note": "miracl has no italian language split; not used",
+    "colbert_document_length": 1024,
+    "colbert_query_length": null,
+    "chunk_chars": 2000,
+    "chunk_overlap_chars": 200,
+    "mldr_max_doc_chars": 12000,
+    "bm25_analyzer": "italian: lowercase + stopwords + snowball stem"
+  },
+  "published_mmarco_it_mrr10": {
+    "BM25": {
+      "mrr@10": 0.153,
+      "source": "Bonifacio et al. 2021 / Jina table"
+    },
+    "mColBERT": {
+      "mrr@10": 0.292,
+      "source": "Bonifacio et al. 2021"
+    },
+    "mono-mT5": {
+      "mrr@10": 0.303,
+      "source": "Bonifacio et al. 2021"
+    },
+    "mE5-base": {
+      "mrr@10": 0.28,
+      "source": "ColBERT-XM model card (Wang et al.)"
+    },
+    "ColBERT-XM": {
+      "mrr@10": 0.265,
+      "source": "Louis et al. 2024 / Jina table"
+    },
+    "jina-colbert-v2": {
+      "mrr@10": 0.337,
+      "source": "Jina-ColBERT-v2 model card"
+    }
+  },
+  "results": {
+    "mldr-it": {
+      "n_queries": 200,
+      "n_docs": 10000,
+      "models": {
+        "longdoc-1024 chunked": {
+          "kind": "colbert",
+          "model_id": "outputs/phase1_longdoc_1024/final",
+          "notes": "ad-hoc checkpoint passed via --extra-colbert",
+          "effective_length": 1024,
+          "effective_query_length": 32,
+          "chunk_chars": 2000,
+          "metrics": {
+            "mrr@10": 0.40657738095238094,
+            "ndcg@1": 0.32,
+            "ndcg@5": 0.4283767362617317,
+            "ndcg@10": 0.4530389784543699,
+            "ndcg@100": 0.4843511903358552,
+            "map@100": 0.4126759272022164,
+            "recall@1": 0.32,
+            "recall@5": 0.525,
+            "recall@10": 0.6,
+            "recall@100": 0.75,
+            "precision@10": 0.06,
+            "hits@1": 0.32,
+            "hits@5": 0.525,
+            "hits@10": 0.6
+          },
+          "confidence": {
+            "ndcg@10": {
+              "mean": 0.4530389784543699,
+              "ci_low": 0.39231816588005236,
+              "ci_high": 0.5110211544361657,
+              "n_queries": 200
+            },
+            "mrr@10": {
+              "mean": 0.40657738095238094,
+              "ci_low": 0.344189880952381,
+              "ci_high": 0.4658063492063491,
+              "n_queries": 200
+            },
+            "recall@100": {
+              "mean": 0.75,
+              "ci_low": 0.69,
+              "ci_high": 0.805,
+              "n_queries": 200
+            }
+          },
+          "seconds": 1203.7,
+          "error": null
+        }
+      },
+      "comparable_to_literature": true
+    }
+  }
+}

@@ -18,7 +18,14 @@ dim = 128
 
 # --- the variable under test ------------------------------------------------
 document_length = 1024
-mini_batch_size = 16
+mini_batch_size = 24  # raised from 16 at checkpoint-500 resume, 2026-08-25: 16
+                      # left ~7.8GB VRAM idle (16.7/24.5GB used) while GPU sat at
+                      # 98% util / 348W (TDP-capped) -- compute-bound, not
+                      # memory-bound, so this trims GradCache micro-batch
+                      # overhead rather than unlocking a big speedup. Does not
+                      # change per_device_train_batch_size (still 512), so the
+                      # loss and negative count are unaffected -- pure throughput
+                      # knob. If it OOMs, drop back toward 16-20.
 query_length = 32
 
 # --- mixture: identical in both arms ---------------------------------------

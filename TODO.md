@@ -1347,13 +1347,10 @@ NUMBA_CACHE_DIR="" uv run python scripts/check_longdoc_overlap.py \
 # outputs/phase1_longdoc_512/final (end-of-schedule, not best-eval).
 NUMBA_CACHE_DIR="" HF_HUB_DISABLE_XET=1 uv run it-colbert-phase1 \
   --config configs/phase1_longdoc_512.toml  2>&1 | tee outputs/logs/longdoc_512.log
-# ARM B STOPPED 2026-08-24 18:58, not mid-save. last complete checkpoint is
-# checkpoint-100 (optimizer.pt + trainer_state.json + model.safetensors).
-# lost ~70 steps of the 100→200 interval (~50 min). auto_resume=true, so
-# tomorrow just re-run the same command (tee -a to keep tonight's log):
-#   PYTHONUNBUFFERED=1 NUMBA_CACHE_DIR="" HF_HUB_DISABLE_XET=1 uv run it-colbert-phase1 \
-#     --config configs/phase1_longdoc_1024.toml 2>&1 | tee -a outputs/logs/longdoc_1024.log
-# expect "resuming from outputs/phase1_longdoc_1024/checkpoint-100".
+# ARM B INTERRUPTED 2026-08-25 14:14 after checkpoint-500 (complete save).
+# cursor background shell exited 0 ~5h after resume; gpu idle; not a crash.
+# remaining ~473 steps. restart detached (nohup) so the agent timeout cannot
+# kill it again. auto_resume from checkpoint-500.
 NUMBA_CACHE_DIR="" HF_HUB_DISABLE_XET=1 uv run it-colbert-phase1 \
   --config configs/phase1_longdoc_1024.toml 2>&1 | tee outputs/logs/longdoc_1024.log
 
@@ -1370,7 +1367,12 @@ for arm in 512 1024; do
     --output-dir outputs/benchmark_longdoc_${arm}_chunked \
     --benchmarks mldr-it \
     --models-only-extra --extra-colbert "longdoc-${arm} chunked=outputs/phase1_longdoc_${arm}/final" \
-    --colbert-doc-length ${arm} --chunk-chars 2000 --chunk-overlap-chars 200
+    --colbert-doc-length ${arm} --chunk-chars 2000 --chunk-overlap-chars 200 \
+    --colbert-brute-force-limit 70000
+    # ^ required, not optional (see §11.2's own reproduce command). without it,
+    # 64,780 chunks exceeds the default 25,000 brute-force threshold and falls
+    # through to the broken PLAID->Voyager ANN path, which OOM-killed both arms
+    # on first attempt here (§13.4).
 done
 
 # 4. read the held-out half only
@@ -1382,6 +1384,44 @@ Note `it-colbert-phase1` is the console script (`src/it_colbert/cli.py:phase1`);
 `--config` is its only required argument.
 
 ### 13.4 The gate — decide with this, not with a hunch
+
+**Status: resolved 2026-08-25 — gate does not pass, Track B abandoned.** Both
+arms trained to completion (arm A `outputs/phase1_longdoc_512/final`, arm B
+`outputs/phase1_longdoc_1024/final`) and were benchmarked per §13.3, report
+half (n=104 MLDR-it queries):
+
+| comparison | arm A (512) | arm B (1024) | B−A | 95% CI | p | verdict |
+|---|---|---|---|---|---|---|
+| unchunked MLDR-it ndcg@10 | .3895 | .4188 | +.0293 | [−.029,+.092] | .35 | not significant |
+| chunked MLDR-it ndcg@10 | .4576 | .4544 | −.0032 | [−.036,+.029] | .85 | not significant, essentially tied |
+| mMARCO-it mrr@10 (guardrail) | — | — | −.0057 | [−.013,+.001] | .12 | not significant |
+| MIRACL-ita ndcg@10 (guardrail) | — | — | +.0062 | [−.011,+.023] | .46 | not significant |
+
+Neither primary comparison clears the .0030 floor with significance, and
+**best-of-arm favours arm A** (.4576 chunked, vs arm B's best .4544 chunked) —
+arm B does not win under the gate's own "compare best-of-arm as well as
+like-for-like" instruction. Guardrails are clean, but moot: the win condition
+isn't met either way.
+
+The informative part: chunking alone lifted arm A by +.0681 and arm B by
++.0356 nDCG@10 — both far larger than the ≤.03 gap between the training arms.
+Training natively at length 1024 added nothing once post-hoc chunking is
+available to both arms. This is the "if it fails" branch this section
+pre-registered: **abandon Track B, ship Track A (round-1 weights + the
+chunking recipe)**. Combined with §11.2's original chunking result, there are
+now two independent measurements agreeing that chunking is the whole
+long-document story here, not the training-length lever.
+
+**Operational note for next time:** the §13.3 chunked command as documented
+above is missing `--colbert-brute-force-limit 70000` (present in §11.2's own
+reproduce command). Without it, the chunked corpus (64,780 chunks > the
+default 25,000 brute-force threshold) hits the broken PLAID→Voyager ANN
+fallback (§11.2, §12.1 item 4), which OOM-killed both arms' first chunked
+attempts on this 27GB box (`dmesg`: `Out of memory: Killed process ... python3
+... anon-rss:27083988kB`). The corrected flag re-ran cleanly at ~999s/arm,
+matching §11.2's measurement. §13.3's command block above should be fixed to
+include it.
+
 
 - **Pass**: arm B beats arm A on MLDR-it nDCG@10, **report half**, by more than the
   measured **.0030** noise floor (§11.4). Compare best-of-arm (each arm's better of

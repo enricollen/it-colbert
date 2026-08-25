@@ -135,3 +135,331 @@ The new embeddings will be initialized from a multivariate normal distribution t
 2026-08-25 09:22:23,151 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
 2026-08-25 09:22:23,151 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/phase1_longdoc_1024/checkpoint-100
 Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 2612.27it/s]
+{'loss': '1.073', 'grad_norm': '5347', 'learning_rate': '9.351e-06', 'epoch': '0.1131'}
+{'loss': '1.014', 'grad_norm': '4199', 'learning_rate': '9.242e-06', 'epoch': '0.1233'}
+{'loss': '0.9014', 'grad_norm': '4427', 'learning_rate': '9.134e-06', 'epoch': '0.1336'}
+{'loss': '0.8538', 'grad_norm': '3830', 'learning_rate': '9.026e-06', 'epoch': '0.1439'}
+{'loss': '0.8725', 'grad_norm': '3995', 'learning_rate': '8.918e-06', 'epoch': '0.1542'}
+{'loss': '0.7851', 'grad_norm': '3579', 'learning_rate': '8.81e-06', 'epoch': '0.1644'}
+{'loss': '0.8114', 'grad_norm': '2941', 'learning_rate': '8.701e-06', 'epoch': '0.1747'}
+{'loss': '0.7555', 'grad_norm': '2778', 'learning_rate': '8.593e-06', 'epoch': '0.185'}
+{'loss': '0.7772', 'grad_norm': '2968', 'learning_rate': '8.485e-06', 'epoch': '0.1953'}
+{'loss': '0.6961', 'grad_norm': '2687', 'learning_rate': '8.377e-06', 'epoch': '0.2055'}
+2026-08-25 10:33:56,884 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.20554984583761562 after 200 steps:
+2026-08-25 10:34:20,821 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.95
+2026-08-25 10:35:11,962 INFO it_colbert.ir_eval: ir eval @ step 200: {'it-ir_mldr_ndcg@10': 0.5721398398203916, 'it-ir_mldr_mrr@10': 0.5440185185185185, 'it-ir_mldr_recall@10': 0.66, 'it-ir_mmarco_ndcg@10': 0.8058274038033477, 'it-ir_mmarco_mrr@10': 0.7839563492063493, 'it-ir_mmarco_recall@10': 0.88, 'it-ir_score': 0.6780480945133704}
+{'eval_loss': '0.2926', 'eval_accuracy': '0.945', 'eval_it-ir_mldr_ndcg@10': '0.5721', 'eval_it-ir_mldr_mrr@10': '0.544', 'eval_it-ir_mldr_recall@10': '0.66', 'eval_it-ir_mmarco_ndcg@10': '0.8058', 'eval_it-ir_mmarco_mrr@10': '0.784', 'eval_it-ir_mmarco_recall@10': '0.88', 'eval_it-ir_score': '0.678', 'eval_runtime': '116.8', 'eval_samples_per_second': '17.13', 'eval_steps_per_second': '0.539', 'epoch': '0.2055'}
+2026-08-25 10:35:11,962 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1_longdoc_1024/checkpoint-200
+2026-08-25 10:35:11,962 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1_longdoc_1024/checkpoint-200
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.10it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.10it/s]
+{'loss': '0.6875', 'grad_norm': '2.349e+04', 'learning_rate': '8.268e-06', 'epoch': '0.2158'}
+{'loss': '0.6542', 'grad_norm': '2421', 'learning_rate': '8.16e-06', 'epoch': '0.2261'}
+{'loss': '0.7014', 'grad_norm': '2266', 'learning_rate': '8.052e-06', 'epoch': '0.2364'}
+{'loss': '0.6543', 'grad_norm': '3024', 'learning_rate': '7.944e-06', 'epoch': '0.2467'}
+{'loss': '0.6437', 'grad_norm': '4190', 'learning_rate': '7.835e-06', 'epoch': '0.2569'}
+{'loss': '0.5804', 'grad_norm': '2153', 'learning_rate': '7.727e-06', 'epoch': '0.2672'}
+{'loss': '0.6411', 'grad_norm': '4022', 'learning_rate': '7.619e-06', 'epoch': '0.2775'}
+{'loss': '0.6006', 'grad_norm': '3060', 'learning_rate': '7.511e-06', 'epoch': '0.2878'}
+{'loss': '0.6461', 'grad_norm': '2224', 'learning_rate': '7.403e-06', 'epoch': '0.298'}
+{'loss': '0.5713', 'grad_norm': '2101', 'learning_rate': '7.294e-06', 'epoch': '0.3083'}
+2026-08-25 11:46:44,290 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.30832476875642345 after 300 steps:
+2026-08-25 11:47:07,864 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.95
+2026-08-25 11:47:53,164 INFO it_colbert.ir_eval: ir eval @ step 300: {'it-ir_mldr_ndcg@10': 0.5786670899892863, 'it-ir_mldr_mrr@10': 0.5520555555555556, 'it-ir_mldr_recall@10': 0.66, 'it-ir_mmarco_ndcg@10': 0.826980919726738, 'it-ir_mmarco_mrr@10': 0.806878306878307, 'it-ir_mmarco_recall@10': 0.895, 'it-ir_score': 0.6927726984337966}
+{'eval_loss': '0.2407', 'eval_accuracy': '0.954', 'eval_it-ir_mldr_ndcg@10': '0.5787', 'eval_it-ir_mldr_mrr@10': '0.5521', 'eval_it-ir_mldr_recall@10': '0.66', 'eval_it-ir_mmarco_ndcg@10': '0.827', 'eval_it-ir_mmarco_mrr@10': '0.8069', 'eval_it-ir_mmarco_recall@10': '0.895', 'eval_it-ir_score': '0.6928', 'eval_runtime': '111.8', 'eval_samples_per_second': '17.89', 'eval_steps_per_second': '0.563', 'epoch': '0.3083'}
+2026-08-25 11:47:53,166 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1_longdoc_1024/checkpoint-300
+2026-08-25 11:47:53,166 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1_longdoc_1024/checkpoint-300
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.07it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.07it/s]
+{'loss': '0.6208', 'grad_norm': '2252', 'learning_rate': '7.186e-06', 'epoch': '0.3186'}
+{'loss': '0.6291', 'grad_norm': '2152', 'learning_rate': '7.078e-06', 'epoch': '0.3289'}
+{'loss': '0.5682', 'grad_norm': '1.766e+04', 'learning_rate': '6.97e-06', 'epoch': '0.3392'}
+{'loss': '0.604', 'grad_norm': '2129', 'learning_rate': '6.861e-06', 'epoch': '0.3494'}
+{'loss': '0.6167', 'grad_norm': '3.069e+04', 'learning_rate': '6.753e-06', 'epoch': '0.3597'}
+{'loss': '0.5622', 'grad_norm': '1929', 'learning_rate': '6.645e-06', 'epoch': '0.37'}
+{'loss': '0.5503', 'grad_norm': '3131', 'learning_rate': '6.537e-06', 'epoch': '0.3803'}
+{'loss': '0.5651', 'grad_norm': '2563', 'learning_rate': '6.429e-06', 'epoch': '0.3905'}
+{'loss': '0.5569', 'grad_norm': '2117', 'learning_rate': '6.32e-06', 'epoch': '0.4008'}
+{'loss': '0.5797', 'grad_norm': '2348', 'learning_rate': '6.212e-06', 'epoch': '0.4111'}
+2026-08-25 12:59:43,611 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.41109969167523125 after 400 steps:
+2026-08-25 13:00:07,211 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.96
+2026-08-25 13:00:52,483 INFO it_colbert.ir_eval: ir eval @ step 400: {'it-ir_mldr_ndcg@10': 0.561934861000838, 'it-ir_mldr_mrr@10': 0.5292486772486772, 'it-ir_mldr_recall@10': 0.66, 'it-ir_mmarco_ndcg@10': 0.8404141089066276, 'it-ir_mmarco_mrr@10': 0.8226931216931217, 'it-ir_mmarco_recall@10': 0.9016666666666666, 'it-ir_score': 0.6923139913469798}
+{'eval_loss': '0.2223', 'eval_accuracy': '0.9605', 'eval_it-ir_mldr_ndcg@10': '0.5619', 'eval_it-ir_mldr_mrr@10': '0.5292', 'eval_it-ir_mldr_recall@10': '0.66', 'eval_it-ir_mmarco_ndcg@10': '0.8404', 'eval_it-ir_mmarco_mrr@10': '0.8227', 'eval_it-ir_mmarco_recall@10': '0.9017', 'eval_it-ir_score': '0.6923', 'eval_runtime': '111.6', 'eval_samples_per_second': '17.93', 'eval_steps_per_second': '0.565', 'epoch': '0.4111'}
+2026-08-25 13:00:52,486 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1_longdoc_1024/checkpoint-400
+2026-08-25 13:00:52,486 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1_longdoc_1024/checkpoint-400
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.25it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.25it/s]
+{'loss': '0.559', 'grad_norm': '2074', 'learning_rate': '6.104e-06', 'epoch': '0.4214'}
+{'loss': '0.5229', 'grad_norm': '3538', 'learning_rate': '5.996e-06', 'epoch': '0.4317'}
+{'loss': '0.5381', 'grad_norm': '7733', 'learning_rate': '5.887e-06', 'epoch': '0.4419'}
+{'loss': '0.5328', 'grad_norm': '2476', 'learning_rate': '5.779e-06', 'epoch': '0.4522'}
+{'loss': '0.5222', 'grad_norm': '2226', 'learning_rate': '5.671e-06', 'epoch': '0.4625'}
+{'loss': '0.532', 'grad_norm': '2304', 'learning_rate': '5.563e-06', 'epoch': '0.4728'}
+{'loss': '0.5214', 'grad_norm': '2.911e+04', 'learning_rate': '5.455e-06', 'epoch': '0.483'}
+{'loss': '0.5228', 'grad_norm': '4015', 'learning_rate': '5.346e-06', 'epoch': '0.4933'}
+{'loss': '0.5341', 'grad_norm': '1951', 'learning_rate': '5.238e-06', 'epoch': '0.5036'}
+{'loss': '0.5528', 'grad_norm': '1740', 'learning_rate': '5.13e-06', 'epoch': '0.5139'}
+2026-08-25 14:12:53,001 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.513874614594039 after 500 steps:
+2026-08-25 14:13:16,782 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.96
+2026-08-25 14:14:04,029 INFO it_colbert.ir_eval: ir eval @ step 500: {'it-ir_mldr_ndcg@10': 0.5507273127030974, 'it-ir_mldr_mrr@10': 0.5169814814814815, 'it-ir_mldr_recall@10': 0.6533333333333333, 'it-ir_mmarco_ndcg@10': 0.8476769144936501, 'it-ir_mmarco_mrr@10': 0.8318095238095238, 'it-ir_mmarco_recall@10': 0.9016666666666666, 'it-ir_score': 0.6912684182563106}
+{'eval_loss': '0.2139', 'eval_accuracy': '0.9575', 'eval_it-ir_mldr_ndcg@10': '0.5507', 'eval_it-ir_mldr_mrr@10': '0.517', 'eval_it-ir_mldr_recall@10': '0.6533', 'eval_it-ir_mmarco_ndcg@10': '0.8477', 'eval_it-ir_mmarco_mrr@10': '0.8318', 'eval_it-ir_mmarco_recall@10': '0.9017', 'eval_it-ir_score': '0.6913', 'eval_runtime': '113.8', 'eval_samples_per_second': '17.57', 'eval_steps_per_second': '0.553', 'epoch': '0.5139'}
+2026-08-25 14:14:04,034 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1_longdoc_1024/checkpoint-500
+2026-08-25 14:14:04,034 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1_longdoc_1024/checkpoint-500
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.17it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.17it/s]
+
+# --- resume 2026-08-25T14:15:08+02:00 from checkpoint-500: mini_batch_size 16->24 (idle VRAM headroom, see config comment) ---
+2026-08-25 14:15:12,367 INFO it_colbert.train_phase1: starting phase 1 contrastive training
+2026-08-25 14:15:12,367 INFO it_colbert.train_phase1: config: Phase1Config(model_name='nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl', output_dir='outputs/phase1_longdoc_1024', run_name='it-colbert-longdoc-1024', dim=128, document_length=1024, query_length=32, mmarco_samples=250000, mmarco_eval_samples=2000, include_wiki_hn=False, wiki_max_hard_negatives=2, include_mmarco_hn=False, mmarco_hn_samples=200000, mmarco_hn_negatives_per_query=4, include_italian_sources=False, italian_source_max_samples=50000, include_longdoc=True, longdoc_samples=250000, longdoc_exclude_path='outputs/longdoc_exclude.txt', mined_negatives_path=None, mined_negatives_per_query=4, num_train_epochs=1.0, per_device_train_batch_size=512, per_device_eval_batch_size=32, mini_batch_size=24, learning_rate=1e-05, temperature=0.02, warmup_ratio=0.05, logging_steps=10, eval_steps=100, save_steps=100, save_total_limit=2, ir_eval_enabled=True, ir_eval_name='it-ir', ir_eval_mldr_queries=150, ir_eval_mldr_docs=2000, ir_eval_mmarco_queries=300, ir_eval_mmarco_docs=3000, ir_eval_mmarco_pool_docs=50000, ir_eval_query_half='all', early_stopping_patience=0, load_best_model_at_end=False, metric_for_best_model='it-ir_score', seed=42, bf16=True, fp16=False, compile_model=False, max_steps=None, resume_from_checkpoint=None, auto_resume=True, dataset_cache_dir='outputs/dataset_cache')
+2026-08-25 14:15:12,367 INFO it_colbert.data: reusing cached phase1 dataset at outputs/dataset_cache/phase1-13e410c02e9c1437
+2026-08-25 14:15:12,375 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
+2026-08-25 14:15:12,376 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-25 14:15:12,376 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl
+2026-08-25 14:15:12,572 INFO httpx: HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+2026-08-25 14:15:12,757 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:12,775 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:13,020 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:13,037 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:13,217 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:13,234 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:13,428 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:13,444 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/README.md "HTTP/1.1 200 OK"
+2026-08-25 14:15:13,624 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:13,644 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:13,864 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:13,882 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:14,074 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-08-25 14:15:14,269 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:14,286 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+The `reference_compile` argument is deprecated and will be removed in `transformers v5.2.0`Use `torch.compile()` directly on the model instead.
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 4673.16it/s]
+2026-08-25 14:15:14,549 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:14,567 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:14,763 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:14,781 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:14,988 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-08-25 14:15:15,219 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-25 14:15:15,489 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:15,506 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:15,694 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl "HTTP/1.1 200 OK"
+2026-08-25 14:15:15,976 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:15,993 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:17,079 INFO pylate.models.colbert: The checkpoint does not contain a linear projection layer. Adding one with output dimensions (768, 128).
+2026-08-25 14:15:17,080 INFO pylate.models.colbert: Created a PyLate model from base encoder.
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+2026-08-25 14:15:17,291 WARNING sentence_transformers.evaluation.TripletEvaluator: The 'main_distance_function' parameter is deprecated. Please use 'main_similarity_function' instead. 'main_distance_function' will be removed in a future release.
+2026-08-25 14:15:17,291 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-25 14:15:17,550 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/test.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-25 14:15:17,847 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/corpus.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-25 14:15:18,041 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/qrels/qrels.mldr-v1.0-it-test.tsv "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:18,059 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/Shitao/MLDR/d67138e705d963e346253a80e59676ddb418810a/qrels%2Fqrels.mldr-v1.0-it-test.tsv "HTTP/1.1 200 OK"
+2026-08-25 14:15:20,799 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-25 14:15:20,801 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
+2026-08-25 14:15:21,091 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/collections/italian_collection.tsv "HTTP/1.1 302 Found"
+2026-08-25 14:15:21,374 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/queries/dev/italian_queries.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-25 14:15:21,679 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/qrels.dev.small.tsv "HTTP/1.1 302 Found"
+
+# --- resume 2026-08-25T14:15:29+02:00 from checkpoint-500 (nohup; cursor shell timed out at step 500) ---
+2026-08-25 14:15:32,875 INFO it_colbert.train_phase1: starting phase 1 contrastive training
+2026-08-25 14:15:32,875 INFO it_colbert.train_phase1: config: Phase1Config(model_name='nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl', output_dir='outputs/phase1_longdoc_1024', run_name='it-colbert-longdoc-1024', dim=128, document_length=1024, query_length=32, mmarco_samples=250000, mmarco_eval_samples=2000, include_wiki_hn=False, wiki_max_hard_negatives=2, include_mmarco_hn=False, mmarco_hn_samples=200000, mmarco_hn_negatives_per_query=4, include_italian_sources=False, italian_source_max_samples=50000, include_longdoc=True, longdoc_samples=250000, longdoc_exclude_path='outputs/longdoc_exclude.txt', mined_negatives_path=None, mined_negatives_per_query=4, num_train_epochs=1.0, per_device_train_batch_size=512, per_device_eval_batch_size=32, mini_batch_size=24, learning_rate=1e-05, temperature=0.02, warmup_ratio=0.05, logging_steps=10, eval_steps=100, save_steps=100, save_total_limit=2, ir_eval_enabled=True, ir_eval_name='it-ir', ir_eval_mldr_queries=150, ir_eval_mldr_docs=2000, ir_eval_mmarco_queries=300, ir_eval_mmarco_docs=3000, ir_eval_mmarco_pool_docs=50000, ir_eval_query_half='all', early_stopping_patience=0, load_best_model_at_end=False, metric_for_best_model='it-ir_score', seed=42, bf16=True, fp16=False, compile_model=False, max_steps=None, resume_from_checkpoint=None, auto_resume=True, dataset_cache_dir='outputs/dataset_cache')
+2026-08-25 14:15:32,875 INFO it_colbert.data: reusing cached phase1 dataset at outputs/dataset_cache/phase1-13e410c02e9c1437
+2026-08-25 14:15:32,886 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
+2026-08-25 14:15:32,887 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-25 14:15:32,887 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl
+2026-08-25 14:15:33,145 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:33,162 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:33,382 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:33,400 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:33,650 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:33,669 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:34,225 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:34,242 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/README.md "HTTP/1.1 200 OK"
+2026-08-25 14:15:34,436 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:34,453 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:34,626 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:34,643 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:34,879 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-08-25 14:15:35,059 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:35,081 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+The `reference_compile` argument is deprecated and will be removed in `transformers v5.2.0`Use `torch.compile()` directly on the model instead.
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 5022.40it/s]
+2026-08-25 14:15:35,358 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:35,375 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:35,615 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:35,632 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:35,894 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-08-25 14:15:36,090 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-25 14:15:36,345 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:36,362 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:36,564 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl "HTTP/1.1 200 OK"
+2026-08-25 14:15:36,776 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:36,794 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 14:15:37,249 INFO pylate.models.colbert: The checkpoint does not contain a linear projection layer. Adding one with output dimensions (768, 128).
+2026-08-25 14:15:37,249 INFO pylate.models.colbert: Created a PyLate model from base encoder.
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+2026-08-25 14:15:37,432 WARNING sentence_transformers.evaluation.TripletEvaluator: The 'main_distance_function' parameter is deprecated. Please use 'main_similarity_function' instead. 'main_distance_function' will be removed in a future release.
+2026-08-25 14:15:37,432 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-25 14:15:37,621 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/test.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-25 14:15:37,819 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/corpus.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-25 14:15:38,012 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/qrels/qrels.mldr-v1.0-it-test.tsv "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:15:38,030 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/Shitao/MLDR/d67138e705d963e346253a80e59676ddb418810a/qrels%2Fqrels.mldr-v1.0-it-test.tsv "HTTP/1.1 200 OK"
+2026-08-25 14:15:39,421 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 50000 docs (qrel=7433), qrels=7437
+2026-08-25 14:15:39,434 INFO it_colbert.ir_eval: ir eval mldr: 150 queries / 2000 docs (query half: all)
+2026-08-25 14:15:39,434 INFO it_colbert.ir_eval: ir eval mmarco: 300 queries / 3000 docs (query half: all)
+2026-08-25 14:15:39,435 WARNING it_colbert.ir_eval: ir eval reads the full benchmark query set. safe while nothing selects on it, but any run with load_best_model_at_end or early stopping is selecting on test queries — set query_half to 'selection' there (TODO.md §11.1)
+2026-08-25 14:15:39,435 INFO it_colbert.train_phase1: phase1 ir eval on, every 100 steps
+2026-08-25 14:15:40,121 INFO it_colbert.checkpoints: auto-resuming from outputs/phase1_longdoc_1024/checkpoint-500
+2026-08-25 14:15:40,124 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-25 14:15:40,124 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/phase1_longdoc_1024/checkpoint-500
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 4658.68it/s]
+2026-08-25 14:15:40,451 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-25 14:15:40,453 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
+2026-08-25 14:15:40,734 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/collections/italian_collection.tsv "HTTP/1.1 302 Found"
+2026-08-25 14:15:40,990 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/queries/dev/italian_queries.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-25 14:15:41,198 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/qrels.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-25 14:15:51,705 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 50000 docs (qrel=7433), qrels=7437
+2026-08-25 14:15:51,715 INFO it_colbert.ir_eval: ir eval mldr: 150 queries / 2000 docs (query half: all)
+2026-08-25 14:15:51,715 INFO it_colbert.ir_eval: ir eval mmarco: 300 queries / 3000 docs (query half: all)
+2026-08-25 14:15:51,716 WARNING it_colbert.ir_eval: ir eval reads the full benchmark query set. safe while nothing selects on it, but any run with load_best_model_at_end or early stopping is selecting on test queries — set query_half to 'selection' there (TODO.md §11.1)
+2026-08-25 14:15:51,716 INFO it_colbert.train_phase1: phase1 ir eval on, every 100 steps
+2026-08-25 14:15:52,266 INFO it_colbert.checkpoints: auto-resuming from outputs/phase1_longdoc_1024/checkpoint-500
+2026-08-25 14:15:52,267 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-25 14:15:52,267 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/phase1_longdoc_1024/checkpoint-500
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 5157.96it/s]
+
+# --- resume 2026-08-25T14:17:50+02:00 from checkpoint-500 (single nohup after killing duplicate) ---
+2026-08-25 14:17:54,772 INFO it_colbert.train_phase1: starting phase 1 contrastive training
+2026-08-25 14:17:54,773 INFO it_colbert.train_phase1: config: Phase1Config(model_name='nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl', output_dir='outputs/phase1_longdoc_1024', run_name='it-colbert-longdoc-1024', dim=128, document_length=1024, query_length=32, mmarco_samples=250000, mmarco_eval_samples=2000, include_wiki_hn=False, wiki_max_hard_negatives=2, include_mmarco_hn=False, mmarco_hn_samples=200000, mmarco_hn_negatives_per_query=4, include_italian_sources=False, italian_source_max_samples=50000, include_longdoc=True, longdoc_samples=250000, longdoc_exclude_path='outputs/longdoc_exclude.txt', mined_negatives_path=None, mined_negatives_per_query=4, num_train_epochs=1.0, per_device_train_batch_size=512, per_device_eval_batch_size=32, mini_batch_size=24, learning_rate=1e-05, temperature=0.02, warmup_ratio=0.05, logging_steps=10, eval_steps=100, save_steps=100, save_total_limit=2, ir_eval_enabled=True, ir_eval_name='it-ir', ir_eval_mldr_queries=150, ir_eval_mldr_docs=2000, ir_eval_mmarco_queries=300, ir_eval_mmarco_docs=3000, ir_eval_mmarco_pool_docs=50000, ir_eval_query_half='all', early_stopping_patience=0, load_best_model_at_end=False, metric_for_best_model='it-ir_score', seed=42, bf16=True, fp16=False, compile_model=False, max_steps=None, resume_from_checkpoint=None, auto_resume=True, dataset_cache_dir='outputs/dataset_cache')
+2026-08-25 14:17:54,773 INFO it_colbert.data: reusing cached phase1 dataset at outputs/dataset_cache/phase1-13e410c02e9c1437
+2026-08-25 14:17:54,794 INFO it_colbert.model_utils: loading colbert with attn_implementation=sdpa
+2026-08-25 14:17:54,795 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-25 14:17:54,795 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl
+2026-08-25 14:17:55,107 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:17:55,123 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-25 14:17:55,321 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:17:55,340 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 14:17:55,536 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:17:55,555 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 14:17:55,741 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:17:55,758 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/README.md "HTTP/1.1 200 OK"
+2026-08-25 14:17:55,947 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:17:55,965 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/modules.json "HTTP/1.1 200 OK"
+2026-08-25 14:17:56,179 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:17:56,200 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-08-25 14:17:56,392 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-08-25 14:17:56,654 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:17:56,671 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+The `reference_compile` argument is deprecated and will be removed in `transformers v5.2.0`Use `torch.compile()` directly on the model instead.
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 3086.99it/s]
+2026-08-25 14:17:57,045 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:17:57,064 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config.json "HTTP/1.1 200 OK"
+2026-08-25 14:17:57,252 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:17:57,269 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-08-25 14:17:57,457 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-08-25 14:17:57,632 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-25 14:17:58,197 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:17:58,214 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-08-25 14:17:58,397 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl "HTTP/1.1 200 OK"
+2026-08-25 14:17:58,586 INFO httpx: HTTP Request: HEAD https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:17:58,603 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl/d241b1266c2fda05252f9ceff1dab1b959fb1e0d/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-08-25 14:18:00,079 INFO pylate.models.colbert: The checkpoint does not contain a linear projection layer. Adding one with output dimensions (768, 128).
+2026-08-25 14:18:00,080 INFO pylate.models.colbert: Created a PyLate model from base encoder.
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+2026-08-25 14:18:00,305 WARNING sentence_transformers.evaluation.TripletEvaluator: The 'main_distance_function' parameter is deprecated. Please use 'main_similarity_function' instead. 'main_distance_function' will be removed in a future release.
+2026-08-25 14:18:00,305 INFO it_colbert.benchmark.datasets: loading Shitao/MLDR italian split=test via jsonl...
+2026-08-25 14:18:00,499 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/test.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-25 14:18:00,699 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/mldr-v1.0-it/corpus.jsonl.gz "HTTP/1.1 302 Found"
+2026-08-25 14:18:00,883 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/Shitao/MLDR/resolve/main/qrels/qrels.mldr-v1.0-it-test.tsv "HTTP/1.1 307 Temporary Redirect"
+2026-08-25 14:18:00,902 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/Shitao/MLDR/d67138e705d963e346253a80e59676ddb418810a/qrels%2Fqrels.mldr-v1.0-it-test.tsv "HTTP/1.1 200 OK"
+2026-08-25 14:18:03,449 INFO it_colbert.benchmark.datasets: mldr-it ready: 200 queries, 10000 docs, qrels=200
+2026-08-25 14:18:03,451 INFO it_colbert.benchmark.datasets: loading mmarco-it collection / queries / qrels...
+2026-08-25 14:18:03,653 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/collections/italian_collection.tsv "HTTP/1.1 302 Found"
+2026-08-25 14:18:03,896 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/google/queries/dev/italian_queries.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-25 14:18:04,099 INFO httpx: HTTP Request: HEAD https://huggingface.co/datasets/unicamp-dl/mmarco/resolve/main/data/qrels.dev.small.tsv "HTTP/1.1 302 Found"
+2026-08-25 14:18:21,895 INFO it_colbert.benchmark.datasets: mmarco-it ready: 6980 queries, 50000 docs (qrel=7433), qrels=7437
+2026-08-25 14:18:21,908 INFO it_colbert.ir_eval: ir eval mldr: 150 queries / 2000 docs (query half: all)
+2026-08-25 14:18:21,909 INFO it_colbert.ir_eval: ir eval mmarco: 300 queries / 3000 docs (query half: all)
+2026-08-25 14:18:21,909 WARNING it_colbert.ir_eval: ir eval reads the full benchmark query set. safe while nothing selects on it, but any run with load_best_model_at_end or early stopping is selecting on test queries — set query_half to 'selection' there (TODO.md §11.1)
+2026-08-25 14:18:21,909 INFO it_colbert.train_phase1: phase1 ir eval on, every 100 steps
+2026-08-25 14:18:22,613 INFO it_colbert.checkpoints: auto-resuming from outputs/phase1_longdoc_1024/checkpoint-500
+2026-08-25 14:18:22,616 INFO sentence_transformers.SentenceTransformer: Use pytorch device_name: cuda:0
+2026-08-25 14:18:22,616 INFO sentence_transformers.SentenceTransformer: Load pretrained ColBERT: outputs/phase1_longdoc_1024/checkpoint-500
+Loading weights:   0%|          | 0/134 [00:00<?, ?it/s]Loading weights: 100%|██████████| 134/134 [00:00<00:00, 4544.28it/s]
+{'loss': '0.5055', 'grad_norm': '1682', 'learning_rate': '5.022e-06', 'epoch': '0.5242'}
+{'loss': '0.5083', 'grad_norm': '4978', 'learning_rate': '4.913e-06', 'epoch': '0.5344'}
+{'loss': '0.5073', 'grad_norm': '1813', 'learning_rate': '4.805e-06', 'epoch': '0.5447'}
+{'loss': '0.5224', 'grad_norm': '1581', 'learning_rate': '4.697e-06', 'epoch': '0.555'}
+{'loss': '0.5238', 'grad_norm': '1951', 'learning_rate': '4.589e-06', 'epoch': '0.5653'}
+{'loss': '0.5256', 'grad_norm': '2549', 'learning_rate': '4.481e-06', 'epoch': '0.5755'}
+{'loss': '0.5264', 'grad_norm': '2486', 'learning_rate': '4.372e-06', 'epoch': '0.5858'}
+{'loss': '0.4887', 'grad_norm': '1629', 'learning_rate': '4.264e-06', 'epoch': '0.5961'}
+{'loss': '0.486', 'grad_norm': '1848', 'learning_rate': '4.156e-06', 'epoch': '0.6064'}
+{'loss': '0.5132', 'grad_norm': '2010', 'learning_rate': '4.048e-06', 'epoch': '0.6166'}
+2026-08-25 15:28:30,021 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.6166495375128469 after 600 steps:
+2026-08-25 15:28:53,818 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.96
+2026-08-25 15:29:45,605 INFO it_colbert.ir_eval: ir eval @ step 600: {'it-ir_mldr_ndcg@10': 0.5524280814734326, 'it-ir_mldr_mrr@10': 0.5211296296296297, 'it-ir_mldr_recall@10': 0.6466666666666666, 'it-ir_mmarco_ndcg@10': 0.8602438034386712, 'it-ir_mmarco_mrr@10': 0.8405039682539683, 'it-ir_mmarco_recall@10': 0.9283333333333333, 'it-ir_score': 0.6964660248637005}
+{'eval_loss': '0.2054', 'eval_accuracy': '0.9635', 'eval_it-ir_mldr_ndcg@10': '0.5524', 'eval_it-ir_mldr_mrr@10': '0.5211', 'eval_it-ir_mldr_recall@10': '0.6467', 'eval_it-ir_mmarco_ndcg@10': '0.8602', 'eval_it-ir_mmarco_mrr@10': '0.8405', 'eval_it-ir_mmarco_recall@10': '0.9283', 'eval_it-ir_score': '0.6965', 'eval_runtime': '118.6', 'eval_samples_per_second': '16.86', 'eval_steps_per_second': '0.531', 'epoch': '0.6166'}
+2026-08-25 15:29:45,606 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1_longdoc_1024/checkpoint-600
+2026-08-25 15:29:45,606 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1_longdoc_1024/checkpoint-600
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.70it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.70it/s]
+{'loss': '0.4953', 'grad_norm': '2142', 'learning_rate': '3.939e-06', 'epoch': '0.6269'}
+{'loss': '0.5182', 'grad_norm': '2413', 'learning_rate': '3.831e-06', 'epoch': '0.6372'}
+{'loss': '0.4664', 'grad_norm': '1637', 'learning_rate': '3.723e-06', 'epoch': '0.6475'}
+{'loss': '0.503', 'grad_norm': '2051', 'learning_rate': '3.615e-06', 'epoch': '0.6578'}
+{'loss': '0.4965', 'grad_norm': '1715', 'learning_rate': '3.506e-06', 'epoch': '0.668'}
+{'loss': '0.5124', 'grad_norm': '1911', 'learning_rate': '3.398e-06', 'epoch': '0.6783'}
+{'loss': '0.5219', 'grad_norm': '1.523e+04', 'learning_rate': '3.29e-06', 'epoch': '0.6886'}
+{'loss': '0.4888', 'grad_norm': '1673', 'learning_rate': '3.182e-06', 'epoch': '0.6989'}
+{'loss': '0.4629', 'grad_norm': '1929', 'learning_rate': '3.074e-06', 'epoch': '0.7091'}
+{'loss': '0.4849', 'grad_norm': '1896', 'learning_rate': '2.965e-06', 'epoch': '0.7194'}
+2026-08-25 16:39:29,175 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.7194244604316546 after 700 steps:
+2026-08-25 16:39:52,393 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.96
+2026-08-25 16:40:40,615 INFO it_colbert.ir_eval: ir eval @ step 700: {'it-ir_mldr_ndcg@10': 0.562467657829965, 'it-ir_mldr_mrr@10': 0.5320185185185186, 'it-ir_mldr_recall@10': 0.6533333333333333, 'it-ir_mmarco_ndcg@10': 0.8615473765143493, 'it-ir_mmarco_mrr@10': 0.8422632275132276, 'it-ir_mmarco_recall@10': 0.9283333333333333, 'it-ir_score': 0.7023654426715963}
+{'eval_loss': '0.2001', 'eval_accuracy': '0.9635', 'eval_it-ir_mldr_ndcg@10': '0.5625', 'eval_it-ir_mldr_mrr@10': '0.532', 'eval_it-ir_mldr_recall@10': '0.6533', 'eval_it-ir_mmarco_ndcg@10': '0.8615', 'eval_it-ir_mmarco_mrr@10': '0.8423', 'eval_it-ir_mmarco_recall@10': '0.9283', 'eval_it-ir_score': '0.7024', 'eval_runtime': '113.9', 'eval_samples_per_second': '17.56', 'eval_steps_per_second': '0.553', 'epoch': '0.7194'}
+2026-08-25 16:40:40,618 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1_longdoc_1024/checkpoint-700
+2026-08-25 16:40:40,618 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1_longdoc_1024/checkpoint-700
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.07it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.07it/s]
+{'loss': '0.5154', 'grad_norm': '1810', 'learning_rate': '2.857e-06', 'epoch': '0.7297'}
+{'loss': '0.482', 'grad_norm': '1682', 'learning_rate': '2.749e-06', 'epoch': '0.74'}
+{'loss': '0.4984', 'grad_norm': '4433', 'learning_rate': '2.641e-06', 'epoch': '0.7503'}
+{'loss': '0.4988', 'grad_norm': '1654', 'learning_rate': '2.532e-06', 'epoch': '0.7605'}
+{'loss': '0.4852', 'grad_norm': '1848', 'learning_rate': '2.424e-06', 'epoch': '0.7708'}
+{'loss': '0.4994', 'grad_norm': '2706', 'learning_rate': '2.316e-06', 'epoch': '0.7811'}
+{'loss': '0.4832', 'grad_norm': '1685', 'learning_rate': '2.208e-06', 'epoch': '0.7914'}
+{'loss': '0.4851', 'grad_norm': '8754', 'learning_rate': '2.1e-06', 'epoch': '0.8016'}
+{'loss': '0.4709', 'grad_norm': '2761', 'learning_rate': '1.991e-06', 'epoch': '0.8119'}
+{'loss': '0.5123', 'grad_norm': '1726', 'learning_rate': '1.883e-06', 'epoch': '0.8222'}
+2026-08-25 17:50:16,110 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.8221993833504625 after 800 steps:
+2026-08-25 17:50:39,579 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.97
+2026-08-25 17:51:24,909 INFO it_colbert.ir_eval: ir eval @ step 800: {'it-ir_mldr_ndcg@10': 0.5671902762479982, 'it-ir_mldr_mrr@10': 0.5383888888888888, 'it-ir_mldr_recall@10': 0.6533333333333333, 'it-ir_mmarco_ndcg@10': 0.86549153018219, 'it-ir_mmarco_mrr@10': 0.8455489417989418, 'it-ir_mmarco_recall@10': 0.935, 'it-ir_score': 0.70636960902347}
+{'eval_loss': '0.1926', 'eval_accuracy': '0.9665', 'eval_it-ir_mldr_ndcg@10': '0.5672', 'eval_it-ir_mldr_mrr@10': '0.5384', 'eval_it-ir_mldr_recall@10': '0.6533', 'eval_it-ir_mmarco_ndcg@10': '0.8655', 'eval_it-ir_mmarco_mrr@10': '0.8455', 'eval_it-ir_mmarco_recall@10': '0.935', 'eval_it-ir_score': '0.7064', 'eval_runtime': '111.1', 'eval_samples_per_second': '18', 'eval_steps_per_second': '0.567', 'epoch': '0.8222'}
+2026-08-25 17:51:24,912 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1_longdoc_1024/checkpoint-800
+2026-08-25 17:51:24,912 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1_longdoc_1024/checkpoint-800
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.50it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.50it/s]
+{'loss': '0.5075', 'grad_norm': '1693', 'learning_rate': '1.775e-06', 'epoch': '0.8325'}
+{'loss': '0.4774', 'grad_norm': '2008', 'learning_rate': '1.667e-06', 'epoch': '0.8428'}
+{'loss': '0.4947', 'grad_norm': '6329', 'learning_rate': '1.558e-06', 'epoch': '0.853'}
+{'loss': '0.4683', 'grad_norm': '1635', 'learning_rate': '1.45e-06', 'epoch': '0.8633'}
+{'loss': '0.468', 'grad_norm': '1731', 'learning_rate': '1.342e-06', 'epoch': '0.8736'}
+{'loss': '0.4799', 'grad_norm': '1940', 'learning_rate': '1.234e-06', 'epoch': '0.8839'}
+{'loss': '0.4848', 'grad_norm': '1902', 'learning_rate': '1.126e-06', 'epoch': '0.8941'}
+{'loss': '0.4528', 'grad_norm': '1437', 'learning_rate': '1.017e-06', 'epoch': '0.9044'}
+{'loss': '0.4503', 'grad_norm': '2209', 'learning_rate': '9.091e-07', 'epoch': '0.9147'}
+{'loss': '0.4959', 'grad_norm': '2156', 'learning_rate': '8.009e-07', 'epoch': '0.925'}
+2026-08-25 19:00:56,608 INFO pylate.evaluation.colbert_triplet: TripletEvaluator: Evaluating the model on the mmarco-it-wiki-eval dataset in epoch 0.9249743062692704 after 900 steps:
+2026-08-25 19:01:20,223 INFO pylate.evaluation.colbert_triplet: Accuracy: 	0.97
+2026-08-25 19:02:06,385 INFO it_colbert.ir_eval: ir eval @ step 900: {'it-ir_mldr_ndcg@10': 0.5547298079384746, 'it-ir_mldr_mrr@10': 0.5217222222222223, 'it-ir_mldr_recall@10': 0.6533333333333333, 'it-ir_mmarco_ndcg@10': 0.8640323213269261, 'it-ir_mmarco_mrr@10': 0.8443902116402116, 'it-ir_mmarco_recall@10': 0.9316666666666666, 'it-ir_score': 0.6995600097893431}
+{'eval_loss': '0.1936', 'eval_accuracy': '0.9675', 'eval_it-ir_mldr_ndcg@10': '0.5547', 'eval_it-ir_mldr_mrr@10': '0.5217', 'eval_it-ir_mldr_recall@10': '0.6533', 'eval_it-ir_mmarco_ndcg@10': '0.864', 'eval_it-ir_mmarco_mrr@10': '0.8444', 'eval_it-ir_mmarco_recall@10': '0.9317', 'eval_it-ir_score': '0.6996', 'eval_runtime': '112.1', 'eval_samples_per_second': '17.84', 'eval_steps_per_second': '0.562', 'epoch': '0.925'}
+2026-08-25 19:02:06,400 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1_longdoc_1024/checkpoint-900
+2026-08-25 19:02:06,400 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1_longdoc_1024/checkpoint-900
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.54it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.54it/s]
+{'loss': '0.4994', 'grad_norm': '1778', 'learning_rate': '6.926e-07', 'epoch': '0.9353'}
+{'loss': '0.4555', 'grad_norm': '1561', 'learning_rate': '5.844e-07', 'epoch': '0.9455'}
+{'loss': '0.4745', 'grad_norm': '4750', 'learning_rate': '4.762e-07', 'epoch': '0.9558'}
+{'loss': '0.4627', 'grad_norm': '1807', 'learning_rate': '3.68e-07', 'epoch': '0.9661'}
+{'loss': '0.4858', 'grad_norm': '2438', 'learning_rate': '2.597e-07', 'epoch': '0.9764'}
+{'loss': '0.4676', 'grad_norm': '1640', 'learning_rate': '1.515e-07', 'epoch': '0.9866'}
+{'loss': '0.4903', 'grad_norm': '2091', 'learning_rate': '4.329e-08', 'epoch': '0.9969'}
+2026-08-25 19:52:12,814 INFO sentence_transformers.trainer: Saving model checkpoint to outputs/phase1_longdoc_1024/checkpoint-973
+2026-08-25 19:52:12,814 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1_longdoc_1024/checkpoint-973
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.45it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.45it/s]
+{'train_runtime': '2.003e+04', 'train_samples_per_second': '24.86', 'train_steps_per_second': '0.049', 'train_loss': '0.2387', 'epoch': '1'}
+2026-08-25 19:52:14,651 INFO sentence_transformers.SentenceTransformer: Save model to outputs/phase1_longdoc_1024/final
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.29it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  3.29it/s]
+2026-08-25 19:52:14,986 INFO it_colbert.train_phase1: phase 1 model saved to outputs/phase1_longdoc_1024/final
