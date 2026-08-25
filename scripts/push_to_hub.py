@@ -32,7 +32,7 @@ def main() -> None:
             raise SystemExit(
                 "set --repo-id or HF_USERNAME (and HF_TOKEN) to push to the hub"
             )
-        repo_id = f"{username}/Italian-ModernBERT-ColBERT"
+        repo_id = f"{username}/ItColBERT"
 
     if not os.environ.get("HF_TOKEN"):
         raise SystemExit("HF_TOKEN is required to push")

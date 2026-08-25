@@ -21,6 +21,11 @@ outputs/mining_state/
 outputs/smoke_phase*/
 outputs/final_round1/
 outputs/**/checkpoint-*/
+# superseded/intermediate checkpoint metadata (config+tokenizer only, weights
+# already excluded above) -- not the release candidate, just duplicate clutter
+outputs/final/
+outputs/final_phase1/
+outputs/*/final/
 data/
 wandb/
 outputs_v1_archive/
