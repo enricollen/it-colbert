@@ -70,10 +70,10 @@ by a wide margin.
 | bge-m3 (dense) | 568M | 0.4531 |
 | jina-colbert-v2 | ~0.6B | 0.3858 † |
 
-At roughly a quarter to a sixth the size of the ~560M-parameter multilingual
+At roughly a quarter to a sixth the size of the \~560M-parameter multilingual
 giants, ItColBERT beats `SauerkrautLM-Multi-ModernColBERT` (same size class)
 and `ColBERT-XM` (2× the parameters) outright, and statistically ties
-`jina-colbert-v2` (~4.4× the parameters). `mLateOn` still beats it outright
+`jina-colbert-v2` (\~4.4× the parameters). `mLateOn` still beats it outright
 at less than half the size of the giants — included here rather than left
 out, since a "smaller is better" pitch that hides the one counterexample
 isn't an honest one. Smaller also means a smaller index and cheaper

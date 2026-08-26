@@ -311,10 +311,10 @@ comparison, by a wide margin.
 | bge-m3 (dense) | 568M | 0.4531 |
 | jina-colbert-v2 | ~0.6B | 0.3858 † |
 
-At roughly a quarter to a sixth the size of the ~560M-parameter multilingual
+At roughly a quarter to a sixth the size of the \~560M-parameter multilingual
 giants, ItColBERT beats `SauerkrautLM-Multi-ModernColBERT` (the same size
 class) and `ColBERT-XM` (2× the parameters) outright, and statistically ties
-`jina-colbert-v2` (~4.4× the parameters) on the primary out-of-domain
+`jina-colbert-v2` (\~4.4× the parameters) on the primary out-of-domain
 benchmark. `mLateOn` is the one model that beats it outright while also being
 smaller than the dense giants — included here rather than left out, since
 citing only the flattering comparisons would defeat the point of this
