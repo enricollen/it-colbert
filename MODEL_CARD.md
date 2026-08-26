@@ -32,7 +32,8 @@ full development history: [github.com/enricollen/it-colbert](https://github.com/
 - **What:** ColBERT-style multi-vector retriever, specialized on Italian.
 - **Why it exists:** as far as I could find, there was no *Italian-only*
   late-interaction retriever — see "Why I built this" below.
-- **Size:** ModernBERT-base backbone (~150M parameters), 128-dim token vectors.
+- **Size:** ModernBERT-base backbone (~135M parameters), 128-dim token vectors —
+  the smallest model in the comparison table below, by a wide margin.
 - **Best at:** short-to-medium Italian passages (search, RAG chunks, FAQ
   retrieval). Weakest at long documents unless you use the chunking recipe
   below.
@@ -165,7 +166,7 @@ this matters and how much it recovers.
 | | |
 |---|---|
 | Base model | [`nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl`](https://huggingface.co/nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl) |
-| Architecture | ModernBERT backbone (~150M params) → dense projection → 128-dim token vectors |
+| Architecture | ModernBERT backbone (~135M params) → dense projection → 128-dim token vectors |
 | Similarity | MaxSim (late interaction) |
 | Query length | 32 tokens |
 | Document length | 512 tokens (see the chunking note above for longer documents) |
@@ -294,6 +295,32 @@ single strongest multilingual late-interaction model I tested (mLateOn), and
 it doesn't beat large multilingual dense embedders on most benchmarks —
 matching those was never the goal; they're a different, much larger model
 class.
+
+### Quality per parameter
+
+Worth stating plainly: this is also the smallest model in the whole
+comparison, by a wide margin.
+
+| Model | Parameters | MLDR-it (nDCG@10) |
+|---|---|---|
+| **ItColBERT** | **~135M** | **0.4008** (0.4610 chunked) |
+| SauerkrautLM-Multi-ModernColBERT | 149M | 0.3122 |
+| ColBERT-XM | 277M | 0.2734 |
+| mLateOn | 307M | 0.4623 |
+| multilingual-e5-large (dense) | 560M | 0.4310 † |
+| bge-m3 (dense) | 568M | 0.4531 |
+| jina-colbert-v2 | ~0.6B | 0.3858 † |
+
+At roughly a quarter to a sixth the size of the ~560M-parameter multilingual
+giants, ItColBERT beats `SauerkrautLM-Multi-ModernColBERT` (the same size
+class) and `ColBERT-XM` (2× the parameters) outright, and statistically ties
+`jina-colbert-v2` (~4.4× the parameters) on the primary out-of-domain
+benchmark. `mLateOn` is the one model that beats it outright while also being
+smaller than the dense giants — included here rather than left out, since
+citing only the flattering comparisons would defeat the point of this
+section. Fewer parameters also means a smaller index and cheaper inference,
+which is part of why training and evaluating this entirely on one consumer
+GPU was practical in the first place.
 
 **Protocol notes that matter for these numbers:**
 

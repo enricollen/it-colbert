@@ -55,6 +55,31 @@ beating every general-purpose late-interaction alternative except one
 large multilingual dense embedders on most benchmarks — matching those was
 never the goal, they're a different model class.
 
+## Small but capable
+
+Also worth stating plainly: this is the smallest model in the comparison,
+by a wide margin.
+
+| Model | Parameters | MLDR-it (nDCG@10) |
+|---|---|---|
+| **ItColBERT** | **~135M** | **0.4008** (0.4610 chunked) |
+| SauerkrautLM-Multi-ModernColBERT | 149M | 0.3122 |
+| ColBERT-XM | 277M | 0.2734 |
+| mLateOn | 307M | 0.4623 |
+| multilingual-e5-large (dense) | 560M | 0.4310 † |
+| bge-m3 (dense) | 568M | 0.4531 |
+| jina-colbert-v2 | ~0.6B | 0.3858 † |
+
+At roughly a quarter to a sixth the size of the ~560M-parameter multilingual
+giants, ItColBERT beats `SauerkrautLM-Multi-ModernColBERT` (same size class)
+and `ColBERT-XM` (2× the parameters) outright, and statistically ties
+`jina-colbert-v2` (~4.4× the parameters). `mLateOn` still beats it outright
+at less than half the size of the giants — included here rather than left
+out, since a "smaller is better" pitch that hides the one counterexample
+isn't an honest one. Smaller also means a smaller index and cheaper
+inference, which is part of why training and evaluating this entirely on
+one consumer GPU was practical at all.
+
 ## Try it
 
 ```bash
