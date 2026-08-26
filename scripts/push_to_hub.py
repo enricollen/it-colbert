@@ -45,7 +45,9 @@ def main() -> None:
     # local_model_path uploads this folder as-is (including README.md). Without
     # it, push_to_hub re-serializes into a fresh temp dir and auto-generates a
     # brand-new boilerplate model card, silently discarding whatever is here.
-    model.push_to_hub(repo_id, private=args.private, local_model_path=str(path))
+    model.push_to_hub(
+        repo_id, private=args.private, local_model_path=str(path), exist_ok=True
+    )
     print(f"pushed to https://huggingface.co/{repo_id}")
 
 
