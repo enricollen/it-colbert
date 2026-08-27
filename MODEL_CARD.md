@@ -18,7 +18,9 @@ base_model: nickprock/Italian-ModernBERT-base-embed-mmarco-mnrl
 
 # ItColBERT
 
-<img src="assets/banner.png" alt="ItColBERT banner" width="550">
+<div align="center">
+  <img src="assets/banner.png" alt="ItColBERT banner" width="550">
+</div>
 
 **A monolingual Italian late-interaction retriever.** Built with
 [PyLate](https://github.com/lightonai/pylate) on top of an Italian ModernBERT
