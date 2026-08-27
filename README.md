@@ -1,6 +1,6 @@
 # ItColBERT
 
-![ItColBERT banner](assets/banner.jpg)
+<img src="assets/banner.jpg" alt="ItColBERT banner" width="640">
 
 Monolingual **Italian late-interaction (ColBERT)** retriever for search and RAG,
 trained with [PyLate](https://github.com/lightonai/pylate).
