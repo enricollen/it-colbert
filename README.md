@@ -1,7 +1,7 @@
 # ItColBERT
 
 <p align="center">
-  <img src="assets/banner.png" alt="ItColBERT banner" width="480">
+  <img src="assets/banner.png" alt="ItColBERT banner" width="550">
 </p>
 
 Monolingual **Italian late-interaction (ColBERT)** retriever for search and RAG,
