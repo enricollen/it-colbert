@@ -393,10 +393,15 @@ only) rated it +0.003, which is noise, but the full 4-benchmark run disagrees:
 
 | benchmark | phase1-only | phase2 final | Δ |
 |---|---|---|---|
-| MLDR-it | .3484 | .4008 | +.052 |
-| MIRACL-ita | .6903 | .7194 | +.029 |
-| SQuAD-ita | .9041 | .9026 | −.002 |
-| mMARCO-it | .7784 | .7509 | −.028 |
+| MLDR-it nDCG@10 | .3484 | .4008 | +.052 |
+| MIRACL-ita nDCG@10 | .6903 | .7194 | +.029 |
+| SQuAD-ita nDCG@10 | .9041 | .9026 | −.002 |
+| mMARCO-it nDCG@10 | .7785 | .7509 | −.028 |
+| mMARCO-it MRR@10 | .7484 | .7196 | −.029 |
+
+Both mMARCO metrics are listed explicitly because the two are easy to mix up:
+figures come from `outputs/logs/compare_models.log` (−0.0276 nDCG@10, −0.0288
+MRR@10, both p=0.0000, n=6980).
 
 3 of 4 up. The only loss is mMARCO, which is phase 1's own training distribution,
 while everything else gains. That is the trade KD is supposed to make. MLDR gained
@@ -636,16 +641,23 @@ produced nothing. Fixed manually: cleared the stale entries, re-ran
 | benchmark | round-1 phase1-only | round-2 phase1-only | Δ | round-2 95% CI | round-1 inside CI? |
 |---|---|---|---|---|---|
 | MLDR-it nDCG@10 | .3484 | **.3011** | **−.0473** | [.246, .359] | yes — not significant |
-| mMARCO-it MRR@10 | .7784 | **.7507** | **−.0277** | [.742, .760] | **no — significant** |
+| mMARCO-it MRR@10 | .7484 | **.7507** | **+.0023** | [.742, .760] | yes — noise |
 | MIRACL-ita nDCG@10 | .6903 | .6867 | −.0036 | [.666, .707] | yes — noise |
 | SQuAD-ita nDCG@10 | .9041 | .9037 | −.0004 | [.898, .909] | yes — noise |
 
-**Worse than the anticipated failure mode.** The prediction below assumed mMARCO
-would rise while MLDR fell — a narrow-but-real gain traded for an out-of-domain
-loss. Instead **mMARCO, the exact axis mining targeted, moved significantly
-worse** (large n=6980, tight CI), while MLDR/MIRACL/SQuAD are flat within noise.
-Mining did not just fail to generalize; it slightly hurt the distribution it was
-drawn from, with no compensating win anywhere.
+Compare metrics carefully here: round-1 phase-1-only scores .7484 MRR@10 /
+.7785 nDCG@10 on mMARCO, so round 2 is flat on both (+.0023 MRR, +.0018 nDCG),
+well inside the ~±.0075 interval half-width on this suite. The round-1 MRR
+figure comes from `outputs/logs/compare_models.log` (final .7196 plus the
+measured −.0288 phase1→phase2 delta); the round-1 per-query file was
+overwritten by round 2, so the paired test cannot be rerun directly.
+
+**Not the anticipated failure mode, and not the opposite either.** The prediction
+below assumed mMARCO would rise while MLDR fell — a narrow-but-real gain traded
+for an out-of-domain loss. What actually happened is that **nothing moved**:
+mMARCO, the exact axis mining targeted, is flat, and MLDR/MIRACL/SQuAD are flat
+within noise. Mining did not generalize and did not sharpen its own source
+distribution either; it bought nothing anywhere.
 
 Per the logic below, this is still read as "mining more mMARCO does not work," not
 "mining does not work" — go to §10.5 and §10.6 rather than raising `--skip-top` and
@@ -683,10 +695,10 @@ preserved `outputs/final_round1` (paired bootstrap, `compare_models.py`):
 | MIRACL-ita nDCG@10 | .7194 | .7091 | −.0103 | .026 | **significant — down** |
 | SQuAD-ita nDCG@10 | .9026 | .8987 | −.0039 | .011 | **significant — down** (tiny) |
 
-Phase 2's fixes recovered roughly half of phase 1's mMARCO loss and then some
-(phase-1-only was −.0277 vs round 1, the final model is *above* round 1 by +.0100)
-— consistent with the phase-2 contrastive anchor being 100% mMARCO too (§11.5) and
-masking the phase-1 regression on that one axis. But the target benchmark, MLDR-it,
+Phase 2's fixes pushed mMARCO above round 1 (phase-1-only was flat vs round 1 at
++.0023, see §8.3 — and the final model is *above* round 1
+by +.0100) — consistent with the phase-2 contrastive anchor being 100% mMARCO too
+(§11.5). But the target benchmark, MLDR-it,
 does not move outside noise, and it now **misses the §6 target of >0.40** that
 round 1 had just cleared. MIRACL and SQuAD both moved down with p<.05, small in
 absolute terms but real given the sample sizes.
@@ -1203,8 +1215,9 @@ Sequence, cheapest decisive step first:
 ### 12.3 What not to do
 
 - **Do not re-mine.** §8.3 settled it: mined mMARCO negatives cost .0473 on MLDR
-  and .0277 on mMARCO itself. Raising `--skip-top` tunes difficulty when the
-  problem was distribution (§8.1, §11.5).
+  (not significant) and bought nothing on mMARCO itself (+.0023, flat).
+  Raising `--skip-top` tunes difficulty when the problem was distribution
+  (§8.1, §11.5).
 - **Do not raise `query_length`.** Measured, projected at +.004, inside the noise
   floor (§10.5).
 - **Do not add mMARCO anywhere.** Both round-2 levers were mMARCO and both moved

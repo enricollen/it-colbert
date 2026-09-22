@@ -524,14 +524,14 @@ GPU:**
 | benchmark | round-1 phase1-only | round-2 phase1-only | Δ | significant? |
 |---|---|---|---|---|
 | MLDR-it nDCG@10 | .3484 | .3011 | −.0473 | no (n=200, round-1 value inside round-2's 95% CI) |
-| mMARCO-it MRR@10 | .7784 | .7507 | −.0277 | **yes** (n=6980, round-1 value outside CI) |
+| mMARCO-it MRR@10 | .7484 | .7507 | +.0023 | no (flat, well inside the interval) |
 | MIRACL-ita nDCG@10 | .6903 | .6867 | −.0036 | no |
 | SQuAD-ita nDCG@10 | .9041 | .9037 | −.0004 | no |
 
-Worse than the pre-registered prediction in TODO.md §8.3 (mMARCO up / MLDR down).
-Instead mMARCO — the axis the mined negatives are 100% drawn from (§8.1) — moved
-significantly *worse*, and nothing else moved outside noise. Mining did not
-generalize and mildly hurt its own source distribution.
+Not the pre-registered prediction in TODO.md §8.3 (mMARCO up / MLDR down), but
+not its opposite either: mMARCO — the axis the mined negatives are 100% drawn
+from (§8.1) — did not move, and nothing else moved outside noise. Mining did not
+generalize and did not sharpen its own source distribution either.
 
 **Phase 2** (§7 fixes: `contrastive_anchor_enabled=true`, lr 2e-6, `warmup_ratio`
 0.01, `eval_steps=500`, MIRACL added to `ir_eval`) ran to completion in one shot:

@@ -185,10 +185,11 @@ found out the hard way.
 retrieval mistakes on mMARCO could mine better negatives than the original
 BM25-sampled ones. Mined 46,583 rows (200k-document pool, `--skip-top 5` to
 avoid unlabelled true positives) and retrained phase 1 with them added.
-Result: MLDR-it −0.0473 (not significant alone, n=200), but mMARCO-it MRR@10
-−0.0277 (n=6980, *significant* — the mining made the axis it targeted worse,
-not better). Phase 2's fixes (a replay stream, lower learning rate) partially
-recovered mMARCO (net +0.0100 over round 1) but MIRACL-ita and SQuAD-ita both
+Result: MLDR-it −0.0473 (not significant alone, n=200) and mMARCO-it MRR@10
+essentially flat (+0.0023, 0.7484 → 0.7507) — the mining simply did nothing
+for the axis it targeted. Phase 2's fixes (a replay stream, lower learning
+rate) pushed mMARCO up
+(net +0.0100 over round 1) but MIRACL-ita and SQuAD-ita both
 moved down significantly, and MLDR-it never moved outside noise (0.4008 →
 0.3779, p=0.082). Root cause, diagnosed after the fact: both correctives —
 the mined negatives and the phase-2 replay stream — drew from mMARCO only,
